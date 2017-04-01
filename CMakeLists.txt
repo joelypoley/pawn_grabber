@@ -34,7 +34,10 @@ endif()
 #Added by Joel to enable testing
 enable_testing()
 
+
 # Now simply link against gtest or gtest_main as needed. Eg
 add_executable(board_tests tests/board_tests.cpp board.cpp)
+set_property(TARGET board_tests PROPERTY CXX_STANDARD 14)
+set_property(TARGET board_tests PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(board_tests gtest_main)
 add_test(NAME board_tests_name COMMAND board_tests)

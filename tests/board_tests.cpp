@@ -12,7 +12,7 @@ TEST (BoardConstructor, Startposition) {
 
 	Board start_board {Board(start_fen)};
 
-	array<Bitboard, num_piece_types> start_bitboards {{
+	array<Bitboard, num_piece_types> start_bitboards = {
 		0xFF00,  	// white pawns
 		0x81, 		// white rooks
 		0x42, 		// white knights
@@ -25,7 +25,7 @@ TEST (BoardConstructor, Startposition) {
 		0x2400000000000000, // black bishops
 		0x1000000000000000, 	// black queens
 		0x800000000000000 	// black king
-	}};
+	};
 
 	EXPECT_EQ(start_board.piece_bitboards, start_bitboards);
 }
@@ -35,7 +35,7 @@ TEST (BoardConstructor, KingVsKing) {
 
 	Board start_board = Board(start_fen);
 
-	array<Bitboard, num_piece_types> start_bitboards {{
+	array<Bitboard, num_piece_types> start_bitboards = {
 		0x0,  	// white pawns
 		0x0, 		// white rooks
 		0x0, 		// white knights
@@ -48,7 +48,7 @@ TEST (BoardConstructor, KingVsKing) {
 		0x0, // black bishops
 		0x0, 	// black queens
 		0x800000000000000 	// black king
-	}};
+	};
 
 	EXPECT_EQ(start_board.piece_bitboards, start_bitboards);
 }

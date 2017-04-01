@@ -28,7 +28,7 @@ void init_pieces(string pieces_fen, array<Bitboard, PieceType::num_piece_types>&
 	int file = File::a_file;
 
 	for (auto c : pieces_fen) {
-		Bitboard square_mask = {lsb_bitboard << (rank * board_size + board_size - file - 1)};
+		Bitboard square_mask {lsb_bitboard << (rank * board_size + board_size - file - 1)};
 		switch (c) {
 			case '1':
 			case '2':
@@ -53,7 +53,7 @@ void init_pieces(string pieces_fen, array<Bitboard, PieceType::num_piece_types>&
 Board::Board(string fen) {
 	istringstream fen_stream {fen};
 
-	string pieces_fen {fen_stream.str()};
+	string pieces_fen;
 	fen_stream >> pieces_fen;
 	for (auto& bb : piece_bitboards) {
 		bb = 0;
