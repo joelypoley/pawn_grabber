@@ -6,50 +6,37 @@
 
 using namespace std;
 
-// Each bit of a Bitboard represents a square. So the unsigned 64 bit integer
-// 10000000 00000000 00000000 00000000 00000000 00000000 00000000 00000100
-// indicates that the a8 and f1 squares are set. This can be seen by stacking
-// consecutive blocks of 8 bits on top of each other, from most to least significant
-// bit. So our bitboard from before becomes:
-//
-// 8 | 10000000
-// 7 | 00000000
-// 6 | 00000000
-// 5 | 00000000
-// 4 | 00000000  
-// 3 | 00000000
-// 2 | 00000000
-// 1 | 00000100
-//    -----------
-//     abcdefgh
+/*
+Each bit of a Bitboard represents a square. So the unsigned 64 bit integer
+10000000 00000000 00000000 00000000 00000000 00000000 00000000 00000100
+indicates that the a8 and f1 squares are set. This can be seen by stacking
+consecutive blocks of 8 bits on top of each other, from most to least significant
+bit. So our bitboard from before becomes:
 
+8 | 1000 0000
+7 | 0000 0000
+6 | 0000 0000
+5 | 0000 0000
+4 | 0000 0000  
+3 | 0000 0000
+2 | 0000 0000
+1 | 0000 0100
+   -----------
+    abcd efgh
+*/
 typedef uint64_t Bitboard;
+
+typedef uint64_t Square;
+
+typedef int File;
+
+typedef int Rank;
 
 const Bitboard lsb_bitboard {1};
 
 const int board_size {8};
 
-enum File {
-	a_file,
-	b_file,
-	c_file,
-	d_file,
-	e_file,
-	f_file,
-	g_file,
-	h_file,
-};
-
-enum Rank {
-	rank_1,
-	rank_2,
-	rank_3,
-	rank_4,
-	rank_5,
-	rank_6,
-	rank_7,
-	rank_8
-};
+const Square no_square {0xFFFFFFFFFFFFFFFF};
 
 enum PieceType {
 	white_pawn,
@@ -66,7 +53,22 @@ enum PieceType {
 	black_king,
 	num_piece_types
 };
-PieceType ascii_to_piece_type(char c);
+
+enum class Color {
+	white,
+	black
+};
+
+enum CastlingRight {
+	white_kingside,
+	white_queenside,
+	black_kingside,
+	black_queenside,
+	num_castling_rights
+};
+
+PieceType ascii_to_piece_type(const char& c);
+Square algebraic_to_square(const string& alegbraic_square);
 
 class Board {
 public:
@@ -74,6 +76,22 @@ public:
 
 	array<Bitboard, PieceType::num_piece_types> piece_bitboards;
 
+	Color side_to_move;
+
+	array<bool, CastlingRight::num_castling_rights> castling_rights;
+
+
+	Square en_passant;
+
+	int fifty_move;
+
+	int num_moves;
+
+private:
+	void init_pieces(const string& pieces_fen);
+	void init_color(const string& side_to_move_fen);
+	void init_castling_rights(const string& castling_rights_fen);
+	void init_en_passant(const string& algebraic_square);
 };
 
 #endif

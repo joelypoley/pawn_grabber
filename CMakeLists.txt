@@ -34,6 +34,9 @@ endif()
 #Added by Joel to enable testing
 enable_testing()
 
+# Turn on all warnings
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Weverything")
+
 
 # Now simply link against gtest or gtest_main as needed. Eg
 add_executable(board_tests tests/board_tests.cpp board.cpp)
