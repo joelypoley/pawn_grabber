@@ -1,11 +1,99 @@
 #include <string>
 #include <sstream>
-//#include <iostream>
+#include <iostream>
+#include <exception>
 
 #include "board.h"
 #include "transposition_table.h"
 
 using namespace std;
+
+char file_to_ascii(const File& file) {
+    if ((0 <= file) && (file < board_size)) {
+        return 'a' + file;
+    } else {
+        throw exception();
+    }
+}
+
+char rank_to_ascii(const File& rank) {
+    if ((0 <= rank) && (rank < board_size)) {
+        return '1' + rank;
+    } else {
+        throw exception();
+    }
+}
+
+ostream& operator<<(ostream& os, const Board& board) {
+    string top_left_corner {"┌"}; // U+250C
+    string top_right_corner {"┐"}; //U+2510
+    string bottom_left_corner {"└"}; // U+2514
+    string bottom_right_corner {"┘"}; // U+2518
+    string horizontal {"─"}; // U+2500
+    string vertical {"│"}; //U+2502
+    string left_side_tee {"├"}; // U+251C
+    string right_side_tee {"┤"}; //U+2524
+    string top_tee {"┬"}; //U+252C
+    string bottom_tee {"┴"}; // U+2534
+    string cross {"┼"}; // U+253C
+
+
+    //do top of board
+    os << ' ' << ' ' << top_left_corner;
+    for (int i = 0; i < board_size - 1; ++i) {
+        os << horizontal << horizontal << horizontal << top_tee;
+    }
+    os << horizontal << horizontal << horizontal << top_right_corner;
+    os << endl;
+
+    //do rows 
+    string curr_piece {' '};
+    for (Rank rank = board_size - 1; rank >= 0; --rank) {
+        // print a row of pieces
+        os << rank_to_ascii(rank) << ' ' << vertical;
+        for (File file = 0; file < board_size; ++file) {
+            for (int i = 0; i < board.piece_bitboards.size(); ++i) {
+                if ((coordinates_to_square(file, rank) & board.piece_bitboards[i]) != 0) {
+                    curr_piece = piece_type_to_symbol(PieceType(i));
+                    break;
+                }
+            } 
+            os << ' ' << curr_piece << ' ' << vertical;
+            curr_piece = ' ';
+        }
+        os <<endl;
+        //print a dividing line (unless where at the last rank)
+        
+        if (rank != 0) {
+            os << ' ' << ' ';
+            os << left_side_tee;
+            for (int i = 0; i < board_size - 1; ++i) {
+                os << horizontal << horizontal << horizontal << cross;
+            }
+            os << horizontal << horizontal << horizontal << right_side_tee;
+            os <<endl;
+        }
+    }
+
+    //do bottom of board
+    os << ' ' << ' ' << bottom_left_corner;
+    for (int i = 0; i < board_size - 1; ++i) {
+        os << horizontal << horizontal << horizontal << bottom_tee;
+    }
+    os << horizontal << horizontal << horizontal << bottom_right_corner;
+    os << endl;
+
+    //TODO: make this better
+    // do coordinates
+    os << ' ' << ' ' << ' ';
+    for (char i = 0; i < board_size - 1; ++i) {
+        os << ' ' << file_to_ascii(i) << ' ' << ' ';
+    }
+    os << ' ' << 'h' << ' ' << ' ';
+    os << endl;
+
+    return os;
+}
 
 PieceType ascii_to_piece_type(const char& c) {
     switch (c) {
@@ -33,6 +121,30 @@ Square algebraic_to_square(const string& algebraic_square) {
 
     return square;
 
+}
+
+Square coordinates_to_square(File file, Rank rank) {
+    Square square {lsb_bitboard << (rank * board_size + board_size - file - 1)};
+    return square;
+}
+
+string piece_type_to_symbol(PieceType piece_type) {
+
+    switch (piece_type) {
+        case white_pawn: return "♙";  //U+2564
+        case white_rook: return "♖";  //U+2656
+        case white_knight: return "♘";  //U+2658
+        case white_bishop: return "♗";  //U+2657
+        case white_queen: return "♕";  //U+2655
+        case white_king: return "♔";  //U+2654
+        case black_pawn: return "♟";  //U+265F
+        case black_rook: return "♜";  //U+265C
+        case black_knight: return "♞";  //U+265E
+        case black_bishop: return "♝";  //U+265D
+        case black_queen: return "♛";  //U+265B
+        case black_king: return "♚";  //U+265A
+        default: throw exception();
+    }
 }
 
 Board::Board()

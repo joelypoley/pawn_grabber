@@ -80,8 +80,8 @@ enum class Color {
 
 PieceType ascii_to_piece_type(const char& c);
 Square algebraic_to_square(const string& alegbraic_square);
-
-
+Square coordinates_to_square(File file, Rank rank);
+string piece_type_to_symbol(PieceType piece_type);
 
 
 class Board {
@@ -103,5 +103,8 @@ private:
 	void init_en_passant(const string& algebraic_square);
 };
 
+ostream& operator<<(ostream& os, const Board& board);
+char file_to_ascii(const File& file);
+char rank_to_ascii(const File& rank);
 
 #endif
