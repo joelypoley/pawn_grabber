@@ -2,15 +2,14 @@
 #include <array>
 
 #include "../board.h"
+#include "../transposition_table.h"
 #include "gtest/gtest.h"
 
 using namespace std;
 
 
 TEST (BoardConstructor, Startposition) {
-	string start_fen {"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"};
-
-	Board start_board(start_fen);
+	Board start_board;
 
 	array<Bitboard, num_piece_types> start_bitboards = {
 		0xFF00,  	// white pawns
@@ -47,9 +46,9 @@ TEST (BoardConstructor, Startposition) {
 }
 
 TEST (BoardConstructor, KingsPawn) {
-	string start_fen {"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"};
+	string pos_fen {"rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"};
 
-	Board start_board(start_fen);
+	Board start_board(pos_fen);
 
 	array<Bitboard, num_piece_types> start_bitboards = {
 		0x800F700,  	// white pawns
@@ -86,9 +85,9 @@ TEST (BoardConstructor, KingsPawn) {
 }
 
 TEST (BoardConstructor, Sicilian) {
-	string start_fen {"rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"};
+	string pos_fen {"rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"};
 
-	Board start_board(start_fen);
+	Board start_board(pos_fen);
 
 	array<Bitboard, num_piece_types> start_bitboards {
 		0x800F700,  	// white pawns
@@ -125,9 +124,9 @@ TEST (BoardConstructor, Sicilian) {
 }
 
 TEST (BoardConstructor, Nf3Sicilian) {
-	string start_fen {"rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"};
+	string pos_fen {"rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"};
 
-	Board start_board(start_fen);
+	Board start_board(pos_fen);
 
 	array<Bitboard, num_piece_types> start_bitboards = {
 		0x800F700,  	// white pawns
@@ -164,9 +163,9 @@ TEST (BoardConstructor, Nf3Sicilian) {
 }
 
 TEST (BoardConstructor, SicilianWith2Ke2) {
-	string start_fen {"rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPPKPPP/RNBQ1BNR b kq - 1 2"};
+	string pos_fen {"rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPPKPPP/RNBQ1BNR b kq - 1 2"};
 
-	Board start_board(start_fen);
+	Board start_board(pos_fen);
 
 	array<Bitboard, num_piece_types> start_bitboards = {
 		0x800F700,  	// white pawns

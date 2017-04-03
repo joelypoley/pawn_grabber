@@ -1,7 +1,9 @@
-#include "board.h"
 #include <string>
 #include <sstream>
 //#include <iostream>
+
+#include "board.h"
+#include "transposition_table.h"
 
 using namespace std;
 
@@ -33,6 +35,9 @@ Square algebraic_to_square(const string& algebraic_square) {
 
 }
 
+Board::Board()
+    : Board(start_pos_fen) {}
+
 Board::Board(string fen) {
     istringstream fen_stream {fen};
 
@@ -56,6 +61,8 @@ Board::Board(string fen) {
     fen_stream >> fifty_move;
 
     fen_stream >> num_moves;
+
+    pos_hash = zobrist(piece_bitboards);
 }
 
 void Board::init_pieces(const string& pieces_fen) {

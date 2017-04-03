@@ -38,6 +38,10 @@ const int board_size {8};
 
 const Square no_square {0xFFFFFFFFFFFFFFFF};
 
+const string start_pos_fen {"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"};
+
+
+
 enum PieceType {
 	white_pawn,
 	white_rook,
@@ -70,22 +74,20 @@ enum CastlingRight {
 PieceType ascii_to_piece_type(const char& c);
 Square algebraic_to_square(const string& alegbraic_square);
 
+
+
+
 class Board {
 public:
+	Board();
 	Board(string fen);
-
 	array<Bitboard, PieceType::num_piece_types> piece_bitboards;
-
 	Color side_to_move;
-
 	array<bool, CastlingRight::num_castling_rights> castling_rights;
-
-
 	Square en_passant;
-
 	int fifty_move;
-
 	int num_moves;
+	uint64_t pos_hash;
 
 private:
 	void init_pieces(const string& pieces_fen);
