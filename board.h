@@ -58,11 +58,6 @@ enum PieceType {
 	num_piece_types
 };
 
-enum class Color {
-	white,
-	black
-};
-
 enum CastlingRight {
 	white_kingside,
 	white_queenside,
@@ -70,6 +65,16 @@ enum CastlingRight {
 	black_queenside,
 	num_castling_rights
 };
+
+typedef array<Bitboard, PieceType::num_piece_types> PositionArray;
+typedef array<bool, CastlingRight::num_castling_rights> CastlingArray;
+
+enum class Color {
+	white,
+	black
+};
+
+
 
 PieceType ascii_to_piece_type(const char& c);
 Square algebraic_to_square(const string& alegbraic_square);
@@ -81,9 +86,9 @@ class Board {
 public:
 	Board();
 	Board(string fen);
-	array<Bitboard, PieceType::num_piece_types> piece_bitboards;
+	PositionArray piece_bitboards;
 	Color side_to_move;
-	array<bool, CastlingRight::num_castling_rights> castling_rights;
+	CastlingArray castling_rights;
 	Square en_passant;
 	int fifty_move;
 	int num_moves;

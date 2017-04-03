@@ -11,7 +11,7 @@ using namespace std;
 TEST (BoardConstructor, Startposition) {
 	Board start_board;
 
-	array<Bitboard, num_piece_types> start_bitboards = {
+	PositionArray start_bitboards = {
 		0xFF00,  	// white pawns
 		0x81, 		// white rooks
 		0x42, 		// white knights
@@ -26,7 +26,7 @@ TEST (BoardConstructor, Startposition) {
 		0x800000000000000 	// black king
 	};
 
-	array<bool, CastlingRight::num_castling_rights> correct_rights {
+	CastlingArray correct_rights {
 		true,	// white kingside
 		true,	// white queenside
 		true,	// black kingside
@@ -50,7 +50,7 @@ TEST (BoardConstructor, KingsPawn) {
 
 	Board start_board(pos_fen);
 
-	array<Bitboard, num_piece_types> start_bitboards = {
+	PositionArray start_bitboards = {
 		0x800F700,  	// white pawns
 		0x81, 		// white rooks
 		0x42, 		// white knights
@@ -65,7 +65,7 @@ TEST (BoardConstructor, KingsPawn) {
 		0x800000000000000 	// black king
 	};
 
-	array<bool, CastlingRight::num_castling_rights> correct_rights {
+	CastlingArray correct_rights {
 		true,	// white kingside
 		true,	// white queenside
 		true,	// black kingside
@@ -89,7 +89,7 @@ TEST (BoardConstructor, Sicilian) {
 
 	Board start_board(pos_fen);
 
-	array<Bitboard, num_piece_types> start_bitboards {
+	PositionArray start_bitboards {
 		0x800F700,  	// white pawns
 		0x81, 		// white rooks
 		0x42, 		// white knights
@@ -104,7 +104,7 @@ TEST (BoardConstructor, Sicilian) {
 		0x800000000000000 	// black king
 	};
 
-	array<bool, CastlingRight::num_castling_rights> correct_rights {
+	CastlingArray correct_rights {
 		true,	// white kingside
 		true,	// white queenside
 		true,	// black kingside
@@ -128,7 +128,7 @@ TEST (BoardConstructor, Nf3Sicilian) {
 
 	Board start_board(pos_fen);
 
-	array<Bitboard, num_piece_types> start_bitboards = {
+	PositionArray start_bitboards = {
 		0x800F700,  	// white pawns
 		0x81, 		// white rooks
 		0x40040, 		// white knights
@@ -143,7 +143,7 @@ TEST (BoardConstructor, Nf3Sicilian) {
 		0x800000000000000 	// black king
 	};
 
-	array<bool, CastlingRight::num_castling_rights> correct_rights {
+	CastlingArray correct_rights {
 		true,	// white kingside
 		true,	// white queenside
 		true,	// black kingside
@@ -167,7 +167,7 @@ TEST (BoardConstructor, SicilianWith2Ke2) {
 
 	Board start_board(pos_fen);
 
-	array<Bitboard, num_piece_types> start_bitboards = {
+	PositionArray start_bitboards = {
 		0x800F700,  	// white pawns
 		0x81, 		// white rooks
 		0x42, 		// white knights
@@ -182,7 +182,7 @@ TEST (BoardConstructor, SicilianWith2Ke2) {
 		0x800000000000000 	// black king
 	};
 
-	array<bool, CastlingRight::num_castling_rights> correct_rights {
+	CastlingArray correct_rights {
 		false,	// white kingside
 		false,	// white queenside
 		true,	// black kingside
@@ -208,7 +208,7 @@ TEST (BoardConstructor, KingVsKing) {
 
 	Board start_board(KvK_fen);
 
-	array<Bitboard, num_piece_types> start_bitboards = {
+	PositionArray start_bitboards = {
 		0x0,  	// white pawns
 		0x0, 		// white rooks
 		0x0, 		// white knights
@@ -223,7 +223,7 @@ TEST (BoardConstructor, KingVsKing) {
 		0x800000000000000 	// black king
 	};
 
-	array<bool, CastlingRight::num_castling_rights> correct_rights {
+	CastlingArray correct_rights {
 		false,	// white kingside
 		false,	// white queenside
 		false,	// black kingside
@@ -246,7 +246,7 @@ TEST (BoardConstructor, LucenaPosition) {
 
 	Board start_board(lp);
 
-	array<Bitboard, num_piece_types> start_bitboards = {
+	PositionArray start_bitboards = {
 		0x40000000000000,  	// white pawns
 		0x20, 		// white rooks
 		0x0, 		// white knights
@@ -261,7 +261,7 @@ TEST (BoardConstructor, LucenaPosition) {
 		0x1000000000000000 	// black king
 	};
 
-	array<bool, CastlingRight::num_castling_rights> correct_rights {
+	CastlingArray correct_rights {
 		false,	// white kingside
 		false,	// white queenside
 		false,	// black kingside
