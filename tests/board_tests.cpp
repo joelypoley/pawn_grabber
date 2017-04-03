@@ -6,7 +6,8 @@
 #include "gtest/gtest.h"
 
 using namespace std;
-
+//TODO: Add some middle game positions
+//TODO: Check the zobrist hash for more positions. 
 
 TEST (BoardConstructor, Startposition) {
 	Board start_board;
@@ -232,6 +233,7 @@ TEST (BoardConstructor, KingVsKing) {
 	Square correct_en_passant {no_square};
 	int correct_fifty_move {0};
 	int correct_num_moves {55};
+	uint64_t correct_pos_hash {549353003}; // = table[5][3] ^ table[11][59]
 
 	EXPECT_EQ(start_board.piece_bitboards, start_bitboards);
 	EXPECT_EQ(start_board.side_to_move, Color::white);
@@ -239,6 +241,7 @@ TEST (BoardConstructor, KingVsKing) {
 	EXPECT_EQ(start_board.en_passant, correct_en_passant);
 	EXPECT_EQ(start_board.fifty_move, correct_fifty_move);
 	EXPECT_EQ(start_board.num_moves, correct_num_moves);
+	EXPECT_EQ(start_board.pos_hash, correct_pos_hash);
 }
 
 TEST (BoardConstructor, LucenaPosition) {

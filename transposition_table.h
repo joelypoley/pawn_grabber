@@ -2,16 +2,22 @@
 #define TRANSPOSITION_TABLE_H
 
 #include <array>
+#include <unordered_map>
 
 #include "board.h"
 
 using namespace std;
 
-array<Bitboard, board_size * board_size> init_zobrist();
+typedef array<array<int, board_size * board_size>, PieceType::num_piece_types > ZobristTable;
 
-const array<uint64_t, board_size * board_size> zobrist_table {init_zobrist()};
+extern unordered_map<Hash, int> transposition_table;
 
-uint64_t zobrist(array<Bitboard, PieceType::num_piece_types> piece_bitboards);
+ZobristTable init_zobrist_table();
+
+const ZobristTable zobrist_table {init_zobrist_table()};
+
+int zobrist(PositionArray piece_bitboards);
+
 
 
 

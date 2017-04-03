@@ -32,6 +32,8 @@ typedef int File;
 
 typedef int Rank;
 
+typedef int Hash;
+
 const Bitboard lsb_bitboard {1};
 
 const int board_size {8};
@@ -92,7 +94,7 @@ public:
 	Square en_passant;
 	int fifty_move;
 	int num_moves;
-	uint64_t pos_hash;
+	Hash pos_hash;
 
 private:
 	void init_pieces(const string& pieces_fen);
@@ -100,5 +102,6 @@ private:
 	void init_castling_rights(const string& castling_rights_fen);
 	void init_en_passant(const string& algebraic_square);
 };
+
 
 #endif
