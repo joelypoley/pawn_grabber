@@ -102,7 +102,28 @@ TEST (BoardConstructor, KingsPawn) {
 	Square correct_en_passant {0x80000};
 	int correct_fifty_move {0};
 	int correct_num_moves {1};
-    //cout << start_board;
+    
+    stringstream correct_pp_board;
+    correct_pp_board << "  ┌───┬───┬───┬───┬───┬───┬───┬───┐" << endl;
+    correct_pp_board << "8 │ ♜ │ ♞ │ ♝ │ ♛ │ ♚ │ ♝ │ ♞ │ ♜ │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "7 │ ♟ │ ♟ │ ♟ │ ♟ │ ♟ │ ♟ │ ♟ │ ♟ │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "6 │   │   │   │   │   │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "5 │   │   │   │   │   │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "4 │   │   │   │   │ ♙ │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "3 │   │   │   │   │   │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "2 │ ♙ │ ♙ │ ♙ │ ♙ │   │ ♙ │ ♙ │ ♙ │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "1 │ ♖ │ ♘ │ ♗ │ ♕ │ ♔ │ ♗ │ ♘ │ ♖ │" << endl;
+    correct_pp_board << "  └───┴───┴───┴───┴───┴───┴───┴───┘" << endl;
+    correct_pp_board << "    a   b   c   d   e   f   g   h  " << endl;
+    stringstream actual_pp_board;
+    actual_pp_board << start_board;
 
 	EXPECT_EQ(start_board.piece_bitboards, start_bitboards);
 	EXPECT_EQ(start_board.side_to_move, Color::black);
@@ -110,6 +131,7 @@ TEST (BoardConstructor, KingsPawn) {
 	EXPECT_EQ(start_board.en_passant, correct_en_passant);
 	EXPECT_EQ(start_board.fifty_move, correct_fifty_move);
 	EXPECT_EQ(start_board.num_moves, correct_num_moves);
+	EXPECT_EQ(actual_pp_board.str(), correct_pp_board.str()) << actual_pp_board.str() << correct_pp_board.str();
 }
 
 TEST (BoardConstructor, Sicilian) {
@@ -143,12 +165,36 @@ TEST (BoardConstructor, Sicilian) {
 	int correct_fifty_move {0};
 	int correct_num_moves {2};
 
+	stringstream correct_pp_board;
+    correct_pp_board << "  ┌───┬───┬───┬───┬───┬───┬───┬───┐" << endl;
+    correct_pp_board << "8 │ ♜ │ ♞ │ ♝ │ ♛ │ ♚ │ ♝ │ ♞ │ ♜ │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "7 │ ♟ │ ♟ │   │ ♟ │ ♟ │ ♟ │ ♟ │ ♟ │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "6 │   │   │   │   │   │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "5 │   │   │ ♟ │   │   │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "4 │   │   │   │   │ ♙ │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "3 │   │   │   │   │   │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "2 │ ♙ │ ♙ │ ♙ │ ♙ │   │ ♙ │ ♙ │ ♙ │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "1 │ ♖ │ ♘ │ ♗ │ ♕ │ ♔ │ ♗ │ ♘ │ ♖ │" << endl;
+    correct_pp_board << "  └───┴───┴───┴───┴───┴───┴───┴───┘" << endl;
+    correct_pp_board << "    a   b   c   d   e   f   g   h  " << endl;
+    stringstream actual_pp_board;
+    actual_pp_board << start_board;
+
+
 	EXPECT_EQ(start_board.piece_bitboards, start_bitboards);
 	EXPECT_EQ(start_board.side_to_move, Color::white);
 	EXPECT_EQ(start_board.castling_rights, correct_rights);
 	EXPECT_EQ(start_board.en_passant, correct_en_passant);
 	EXPECT_EQ(start_board.fifty_move, correct_fifty_move);
 	EXPECT_EQ(start_board.num_moves, correct_num_moves);
+	EXPECT_EQ(actual_pp_board.str(), correct_pp_board.str()) << actual_pp_board.str() << correct_pp_board.str();
 }
 
 TEST (BoardConstructor, Nf3Sicilian) {
@@ -181,13 +227,36 @@ TEST (BoardConstructor, Nf3Sicilian) {
 	Square correct_en_passant {no_square};
 	int correct_fifty_move {1};
 	int correct_num_moves {2};
-    //cout << start_board;
+    
+	stringstream correct_pp_board;
+    correct_pp_board << "  ┌───┬───┬───┬───┬───┬───┬───┬───┐" << endl;
+    correct_pp_board << "8 │ ♜ │ ♞ │ ♝ │ ♛ │ ♚ │ ♝ │ ♞ │ ♜ │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "7 │ ♟ │ ♟ │   │ ♟ │ ♟ │ ♟ │ ♟ │ ♟ │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "6 │   │   │   │   │   │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "5 │   │   │ ♟ │   │   │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "4 │   │   │   │   │ ♙ │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "3 │   │   │   │   │   │ ♘ │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "2 │ ♙ │ ♙ │ ♙ │ ♙ │   │ ♙ │ ♙ │ ♙ │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "1 │ ♖ │ ♘ │ ♗ │ ♕ │ ♔ │ ♗ │   │ ♖ │" << endl;
+    correct_pp_board << "  └───┴───┴───┴───┴───┴───┴───┴───┘" << endl;
+    correct_pp_board << "    a   b   c   d   e   f   g   h  " << endl;
+    stringstream actual_pp_board;
+    actual_pp_board << start_board;
+
 	EXPECT_EQ(start_board.piece_bitboards, start_bitboards);
 	EXPECT_EQ(start_board.side_to_move, Color::black);
 	EXPECT_EQ(start_board.castling_rights, correct_rights);
 	EXPECT_EQ(start_board.en_passant, correct_en_passant);
 	EXPECT_EQ(start_board.fifty_move, correct_fifty_move);
 	EXPECT_EQ(start_board.num_moves, correct_num_moves);
+	EXPECT_EQ(actual_pp_board.str(), correct_pp_board.str()) << actual_pp_board.str() << correct_pp_board.str();
 }
 
 TEST (BoardConstructor, SicilianWith2Ke2) {
@@ -221,12 +290,35 @@ TEST (BoardConstructor, SicilianWith2Ke2) {
 	int correct_fifty_move {1};
 	int correct_num_moves {2};
 
+	stringstream correct_pp_board;
+    correct_pp_board << "  ┌───┬───┬───┬───┬───┬───┬───┬───┐" << endl;
+    correct_pp_board << "8 │ ♜ │ ♞ │ ♝ │ ♛ │ ♚ │ ♝ │ ♞ │ ♜ │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "7 │ ♟ │ ♟ │   │ ♟ │ ♟ │ ♟ │ ♟ │ ♟ │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "6 │   │   │   │   │   │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "5 │   │   │ ♟ │   │   │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "4 │   │   │   │   │ ♙ │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "3 │   │   │   │   │   │   │   │   │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "2 │ ♙ │ ♙ │ ♙ │ ♙ │ ♔ │ ♙ │ ♙ │ ♙ │" << endl;
+    correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+    correct_pp_board << "1 │ ♖ │ ♘ │ ♗ │ ♕ │   │ ♗ │ ♘ │ ♖ │" << endl;
+    correct_pp_board << "  └───┴───┴───┴───┴───┴───┴───┴───┘" << endl;
+    correct_pp_board << "    a   b   c   d   e   f   g   h  " << endl;
+    stringstream actual_pp_board;
+    actual_pp_board << start_board;
+
 	EXPECT_EQ(start_board.piece_bitboards, start_bitboards);
 	EXPECT_EQ(start_board.side_to_move, Color::black);
 	EXPECT_EQ(start_board.castling_rights, correct_rights);
 	EXPECT_EQ(start_board.en_passant, correct_en_passant);
 	EXPECT_EQ(start_board.fifty_move, correct_fifty_move);
 	EXPECT_EQ(start_board.num_moves, correct_num_moves);
+	EXPECT_EQ(actual_pp_board.str(), correct_pp_board.str()) << actual_pp_board.str() << correct_pp_board.str();
 }
 
 // TODO: Put some middle games in here as test cases. 
@@ -262,6 +354,28 @@ TEST (BoardConstructor, KingVsKing) {
 	int correct_num_moves {55};
 	uint64_t correct_pos_hash {549353003}; // = table[5][3] ^ table[11][59]
 
+	stringstream correct_pp_board;
+	correct_pp_board << "  ┌───┬───┬───┬───┬───┬───┬───┬───┐" << endl;
+	correct_pp_board << "8 │   │   │   │   │ ♚ │   │   │   │" << endl;
+	correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+	correct_pp_board << "7 │   │   │   │   │   │   │   │   │" << endl;
+	correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+	correct_pp_board << "6 │   │   │   │   │   │   │   │   │" << endl;
+	correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+	correct_pp_board << "5 │   │   │   │   │   │   │   │   │" << endl;
+	correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+	correct_pp_board << "4 │   │   │   │   │   │   │   │   │" << endl;
+	correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+	correct_pp_board << "3 │   │   │   │   │   │   │   │   │" << endl;
+	correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+	correct_pp_board << "2 │   │   │   │   │   │   │   │   │" << endl;
+	correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+	correct_pp_board << "1 │   │   │   │   │ ♔ │   │   │   │" << endl;
+	correct_pp_board << "  └───┴───┴───┴───┴───┴───┴───┴───┘" << endl;
+	correct_pp_board << "    a   b   c   d   e   f   g   h  " << endl;
+	stringstream actual_pp_board;
+	actual_pp_board << start_board;
+
 	EXPECT_EQ(start_board.piece_bitboards, start_bitboards);
 	EXPECT_EQ(start_board.side_to_move, Color::white);
 	EXPECT_EQ(start_board.castling_rights, correct_rights);
@@ -269,6 +383,7 @@ TEST (BoardConstructor, KingVsKing) {
 	EXPECT_EQ(start_board.fifty_move, correct_fifty_move);
 	EXPECT_EQ(start_board.num_moves, correct_num_moves);
 	EXPECT_EQ(start_board.pos_hash, correct_pos_hash);
+	EXPECT_EQ(actual_pp_board.str(), correct_pp_board.str()) << actual_pp_board.str() << correct_pp_board.str();
 }
 
 TEST (BoardConstructor, LucenaPosition) {
@@ -302,12 +417,35 @@ TEST (BoardConstructor, LucenaPosition) {
 	int correct_fifty_move {0};
 	int correct_num_moves {60};
 
+	stringstream correct_pp_board;
+	correct_pp_board << "  ┌───┬───┬───┬───┬───┬───┬───┬───┐" << endl;
+	correct_pp_board << "8 │   │ ♔ │   │ ♚ │   │   │   │   │" << endl;
+	correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+	correct_pp_board << "7 │   │ ♙ │   │   │   │   │   │   │" << endl;
+	correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+	correct_pp_board << "6 │   │   │   │   │   │   │   │   │" << endl;
+	correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+	correct_pp_board << "5 │   │   │   │   │   │   │   │   │" << endl;
+	correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+	correct_pp_board << "4 │   │   │   │   │   │   │   │   │" << endl;
+	correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+	correct_pp_board << "3 │   │   │   │   │   │   │   │   │" << endl;
+	correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+	correct_pp_board << "2 │ ♜ │   │   │   │   │   │   │   │" << endl;
+	correct_pp_board << "  ├───┼───┼───┼───┼───┼───┼───┼───┤" << endl;
+	correct_pp_board << "1 │   │   │ ♖ │   │   │   │   │   │" << endl;
+	correct_pp_board << "  └───┴───┴───┴───┴───┴───┴───┴───┘" << endl;
+	correct_pp_board << "    a   b   c   d   e   f   g   h  " << endl;
+	stringstream actual_pp_board;
+	actual_pp_board << start_board;
+
 	EXPECT_EQ(start_board.piece_bitboards, start_bitboards);
 	EXPECT_EQ(start_board.side_to_move, Color::white);
 	EXPECT_EQ(start_board.castling_rights, correct_rights);
 	EXPECT_EQ(start_board.en_passant, correct_en_passant);
 	EXPECT_EQ(start_board.fifty_move, correct_fifty_move);
 	EXPECT_EQ(start_board.num_moves, correct_num_moves);
+	EXPECT_EQ(actual_pp_board.str(), correct_pp_board.str()) << actual_pp_board.str() << correct_pp_board.str();
 }
 
 
