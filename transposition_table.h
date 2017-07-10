@@ -8,7 +8,7 @@
 
 using namespace std;
 
-typedef array<array<int, board_size * board_size>, PieceType::num_piece_types > ZobristTable;
+typedef array<array<Hash, board_size * board_size>, PieceType::num_piece_types > ZobristTable;
 
 extern unordered_map<Hash, int> transposition_table;
 
@@ -16,7 +16,7 @@ ZobristTable init_zobrist_table();
 
 const ZobristTable zobrist_table {init_zobrist_table()};
 
-int zobrist(PositionArray piece_bitboards);
+Hash zobrist(PositionArray piece_bitboards);
 
 
 

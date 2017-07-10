@@ -28,7 +28,7 @@ typedef uint64_t Bitboard;
 typedef uint64_t Square;
 typedef int File;
 typedef int Rank;
-typedef int Hash;
+typedef uint64_t Hash;
 
 //lest siginificant bit of bitboard. Useful for masks.
 const Bitboard lsb_bitboard {1};

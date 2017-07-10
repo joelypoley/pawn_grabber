@@ -18,12 +18,12 @@ ZobristTable init_zobrist_table() {
     return table;
 }
 
-int zobrist(PositionArray piece_bitboards) {
-    int key {0};
+Hash zobrist(PositionArray piece_bitboards) {
+    Hash key {0};
 
     for (size_t i = 0; i < piece_bitboards.size(); ++i) {
         Bitboard curr_bitboard {piece_bitboards[i]};
-        for (int j = 0; j < board_size * board_size; ++j) {
+        for (size_t j = 0; j < board_size * board_size; ++j) {
             if (((curr_bitboard >> j) & lsb_bitboard) != 0) {
                 key ^= zobrist_table[i][j];
             }
