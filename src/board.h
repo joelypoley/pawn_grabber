@@ -137,5 +137,5 @@ PieceType ascii_to_piece_type(const char& c);
 Square algebraic_to_square(const string& alegbraic_square);
 Square coordinates_to_square(File file, Rank rank);
 string piece_type_to_symbol(PieceType piece_type);
-      
+
 #endif

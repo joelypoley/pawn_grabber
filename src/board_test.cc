@@ -389,36 +389,36 @@ TEST(BoardConstructor, KingVsKing) {
       << actual_pp_board.str() << correct_pp_board.str();
 }
 
-TEST (BoardConstructor, LucenaPosition) {
-  string lp {"1K1k4/1P6/8/8/8/8/r7/2R5 w - - 0 60"};
+TEST(BoardConstructor, LucenaPosition) {
+  string lp{"1K1k4/1P6/8/8/8/8/r7/2R5 w - - 0 60"};
 
   Board start_board(lp);
 
   PositionArray start_bitboards = {
-      0x40000000000000,   // white pawns
-      0x20,       // white rooks
-      0x0,        // white knights
-      0x0,        // white bishops
-      0x0,        // white queens
-      0x4000000000000000,         // white king
-      0x0,    // black pawns
-      0x8000, // black rooks
-      0x0, // black knights
-      0x0, // black bishops
-      0x0,    // black queens
-      0x1000000000000000  // black king
+      0x40000000000000,    // white pawns
+      0x20,                // white rooks
+      0x0,                 // white knights
+      0x0,                 // white bishops
+      0x0,                 // white queens
+      0x4000000000000000,  // white king
+      0x0,                 // black pawns
+      0x8000,              // black rooks
+      0x0,                 // black knights
+      0x0,                 // black bishops
+      0x0,                 // black queens
+      0x1000000000000000   // black king
   };
 
-  CastlingArray correct_rights {
+  CastlingArray correct_rights{
       false,  // white kingside
       false,  // white queenside
       false,  // black kingside
       false   // black queenside
   };
 
-  Square correct_en_passant {no_square};
-  int correct_fifty_move {0};
-  int correct_num_moves {60};
+  Square correct_en_passant{no_square};
+  int correct_fifty_move{0};
+  int correct_num_moves{60};
 
   stringstream correct_pp_board;
   correct_pp_board << "  ┌───┬───┬───┬───┬───┬───┬───┬───┐" << endl;
@@ -448,5 +448,6 @@ TEST (BoardConstructor, LucenaPosition) {
   EXPECT_EQ(start_board.en_passant, correct_en_passant);
   EXPECT_EQ(start_board.fifty_move, correct_fifty_move);
   EXPECT_EQ(start_board.num_moves, correct_num_moves);
-  EXPECT_EQ(actual_pp_board.str(), correct_pp_board.str()) << actual_pp_board.str() << correct_pp_board.str();
+  EXPECT_EQ(actual_pp_board.str(), correct_pp_board.str())
+      << actual_pp_board.str() << correct_pp_board.str();
 }
