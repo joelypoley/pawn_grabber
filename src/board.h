@@ -7,24 +7,21 @@
 
 using namespace std;
 
-/*
-Each bit of a Bitboard represents a square. So the unsigned 64 bit integer
-10000000 00000000 00000000 00000000 00000000 00000000 00000000 00000100
-indicates that the a8 and f1 squares are set. This can be seen by stacking
-consecutive blocks of 8 bits on top of each other, from most to least
-significant bit. So our bitboard from before becomes:
+// Each bit of a Bitboard represents a square. The a8 square is the most
+// significant bit and the h1 square is the least significant bit. So the
+// unsigned 64 bit integer 10000000 00000000 00000000 00000000 00000000 00000000
+// 00000000 00000100 represents the board:
 
-8 | 1000 0000
-7 | 0000 0000
-6 | 0000 0000
-5 | 0000 0000
-4 | 0000 0000
-3 | 0000 0000
-2 | 0000 0000
-1 | 0000 0100
-   -----------
-    abcd efgh
-*/
+// 8 | 1000 0000
+// 7 | 0000 0000
+// 6 | 0000 0000
+// 5 | 0000 0000
+// 4 | 0000 0000
+// 3 | 0000 0000
+// 2 | 0000 0000
+// 1 | 0000 0100
+//    -----------
+//     abcd efgh
 typedef uint64_t Bitboard;
 typedef uint64_t Square;
 typedef int File;
