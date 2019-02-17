@@ -238,7 +238,7 @@ Square coordinates_to_square(File file, Rank rank) {
 }
 
 string piece_type_to_symbol(PieceType piece_type) {
-                           switch (piece_type) {
+  switch (piece_type) {
     case white_pawn:
       return "♙";  // U+2564
     case white_rook:
