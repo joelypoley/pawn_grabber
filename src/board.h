@@ -3,6 +3,7 @@
 
 #include <string>
 #include <array>
+#include "absl/strings/str_join.h"
 
 using namespace std;
 
@@ -123,7 +124,6 @@ public:
 	Square en_passant;
 	int fifty_move;
 	int num_moves;
-	Hash pos_hash;
 
 private:
 	void init_pieces(const string& pieces_fen);

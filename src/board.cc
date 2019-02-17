@@ -3,8 +3,7 @@
 #include <iostream>
 #include <exception>
 
-#include "board.h"
-#include "transposition_table.h"
+#include "src/board.h"
 
 using namespace std;
 
@@ -35,7 +34,6 @@ Board::Board(string fen) {
 
     fen_stream >> num_moves;
 
-    pos_hash = zobrist(piece_bitboards);
 }
 
 void Board::init_pieces(const string& pieces_fen) {

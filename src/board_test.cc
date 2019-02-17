@@ -3,13 +3,11 @@
 #include <sstream>
 #include <iostream>
 
-#include "../board.h"
-#include "../transposition_table.h"
+#include "src/board.h"
 #include "gtest/gtest.h"
 
 using namespace std;
 //TODO: Add some middle game positions
-//TODO: Check the zobrist hash for more positions. 
 
 TEST (BoardConstructor, Startposition) {
 	Board start_board;
@@ -352,7 +350,6 @@ TEST (BoardConstructor, KingVsKing) {
 	Square correct_en_passant {no_square};
 	int correct_fifty_move {0};
 	int correct_num_moves {55};
-	uint64_t correct_pos_hash {549353003}; // = table[5][3] ^ table[11][59]
 
 	stringstream correct_pp_board;
 	correct_pp_board << "  ┌───┬───┬───┬───┬───┬───┬───┬───┐" << endl;
@@ -382,7 +379,6 @@ TEST (BoardConstructor, KingVsKing) {
 	EXPECT_EQ(start_board.en_passant, correct_en_passant);
 	EXPECT_EQ(start_board.fifty_move, correct_fifty_move);
 	EXPECT_EQ(start_board.num_moves, correct_num_moves);
-	EXPECT_EQ(start_board.pos_hash, correct_pos_hash);
 	EXPECT_EQ(actual_pp_board.str(), correct_pp_board.str()) << actual_pp_board.str() << correct_pp_board.str();
 }
 
