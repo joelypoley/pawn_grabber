@@ -4,6 +4,7 @@
 #include <optional>
 #include <string_view>
 
+#include "absl/algorithm/container.h"
 #include "absl/base/internal/raw_logging.h"
 #include "absl/strings/numbers.h"
 #include "absl/strings/str_join.h"
@@ -342,9 +343,21 @@ std::string Board::square_to_unicode(Bitboard square) {
 }
 
 std::vector<Move> Board::psuedolegal_moves_in_direction(
-    std::function<Bitboard(Bitboard)> direction_fn, Bitboard square,
+    std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_square,
     Bitboard friends, Bitboard enemies) {
-  return {};
+  std::vector<Bitboard> dst_squares;
+  Bitboard curr_square = direction_fn(src_square);
+  Bitboard all_pieces_mask = friends | enemies;
+  while(curr_square && !(curr_square & all_pieces_mask)) {
+    dst_squares.push_back(curr_square);
+    curr_square = direction_fn(curr_square);
+  }
+  if (curr_square & enemies) {
+    dst_squares.push_back(curr_square);
+  }
+  std::vector<Move> res(dst_squares.size());
+  absl::c_transform(dst_squares, res.begin(), [=](Bitboard dst) { return Move{src_square, dst}; });
+  return res;
 }
 
 Bitboard algebraic_to_square(const std::string_view algebraic_square) {
