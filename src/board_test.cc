@@ -519,7 +519,7 @@ TEST(AllPieces, White) {
   EXPECT_EQ(board.white_pieces(), bb);
 }
 
-TEST(Slide, A1Rook) {
+TEST(PseudoLegalMoves, A1Rook) {
   Board board("r4rk1/pp3pp1/2p3bp/8/3Pp1nq/1QN1P2P/PP1N1PP1/R4R1K w - - 1 18");
   const Bitboard a1 = algebraic_to_square("a1");
   EXPECT_TRUE(board.pseudolegal_moves_in_direction(north, a1).empty());
