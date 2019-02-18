@@ -29,6 +29,7 @@ TEST(SquareUtils, SquareIndex) {
 
 TEST(SquareUtils, RankIndex) {
   EXPECT_EQ(rank_idx(algebraic_to_square("h1")), 0);
+  EXPECT_EQ(rank_idx(algebraic_to_square("h2")), 1);
   EXPECT_EQ(rank_idx(algebraic_to_square("a8")), 7);
   EXPECT_EQ(rank_idx(algebraic_to_square("e4")), 3);
 }

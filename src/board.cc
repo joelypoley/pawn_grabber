@@ -50,8 +50,8 @@ bool on_a_file(Bitboard square) { return file_idx(square) == 0; }
 
 bool on_h_file(Bitboard square) { return file_idx(square) == 7; }
 
-bool on_first_rank(Bitboard square) { return file_idx(square) == 0; }
-bool on_eigth_rank(Bitboard square) { return file_idx(square) == 7; }
+bool on_first_rank(Bitboard square) { return rank_idx(square) == 0; }
+bool on_eigth_rank(Bitboard square) { return rank_idx(square) == 7; }
 
 Bitboard north(Bitboard square) {
   ABSL_RAW_CHECK(is_square(square), "Is not square.");
