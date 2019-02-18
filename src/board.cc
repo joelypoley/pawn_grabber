@@ -367,8 +367,12 @@ std::vector<Move> Board::pseudolegal_moves_in_direction(
 }
 
 Bitboard algebraic_to_square(const std::string_view algebraic_square) {
-  const int file = algebraic_square[0] - 'a';
-  const int rank = algebraic_square[1] - 1;
+  const char file_char = algebraic_square[0];
+  const char rank_char = algebraic_square[1];
+  ABSL_RAW_CHECK('a' <= file_char && file_char <= 'h', "Invalid file.");
+  ABSL_RAW_CHECK('1' <= rank_char && rank_char <= '8', "Invalid rank.");
+  const int file = file_char - 'a';
+  const int rank = rank_char - 1;
   return coordinates_to_square(file, rank);
 }
 
