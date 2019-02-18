@@ -2,11 +2,6 @@ cc_library(
     name = "board",
     srcs = ["board.cc"],
     hdrs = ["board.h"],
-    copts = [
-        "-Weverything",
-        "-Wno-c++98-compat",
-        "-Wno-c++98-compat-pedantic",
-    ],
     deps = ["@com_google_absl//absl/strings"],
 )
 
@@ -16,6 +11,7 @@ cc_test(
     copts = ["-Iexternal/gtest/include"],
     deps = [
         ":board",
+        "@com_google_absl//absl/strings",
         "@com_google_googletest//:gtest_main",
     ],
 )

@@ -1,50 +1,63 @@
-#include <exception>
-#include <iostream>
-#include <sstream>
-#include <string>
+#include <cassert>
+#include <optional>
+#include <string_view>
 
+#include "absl/strings/str_join.h"
+#include "absl/strings/str_split.h"
 #include "src/board.h"
 
-using namespace std;
-
-Board::Board() : Board(start_pos_fen) {}
-
-Board::Board(string fen) {
-  istringstream fen_stream{fen};
-
-  string pieces_fen;
-  fen_stream >> pieces_fen;
-
-  init_pieces(pieces_fen);
-
-  string side_to_move_fen;
-  fen_stream >> side_to_move_fen;
-  init_color(side_to_move_fen);
-
-  string castling_rights_fen;
-  fen_stream >> castling_rights_fen;
-  init_castling_rights(castling_rights_fen);
-
-  string en_passant_fen;
-  fen_stream >> en_passant_fen;
-  init_en_passant(en_passant_fen);
-
-  fen_stream >> fifty_move;
-
-  fen_stream >> num_moves;
+namespace {
+const std::string& get_start_fen() {
+  const static std::string& start_fen = *new std::string(
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+  return start_fen;
 }
 
-void Board::init_pieces(const string& pieces_fen) {
-  for (auto& bb : piece_bitboards) {
-    bb = 0;
-  }  // TODO: move to init pieces
-  Rank rank = board_size - 1;
-  File file = 0;
+const int board_size = 8;
+const Bitboard lsb_bitboard = 1;
+}  // namespace.
 
-  for (auto c : pieces_fen) {
-    Square square_mask{lsb_bitboard
-                       << (rank * board_size + board_size - file - 1)};
+Board::Board() : Board(get_start_fen()) {}
+
+Board::Board(std::string_view fen) {
+  std::vector<std::string_view> split_fen = absl::StrSplit(fen, " ");
+
+  init_bitboards(split_fen[0]);
+  init_side_to_move(split_fen[1]);
+  init_castling_rights(split_fen[2]);
+  init_en_passant(split_fen[3]);
+
+  const std::string fifty_move_str(split_fen[4]);
+  fifty_move_clock_ = std::stoi(fifty_move_str);
+
+  const std::string num_moves_str(split_fen[5]);
+  num_moves_ = std::stoi(num_moves_str);
+}
+void Board::zero_all_bitboards() {
+  white_pawns_ = 0;
+  white_rooks_ = 0;
+  white_knights_ = 0;
+  white_bishops_ = 0;
+  white_queens_ = 0;
+  white_king_ = 0;
+  black_pawns_ = 0;
+  black_rooks_ = 0;
+  black_knights_ = 0;
+  black_bishops_ = 0;
+  black_queens_ = 0;
+  black_king_ = 0;
+}
+
+void Board::init_bitboards(const std::string_view pieces_fen) {
+  zero_all_bitboards();
+  int rank = board_size - 1;
+  int file = 0;
+
+  for (char c : pieces_fen) {
+    Bitboard square_mask{lsb_bitboard
+                         << (rank * board_size + board_size - file - 1)};
     switch (c) {
+      // If the next characted is a number, skip that many files.
       case '1':
       case '2':
       case '3':
@@ -59,211 +72,201 @@ void Board::init_pieces(const string& pieces_fen) {
         rank -= 1;
         file = 0;
         break;
-      default:
-        PieceType piece_type = ascii_to_piece_type(c);
-        piece_bitboards[piece_type] |= square_mask;
+      case 'P':
+        white_pawns_ |= square_mask;
         file += 1;
+        break;
+      case 'R':
+        white_rooks_ |= square_mask;
+        file += 1;
+        break;
+      case 'N':
+        white_knights_ |= square_mask;
+        file += 1;
+        break;
+      case 'B':
+        white_bishops_ |= square_mask;
+        file += 1;
+        break;
+      case 'Q':
+        white_queens_ |= square_mask;
+        file += 1;
+        break;
+      case 'K':
+        white_king_ |= square_mask;
+        file += 1;
+        break;
+      case 'p':
+        black_pawns_ |= square_mask;
+        file += 1;
+        break;
+      case 'r':
+        black_rooks_ |= square_mask;
+        file += 1;
+        break;
+      case 'n':
+        black_knights_ |= square_mask;
+        file += 1;
+        break;
+      case 'b':
+        black_bishops_ |= square_mask;
+        file += 1;
+        break;
+      case 'q':
+        black_queens_ |= square_mask;
+        file += 1;
+        break;
+      case 'k':
+        black_king_ |= square_mask;
+        file += 1;
+        break;
+      default:
+        assert(false);
         break;
     }
   }
 }
 
-void Board::init_color(const string& side_to_move_fen) {
-  if (side_to_move_fen == "w") {
-    side_to_move = Color::white;
-  } else if (side_to_move_fen == "b") {
-    side_to_move = Color::black;
+void Board::init_side_to_move(const std::string_view side_to_move) {
+  if (side_to_move == "w") {
+    side_to_move_ = Color::white;
+  } else if (side_to_move == "b") {
+    side_to_move_ = Color::black;
   } else {
-    throw exception();
+    assert(false);
   }
 }
 
-void Board::init_castling_rights(const string& castling_rights_fen) {
-  for (auto& x : castling_rights) {
-    x = false;
-  }
-
-  if (castling_rights_fen.find("K") != string::npos) {
-    castling_rights[white_kingside] = true;
-  }
-  if (castling_rights_fen.find("Q") != string::npos) {
-    castling_rights[white_queenside] = true;
-  }
-  if (castling_rights_fen.find("k") != string::npos) {
-    castling_rights[black_kingside] = true;
-  }
-  if (castling_rights_fen.find("q") != string::npos) {
-    castling_rights[black_queenside] = true;
-  }
+void Board::init_castling_rights(const std::string_view castling_rights_fen) {
+  white_has_right_to_castle_kingside_ =
+      (castling_rights_fen.find('K') != std::string::npos);
+  white_has_right_to_castle_queenside_ =
+      (castling_rights_fen.find('Q') != std::string::npos);
+  black_has_right_to_castle_kingside_ =
+      (castling_rights_fen.find('k') != std::string::npos);
+  black_has_right_to_castle_queenside_ =
+      (castling_rights_fen.find('q') != std::string::npos);
 }
 
-void Board::init_en_passant(const string& algebraic_square) {
+void Board::init_en_passant(const std::string_view algebraic_square) {
   if (algebraic_square == "-") {
-    en_passant = no_square;
+    en_passant_square_ = std::nullopt;
   } else {
-    en_passant = algebraic_to_square(algebraic_square);
+    en_passant_square_ = algebraic_to_square(algebraic_square);
   }
 }
 
-char file_to_ascii(const File& file) {
-  if ((0 <= file) && (file < board_size)) {
-    return 'a' + file;
-  } else {
-    throw exception();
-  }
-}
+std::string Board::to_pretty_str() {
+  const std::string top_left_corner = "┌";      // U+250C
+  const std::string top_right_corner = "┐";     // U+2510
+  const std::string bottom_left_corner = "└";   // U+2514
+  const std::string bottom_right_corner = "┘";  // U+2518
+  const std::string horizontal = "─";           // U+2500
+  const std::string vertical = "│";             // U+2502
+  const std::string left_side_tee = "├";        // U+251C
+  const std::string right_side_tee = "┤";       // U+2524
+  const std::string top_tee = "┬";              // U+252C
+  const std::string bottom_tee = "┴";           // U+2534
+  const std::string cross = "┼";                // U+253C
 
-char rank_to_ascii(const File& rank) {
-  if ((0 <= rank) && (rank < board_size)) {
-    return '1' + rank;
-  } else {
-    throw exception();
-  }
-}
-
-ostream& operator<<(ostream& os, const Board& board) {
-  string top_left_corner{"┌"};      // U+250C
-  string top_right_corner{"┐"};     // U+2510
-  string bottom_left_corner{"└"};   // U+2514
-  string bottom_right_corner{"┘"};  // U+2518
-  string horizontal{"─"};           // U+2500
-  string vertical{"│"};             // U+2502
-  string left_side_tee{"├"};        // U+251C
-  string right_side_tee{"┤"};       // U+2524
-  string top_tee{"┬"};              // U+252C
-  string bottom_tee{"┴"};           // U+2534
-  string cross{"┼"};                // U+253C
+  std::vector<std::string> res;
 
   // do top of board
-  os << ' ' << ' ' << top_left_corner;
+  res.emplace_back("  ");
+  res.emplace_back(top_left_corner);
   for (int i = 0; i < board_size - 1; ++i) {
-    os << horizontal << horizontal << horizontal << top_tee;
+    res.emplace_back(horizontal + horizontal + horizontal);
+    res.emplace_back(top_tee);
   }
-  os << horizontal << horizontal << horizontal << top_right_corner;
-  os << endl;
+  res.emplace_back(horizontal + horizontal + horizontal);
+  res.emplace_back(top_right_corner);
+  res.emplace_back("\n");
 
   // do rows
-  string curr_piece{' '};
-  for (Rank rank = board_size - 1; rank >= 0; --rank) {
+  for (int rank = board_size - 1; rank >= 0; --rank) {
     // print a row of pieces
-    os << rank_to_ascii(rank) << ' ' << vertical;
-    for (File file = 0; file < board_size; ++file) {
-      for (int i = 0; i < board.piece_bitboards.size(); ++i) {
-        if ((coordinates_to_square(file, rank) & board.piece_bitboards[i]) !=
-            0) {
-          curr_piece = piece_type_to_symbol(PieceType(i));
-          break;
-        }
-      }
-      os << ' ' << curr_piece << ' ' << vertical;
-      curr_piece = ' ';
+    res.emplace_back(std::string(1, '1' + rank));
+    res.emplace_back(" ");
+    res.emplace_back(vertical);
+    for (int file = 0; file < board_size; ++file) {
+      res.emplace_back(" ");
+      res.emplace_back(square_to_unicode(coordinates_to_square(file, rank)));
+      res.emplace_back(" ");
+      res.emplace_back(vertical);
     }
-    os << endl;
-    // print a dividing line (unless where at the last rank)
-
+    res.emplace_back("\n");
+    // print a dividing line (unless we're at the last rank)
     if (rank != 0) {
-      os << ' ' << ' ';
-      os << left_side_tee;
+      res.emplace_back("  ");
+      res.emplace_back(left_side_tee);
       for (int i = 0; i < board_size - 1; ++i) {
-        os << horizontal << horizontal << horizontal << cross;
+        res.emplace_back(horizontal + horizontal + horizontal + cross);
       }
-      os << horizontal << horizontal << horizontal << right_side_tee;
-      os << endl;
+      res.emplace_back(horizontal + horizontal + horizontal + right_side_tee);
+      res.emplace_back("\n");
     }
   }
 
   // do bottom of board
-  os << ' ' << ' ' << bottom_left_corner;
+  res.emplace_back("  ");
+  res.emplace_back(bottom_left_corner);
   for (int i = 0; i < board_size - 1; ++i) {
-    os << horizontal << horizontal << horizontal << bottom_tee;
+    res.emplace_back(horizontal + horizontal + horizontal);
+    res.emplace_back(bottom_tee);
   }
-  os << horizontal << horizontal << horizontal << bottom_right_corner;
-  os << endl;
+  res.emplace_back(horizontal + horizontal + horizontal);
+  res.emplace_back(bottom_right_corner);
+  res.emplace_back("\n");
 
-  // TODO: make this better
-  // do coordinates
-  os << ' ' << ' ' << ' ';
+  res.emplace_back("   ");
   for (char i = 0; i < board_size - 1; ++i) {
-    os << ' ' << file_to_ascii(i) << ' ' << ' ';
+    res.emplace_back(" ");
+    res.emplace_back(std::string(1, i + 'a'));
+    res.emplace_back("  ");
   }
-  os << ' ' << 'h' << ' ' << ' ';
-  os << endl;
+  res.emplace_back(" ");
+  res.emplace_back("h");
+  res.emplace_back("\n");
 
-  return os;
+  return absl::StrJoin(res, "");
 }
 
-PieceType ascii_to_piece_type(const char& c) {
-  switch (c) {
-    case 'P':
-      return PieceType::white_pawn;
-    case 'R':
-      return PieceType::white_rook;
-    case 'N':
-      return PieceType::white_knight;
-    case 'B':
-      return PieceType::white_bishop;
-    case 'Q':
-      return PieceType::white_queen;
-    case 'K':
-      return PieceType::white_king;
-    case 'p':
-      return PieceType::black_pawn;
-    case 'r':
-      return PieceType::black_rook;
-    case 'n':
-      return PieceType::black_knight;
-    case 'b':
-      return PieceType::black_bishop;
-    case 'q':
-      return PieceType::black_queen;
-    case 'k':
-      return PieceType::black_king;
-    default:
-      throw exception();
+std::string Board::square_to_unicode(Bitboard square) {
+  if (square & white_pawns_) {
+    return "♙";  // U+2564
+  } else if (square & white_rooks_) {
+    return "♖";  // U+2656
+  } else if (square & white_knights_) {
+    return "♘";  // U+2658
+  } else if (square & white_bishops_) {
+    return "♗";  // U+2657
+  } else if (square & white_queens_) {
+    return "♕";  // U+2655
+  } else if (square & white_king_) {
+    return "♔";  // U+2654
+  } else if (square & black_pawns_) {
+    return "♟";  // U+265F
+  } else if (square & black_rooks_) {
+    return "♜";  // U+265C
+  } else if (square & black_knights_) {
+    return "♞";  // U+265E
+  } else if (square & black_bishops_) {
+    return "♝";  // U+265D
+  } else if (square & black_queens_) {
+    return "♛";  // U+265B
+  } else if (square & black_king_) {
+    return "♚";  // U+265A
+  } else {
+    return " ";
   }
 }
 
-Square algebraic_to_square(const string& algebraic_square) {
-  File file{algebraic_square[0] - 'a'};
-  Rank rank{algebraic_square[1] - 1};
-
-  Square square{lsb_bitboard << (rank * board_size + board_size - file - 1)};
-
-  return square;
+Bitboard algebraic_to_square(const std::string_view algebraic_square) {
+  const int file = algebraic_square[0] - 'a';
+  const int rank = algebraic_square[1] - 1;
+  return coordinates_to_square(file, rank);
 }
 
-Square coordinates_to_square(File file, Rank rank) {
-  Square square{lsb_bitboard << (rank * board_size + board_size - file - 1)};
-  return square;
-}
-
-string piece_type_to_symbol(PieceType piece_type) {
-  switch (piece_type) {
-    case white_pawn:
-      return "♙";  // U+2564
-    case white_rook:
-      return "♖";  // U+2656
-    case white_knight:
-      return "♘";  // U+2658
-    case white_bishop:
-      return "♗";  // U+2657
-    case white_queen:
-      return "♕";  // U+2655
-    case white_king:
-      return "♔";  // U+2654
-    case black_pawn:
-      return "♟";  // U+265F
-    case black_rook:
-      return "♜";  // U+265C
-    case black_knight:
-      return "♞";  // U+265E
-    case black_bishop:
-      return "♝";  // U+265D
-    case black_queen:
-      return "♛";  // U+265B
-    case black_king:
-      return "♚";  // U+265A
-    default:
-      throw exception();
-  }
+Bitboard coordinates_to_square(int file, int rank) {
+  return lsb_bitboard << (rank * board_size + board_size - file - 1);
 }
