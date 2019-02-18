@@ -249,66 +249,66 @@ std::string Board::to_pretty_str() {
   const std::string bottom_tee = "┴";           // U+2534
   const std::string cross = "┼";                // U+253C
 
-  std::vector<std::string> res;
+  std::string res;
 
   // do top of board
-  res.emplace_back("  ");
-  res.emplace_back(top_left_corner);
+  res.append("  ");
+  res.append(top_left_corner);
   for (int i = 0; i < board_size - 1; ++i) {
-    res.emplace_back(horizontal + horizontal + horizontal);
-    res.emplace_back(top_tee);
+    res.append(horizontal + horizontal + horizontal);
+    res.append(top_tee);
   }
-  res.emplace_back(horizontal + horizontal + horizontal);
-  res.emplace_back(top_right_corner);
-  res.emplace_back("\n");
+  res.append(horizontal + horizontal + horizontal);
+  res.append(top_right_corner);
+  res.append("\n");
 
   // do rows
   for (int rank = board_size - 1; rank >= 0; --rank) {
     // print a row of pieces
-    res.emplace_back(std::string(1, '1' + rank));
-    res.emplace_back(" ");
-    res.emplace_back(vertical);
+    res.append(std::string(1, '1' + rank));
+    res.append(" ");
+    res.append(vertical);
     for (int file = 0; file < board_size; ++file) {
-      res.emplace_back(" ");
-      res.emplace_back(square_to_unicode(coordinates_to_square(file, rank)));
-      res.emplace_back(" ");
-      res.emplace_back(vertical);
+      res.append(" ");
+      res.append(square_to_unicode(coordinates_to_square(file, rank)));
+      res.append(" ");
+      res.append(vertical);
     }
-    res.emplace_back("\n");
+    res.append("\n");
     // print a dividing line (unless we're at the last rank)
     if (rank != 0) {
-      res.emplace_back("  ");
-      res.emplace_back(left_side_tee);
+      res.append("  ");
+      res.append(left_side_tee);
       for (int i = 0; i < board_size - 1; ++i) {
-        res.emplace_back(horizontal + horizontal + horizontal + cross);
+        res.append(horizontal + horizontal + horizontal + cross);
       }
-      res.emplace_back(horizontal + horizontal + horizontal + right_side_tee);
-      res.emplace_back("\n");
+      res.append(horizontal + horizontal + horizontal + right_side_tee);
+      res.append("\n");
     }
   }
 
   // do bottom of board
-  res.emplace_back("  ");
-  res.emplace_back(bottom_left_corner);
+  res.append("  ");
+  res.append(bottom_left_corner);
   for (int i = 0; i < board_size - 1; ++i) {
-    res.emplace_back(horizontal + horizontal + horizontal);
-    res.emplace_back(bottom_tee);
+    res.append(horizontal + horizontal + horizontal);
+    res.append(bottom_tee);
   }
-  res.emplace_back(horizontal + horizontal + horizontal);
-  res.emplace_back(bottom_right_corner);
-  res.emplace_back("\n");
+  res.append(horizontal + horizontal + horizontal);
+  res.append(bottom_right_corner);
+  res.append("\n");
 
-  res.emplace_back("   ");
+  res.append("   ");
   for (char i = 0; i < board_size - 1; ++i) {
-    res.emplace_back(" ");
-    res.emplace_back(std::string(1, i + 'a'));
-    res.emplace_back("  ");
+    res.append(" ");
+    res.append(std::string(1, i + 'a'));
+    res.append("  ");
   }
-  res.emplace_back(" ");
-  res.emplace_back("h");
-  res.emplace_back("\n");
+  res.append(" ");
+  res.append("h");
+  res.append("\n");
 
-  return absl::StrJoin(res, "");
+  return res;
 }
 
 std::string Board::square_to_unicode(Bitboard square) {
