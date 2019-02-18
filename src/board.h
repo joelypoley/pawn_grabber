@@ -22,10 +22,27 @@
 //     abcd efgh
 typedef uint64_t Bitboard;
 
-// class Move {
-//   Bitboard src_square;
-//   Bitboard dst_square;
-// };
+struct Move {
+  Bitboard src_square;
+  Bitboard dst_square;
+};
+
+bool is_square(Bitboard);
+int square_idx(Bitboard square);
+int rank_idx(Bitboard square);
+int file_idx(Bitboard square);
+bool on_a_file(Bitboard square);
+bool on_h_file(Bitboard square);
+bool on_first_rank(Bitboard square);
+bool on_eigth_rank(Bitboard square);
+Bitboard north(Bitboard square);
+Bitboard south(Bitboard square);
+Bitboard east(Bitboard square);
+Bitboard west(Bitboard square);
+Bitboard northeast(Bitboard square);
+Bitboard northwest(Bitboard square);
+Bitboard southeast(Bitboard square);
+Bitboard southwest(Bitboard square);
 
 enum class Color { white, black };
 
@@ -75,6 +92,7 @@ class Board {
   Board();
   Board(std::string_view fen);
   std::string to_pretty_str();
+  std::vector<Move> legal_moves();
   Bitboard white_pawns_;
   Bitboard white_rooks_;
   Bitboard white_knights_;
@@ -106,10 +124,13 @@ class Board {
   void init_fifty_move_clock(const std::string_view num_half_moves_fen);
   void init_num_moves(const std::string_view num_moves_fen);
   std::string square_to_unicode(Bitboard square);
+  // The pseudo prefix refers to the fact that these functions generate
+  // pesudolegal moves. We must also check if the king is in check before
+  // generating all legal moves.
+  std::vector<Move> pseudo_pawn_moves_excluding_promo();
 };
 
 Bitboard algebraic_to_square(const std::string_view alegbraic_square);
 Bitboard coordinates_to_square(int file, int rank);
-
 
 #endif

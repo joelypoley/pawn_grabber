@@ -17,6 +17,84 @@ const int board_size = 8;
 const Bitboard lsb_bitboard = 1;
 }  // namespace.
 
+// Check that the bitboard has exactly one bit set.
+bool is_square(Bitboard square) {
+  const bool has_more_than_one_set_bit = (square & (square - 1));
+  return square && !has_more_than_one_set_bit;
+}
+
+int square_idx(Bitboard square) {
+  assert(is_square(square));
+  int res = -1;
+  while (square) {
+    square >>= 1;
+    res += 1;
+  }
+  return res;
+}
+
+int rank_idx(Bitboard square) {
+  const int idx = square_idx(square);
+  return idx / 8;
+}
+
+int file_idx(Bitboard square) {
+  const int idx = square_idx(square);
+  return 7 - idx % 8;
+}
+
+bool on_a_file(Bitboard square) { return file_idx(square) == 0; }
+
+bool on_h_file(Bitboard square) { return file_idx(square) == 7; }
+
+bool on_first_rank(Bitboard square) { return file_idx(square) == 0; }
+bool on_eigth_rank(Bitboard square) { return file_idx(square) == 7; }
+
+Bitboard north(Bitboard square) {
+  assert(is_square(square));
+  // TODO: Make sure right shifting off the end is not undefined behavior.
+  return square << board_size;
+}
+
+Bitboard south(Bitboard square) {
+  assert(is_square(square));
+  return square >> board_size;
+}
+
+Bitboard east(Bitboard square) {
+  assert(is_square(square));
+  return on_h_file(square) ? 0 : square >> 1;
+}
+
+Bitboard west(Bitboard square) {
+  assert(is_square(square));
+  return on_a_file(square) ? 0 : square << 1;
+}
+
+Bitboard northeast(Bitboard square) {
+  assert(is_square(square));
+  const Bitboard north_square = north(square);
+  return north_square ? east(north_square) : 0;
+}
+
+Bitboard northwest(Bitboard square) {
+  assert(is_square(square));
+  const Bitboard north_square = north(square);
+  return north_square ? west(north_square) : 0;
+}
+
+Bitboard southeast(Bitboard square) {
+  assert(is_square(square));
+  const Bitboard south_square = south(square);
+  return south_square ? east(south_square) : 0;
+}
+
+Bitboard southwest(Bitboard square) {
+  assert(is_square(square));
+  const Bitboard south_square = south(square);
+  return south_square ? west(south_square) : 0;
+}
+
 Board::Board() : Board(get_start_fen()) {}
 
 Board::Board(std::string_view fen) {
