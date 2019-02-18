@@ -27,6 +27,10 @@ struct Move {
   Bitboard dst_square;
 };
 
+bool operator==(const Move& lhs, const Move& rhs) {
+  return lhs.src_square == rhs.src_square && lhs.dst_square == rhs.dst_square;
+}
+
 bool is_square(Bitboard);
 int square_idx(Bitboard square);
 int rank_idx(Bitboard square);
@@ -115,6 +119,11 @@ class Board {
   int num_moves_;
   Bitboard white_pieces();
   Bitboard black_pieces();
+  // The pseudo prefix refers to the fact that these functions generate
+  // pesudolegal moves. We must also check if the king is in check before
+  // generating all legal moves.
+  std::vector<Move> pseudolegal_moves_in_direction(
+      std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_square);
 
  private:
   void zero_all_bitboards();
@@ -126,11 +135,6 @@ class Board {
   void init_fifty_move_clock(const std::string_view num_half_moves_fen);
   void init_num_moves(const std::string_view num_moves_fen);
   std::string square_to_unicode(Bitboard square);
-  // The pseudo prefix refers to the fact that these functions generate
-  // pesudolegal moves. We must also check if the king is in check before
-  // generating all legal moves.
-  std::vector<Move> pseudolegal_moves_in_direction(
-      std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_square);
 
   std::vector<Move> pseudo_pawn_moves_excluding_promo();
 };

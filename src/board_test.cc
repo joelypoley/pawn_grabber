@@ -518,3 +518,16 @@ TEST(AllPieces, White) {
                   [](Bitboard bb1, Bitboard bb2) { return bb1 | bb2; });
   EXPECT_EQ(board.white_pieces(), bb);
 }
+
+TEST(Slide, A1Rook) {
+  Board board("r4rk1/pp3pp1/2p3bp/8/3Pp1nq/1QN1P2P/PP1N1PP1/R4R1K w - - 1 18");
+  const Bitboard a1 = algebraic_to_square("a1");
+  EXPECT_TRUE(board.pseudolegal_moves_in_direction(north, a1).empty());
+  EXPECT_TRUE(board.pseudolegal_moves_in_direction(west, a1).empty());
+  EXPECT_TRUE(board.pseudolegal_moves_in_direction(south, a1).empty());
+  std::vector<Move> east_moves = {{a1, algebraic_to_square("b1")},
+                                  {a1, algebraic_to_square("c1")},
+                                  {a1, algebraic_to_square("d1")},
+                                  {a1, algebraic_to_square("e1")}};
+  EXPECT_EQ(board.pseudolegal_moves_in_direction(east, a1), east_moves);
+}
