@@ -22,13 +22,40 @@
 //     abcd efgh
 typedef uint64_t Bitboard;
 
+enum class Piece {
+  white_pawn,
+  white_rook,
+  white_knight,
+  white_bishop,
+  white_queen,
+  white_king,
+  black_pawn,
+  black_rook,
+  black_knight,
+  black_bishop,
+  black_queen,
+  black_king,
+};
+
 struct Move {
   Bitboard src_square;
   Bitboard dst_square;
+  std::optional<Piece> promotion_piece;
+  Move() : src_square(0), dst_square(0), promotion_piece(std::nullopt) {}
+  Move(Bitboard p_src_square, Bitboard p_dst_square)
+      : src_square(p_src_square),
+        dst_square(p_dst_square),
+        promotion_piece(std::nullopt) {}
+  Move(Bitboard p_src_square, Bitboard p_dst_square,
+       std::optional<Piece> p_promotion_piece)
+      : src_square(p_src_square),
+        dst_square(p_dst_square),
+        promotion_piece(p_promotion_piece) {}
 };
 
 bool operator==(const Move& lhs, const Move& rhs) {
-  return lhs.src_square == rhs.src_square && lhs.dst_square == rhs.dst_square;
+  return lhs.src_square == rhs.src_square && lhs.dst_square == rhs.dst_square &&
+         lhs.promotion_piece == rhs.promotion_piece;
 }
 
 bool is_square(Bitboard);

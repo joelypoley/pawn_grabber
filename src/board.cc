@@ -361,9 +361,8 @@ std::vector<Move> Board::pseudolegal_moves_in_direction(
     dst_squares.push_back(curr_square);
   }
   std::vector<Move> res(dst_squares.size());
-  absl::c_transform(dst_squares, res.begin(), [=](Bitboard dst) {
-    return Move{src_square, dst};
-  });
+  absl::c_transform(dst_squares, res.begin(),
+                    [=](Bitboard dst) { return Move(src_square, dst); });
   return res;
 }
 
