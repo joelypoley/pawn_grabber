@@ -113,6 +113,8 @@ class Board {
   bool black_has_right_to_castle_queenside_;
   int fifty_move_clock_;
   int num_moves_;
+  Bitboard white_pieces();
+  Bitboard black_pieces();
 
  private:
   void zero_all_bitboards();
