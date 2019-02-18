@@ -1,7 +1,9 @@
 #include "src/board.h"
 
+#include <algorithm>
 #include <array>
 #include <iostream>
+#include <numeric>
 #include <optional>
 #include <string>
 
@@ -500,4 +502,18 @@ TEST(PPrint, MiddleGame) {
                          "1 │ ♖ │   │   │   │   │ ♖ │   │ ♔ │\n",
                          "  └───┴───┴───┴───┴───┴───┴───┴───┘\n",
                          "    a   b   c   d   e   f   g   h\n"));
+}
+
+TEST(AllPieces, White) {
+  Board board("r4rk1/pp3pp1/2p3bp/8/3Pp1nq/1QN1P2P/PP1N1PP1/R4R1K w - - 1 18");
+  const std::vector<std::string> white_squares = {"a1", "f1", "h1", "a2", "b2",
+                                                  "d2", "f2", "g2", "b3", "c3",
+                                                  "e3", "h3", "d4"};
+  std::vector<Bitboard> white_squares_bb(white_squares.size());
+  std::transform(white_squares.begin(), white_squares.end(),
+                 white_squares_bb.begin(), algebraic_to_square);
+  Bitboard bb =
+      std::reduce(white_squares_bb.begin(), white_squares_bb.end(), 0,
+                  [](Bitboard bb1, Bitboard bb2) { return bb1 | bb2; });
+  EXPECT_EQ(board.white_pieces(), bb);
 }

@@ -1,10 +1,11 @@
+#include "src/board.h"
+
 #include <cassert>
 #include <optional>
 #include <string_view>
 
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_split.h"
-#include "src/board.h"
 
 namespace {
 const std::string& get_start_fen() {
@@ -348,4 +349,14 @@ Bitboard algebraic_to_square(const std::string_view algebraic_square) {
 
 Bitboard coordinates_to_square(int file, int rank) {
   return lsb_bitboard << (rank * board_size + board_size - file - 1);
+}
+
+Bitboard Board::white_pieces() {
+  return white_pawns_ | white_knights_ | white_bishops_ | white_rooks_ |
+         white_queens_ | white_king_;
+}
+
+Bitboard Board::black_pieces() {
+  return black_pawns_ | black_knights_ | black_bishops_ | black_rooks_ |
+         black_queens_ | black_king_;
 }
