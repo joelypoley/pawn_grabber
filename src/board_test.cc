@@ -40,7 +40,17 @@ TEST(SquareUtils, FileIndex) {
 TEST(SquareUtils, OnAFile) {
   EXPECT_TRUE(on_a_file(algebraic_to_square("a1")));
   EXPECT_TRUE(on_a_file(algebraic_to_square("a8")));
+  EXPECT_FALSE(on_a_file(algebraic_to_square("b4")));
   EXPECT_FALSE(on_a_file(algebraic_to_square("e4")));
+  EXPECT_FALSE(on_a_file(algebraic_to_square("h4")));
+}
+
+TEST(SquareUtils, OnHFile) {
+  EXPECT_TRUE(on_h_file(algebraic_to_square("h1")));
+  EXPECT_TRUE(on_h_file(algebraic_to_square("h8")));
+  EXPECT_FALSE(on_h_file(algebraic_to_square("e4")));
+  EXPECT_FALSE(on_h_file(algebraic_to_square("g4")));
+  EXPECT_FALSE(on_h_file(algebraic_to_square("g8")));
 }
 
 TEST(SquareDirections, E4) {

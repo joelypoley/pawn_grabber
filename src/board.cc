@@ -111,6 +111,7 @@ Board::Board(std::string_view fen) {
   const std::string num_moves_str(split_fen[5]);
   num_moves_ = std::stoi(num_moves_str);
 }
+
 void Board::zero_all_bitboards() {
   white_pawns_ = 0;
   white_rooks_ = 0;
