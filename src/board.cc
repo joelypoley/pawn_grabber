@@ -342,13 +342,13 @@ std::string Board::square_to_unicode(Bitboard square) {
   }
 }
 
-std::vector<Move> Board::psuedolegal_moves_in_direction(
+std::vector<Move> Board::pseudolegal_moves_in_direction(
     std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_square,
     Bitboard friends, Bitboard enemies) {
   std::vector<Bitboard> dst_squares;
   Bitboard curr_square = direction_fn(src_square);
   Bitboard all_pieces_mask = friends | enemies;
-  while(curr_square && !(curr_square & all_pieces_mask)) {
+  while (curr_square && !(curr_square & all_pieces_mask)) {
     dst_squares.push_back(curr_square);
     curr_square = direction_fn(curr_square);
   }
@@ -356,7 +356,9 @@ std::vector<Move> Board::psuedolegal_moves_in_direction(
     dst_squares.push_back(curr_square);
   }
   std::vector<Move> res(dst_squares.size());
-  absl::c_transform(dst_squares, res.begin(), [=](Bitboard dst) { return Move{src_square, dst}; });
+  absl::c_transform(dst_squares, res.begin(), [=](Bitboard dst) {
+    return Move{src_square, dst};
+  });
   return res;
 }
 

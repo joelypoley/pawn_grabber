@@ -129,7 +129,7 @@ class Board {
   // The pseudo prefix refers to the fact that these functions generate
   // pesudolegal moves. We must also check if the king is in check before
   // generating all legal moves.
-  std::vector<Move> psuedolegal_moves_in_direction(
+  std::vector<Move> pseudolegal_moves_in_direction(
       std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_square,
       Bitboard friends, Bitboard enemies);
   std::vector<Move> pseudo_pawn_moves_excluding_promo();
