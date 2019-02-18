@@ -4,6 +4,8 @@
 #include <optional>
 #include <string_view>
 
+#include "absl/base/internal/raw_logging.h"
+#include "absl/strings/numbers.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_split.h"
 
@@ -25,7 +27,7 @@ bool is_square(Bitboard square) {
 }
 
 int square_idx(Bitboard square) {
-  assert(is_square(square));
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
   int res = -1;
   while (square) {
     square >>= 1;
@@ -52,46 +54,46 @@ bool on_first_rank(Bitboard square) { return file_idx(square) == 0; }
 bool on_eigth_rank(Bitboard square) { return file_idx(square) == 7; }
 
 Bitboard north(Bitboard square) {
-  assert(is_square(square));
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
   // TODO: Make sure right shifting off the end is not undefined behavior.
   return square << board_size;
 }
 
 Bitboard south(Bitboard square) {
-  assert(is_square(square));
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
   return square >> board_size;
 }
 
 Bitboard east(Bitboard square) {
-  assert(is_square(square));
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
   return on_h_file(square) ? 0 : square >> 1;
 }
 
 Bitboard west(Bitboard square) {
-  assert(is_square(square));
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
   return on_a_file(square) ? 0 : square << 1;
 }
 
 Bitboard northeast(Bitboard square) {
-  assert(is_square(square));
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
   const Bitboard north_square = north(square);
   return north_square ? east(north_square) : 0;
 }
 
 Bitboard northwest(Bitboard square) {
-  assert(is_square(square));
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
   const Bitboard north_square = north(square);
   return north_square ? west(north_square) : 0;
 }
 
 Bitboard southeast(Bitboard square) {
-  assert(is_square(square));
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
   const Bitboard south_square = south(square);
   return south_square ? east(south_square) : 0;
 }
 
 Bitboard southwest(Bitboard square) {
-  assert(is_square(square));
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
   const Bitboard south_square = south(square);
   return south_square ? west(south_square) : 0;
 }
@@ -105,12 +107,10 @@ Board::Board(std::string_view fen) {
   init_side_to_move(split_fen[1]);
   init_castling_rights(split_fen[2]);
   init_en_passant(split_fen[3]);
-
-  const std::string fifty_move_str(split_fen[4]);
-  fifty_move_clock_ = std::stoi(fifty_move_str);
-
-  const std::string num_moves_str(split_fen[5]);
-  num_moves_ = std::stoi(num_moves_str);
+  ABSL_RAW_CHECK(absl::SimpleAtoi(split_fen[4], &fifty_move_clock_),
+                 "FEN invalid: Fifty move not convertible to integer.");
+  ABSL_RAW_CHECK(absl::SimpleAtoi(split_fen[5], &num_moves_),
+                 "FEN invalid: Number of moves not convertible to integer.");
 }
 
 void Board::zero_all_bitboards() {
