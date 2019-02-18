@@ -341,6 +341,12 @@ std::string Board::square_to_unicode(Bitboard square) {
   }
 }
 
+std::vector<Move> Board::psuedolegal_moves_in_direction(
+    std::function<Bitboard(Bitboard)> direction_fn, Bitboard square,
+    Bitboard friends, Bitboard enemies) {
+  return {};
+}
+
 Bitboard algebraic_to_square(const std::string_view algebraic_square) {
   const int file = algebraic_square[0] - 'a';
   const int rank = algebraic_square[1] - 1;
