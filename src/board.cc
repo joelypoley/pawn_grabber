@@ -343,8 +343,13 @@ std::string Board::square_to_unicode(Bitboard square) {
 }
 
 std::vector<Move> Board::pseudolegal_moves_in_direction(
-    std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_square,
-    Bitboard friends, Bitboard enemies) {
+    std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_square) {
+  bool whites_move = side_to_move_ == Color::white;
+  Bitboard friends = whites_move ? white_pieces() : black_pieces();
+  Bitboard enemies = whites_move ? black_pieces() : white_pieces();
+  ABSL_RAW_CHECK(src_square & friends,
+                 "src_square must have a piece with the correct color on it.");
+
   std::vector<Bitboard> dst_squares;
   Bitboard curr_square = direction_fn(src_square);
   Bitboard all_pieces_mask = friends | enemies;
