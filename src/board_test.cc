@@ -571,3 +571,69 @@ TEST(PseudoLegalMoves, B3Queen) {
   EXPECT_EQ(board.pseudolegal_moves_in_direction(southeast, b3),
             southeast_moves);
 }
+
+TEST(PseudoLegalMoves, A8Rook) {
+  Board board("r4rk1/pp3pp1/2p3bp/8/3Pp1nq/1QN1P2P/PP1N1PP1/R4R1K b - - 1 18");
+  const Bitboard a8 = algebraic_to_square("a8");
+  EXPECT_TRUE(board.pseudolegal_moves_in_direction(north, a8).empty());
+  EXPECT_TRUE(board.pseudolegal_moves_in_direction(west, a8).empty());
+  EXPECT_TRUE(board.pseudolegal_moves_in_direction(south, a8).empty());
+  std::vector<Move> east_moves = {
+      Move(a8, algebraic_to_square("b8")), Move(a8, algebraic_to_square("c8")),
+      Move(a8, algebraic_to_square("d8")), Move(a8, algebraic_to_square("e8"))};
+  EXPECT_EQ(board.pseudolegal_moves_in_direction(east, a8), east_moves);
+}
+
+TEST(PseudoLegalMoves, F8Rook) {
+  Board board("r4rk1/pp3pp1/2p3bp/8/3Pp1nq/1QN1P2P/PP1N1PP1/R4R1K b - - 1 18");
+  const Bitboard f8 = algebraic_to_square("f8");
+  EXPECT_TRUE(board.pseudolegal_moves_in_direction(north, f8).empty());
+  EXPECT_TRUE(board.pseudolegal_moves_in_direction(east, f8).empty());
+  EXPECT_TRUE(board.pseudolegal_moves_in_direction(south, f8).empty());
+  std::vector<Move> west_moves = {
+      Move(f8, algebraic_to_square("e8")), Move(f8, algebraic_to_square("d8")),
+      Move(f8, algebraic_to_square("c8")), Move(f8, algebraic_to_square("b8"))};
+  EXPECT_EQ(board.pseudolegal_moves_in_direction(west, f8), west_moves);
+}
+
+TEST(PseudoLegalMoves, G6Bishop) {
+  Board board("r4rk1/pp3pp1/2p3bp/8/3Pp1nq/1QN1P2P/PP1N1PP1/R4R1K b - - 1 18");
+  const Bitboard g6 = algebraic_to_square("g6");
+  std::vector<Move> northeast_moves = {Move(g6, algebraic_to_square("h7"))};
+  std::vector<Move> southwest_moves = {Move(g6, algebraic_to_square("f5"))};
+  std::vector<Move> southeast_moves = {Move(g6, algebraic_to_square("h5"))};
+  EXPECT_TRUE(board.pseudolegal_moves_in_direction(northwest, g6).empty());
+  EXPECT_EQ(board.pseudolegal_moves_in_direction(northeast, g6),
+            northeast_moves);
+  EXPECT_EQ(board.pseudolegal_moves_in_direction(southwest, g6),
+            southwest_moves);
+  EXPECT_EQ(board.pseudolegal_moves_in_direction(southeast, g6),
+            southeast_moves);
+}
+
+TEST(PseudoLegalMoves, H4Queen) {
+  Board board("r4rk1/pp3pp1/2p3bp/8/3Pp1nq/1QN1P2P/PP1N1PP1/R4R1K b - - 1 18");
+  const Bitboard h4 = algebraic_to_square("h4");
+  std::vector<Move> north_moves = {Move(h4, algebraic_to_square("h5"))};
+  std::vector<Move> south_moves = {Move(h4, algebraic_to_square("h3"))};
+  std::vector<Move> northwest_moves = {
+      Move(h4, algebraic_to_square("g5")),
+      Move(h4, algebraic_to_square("f6")),
+      Move(h4, algebraic_to_square("e7")),
+      Move(h4, algebraic_to_square("d8")),
+  };
+  std::vector<Move> southwest_moves = {
+      Move(h4, algebraic_to_square("g3")),
+      Move(h4, algebraic_to_square("f2")),
+  };
+  EXPECT_EQ(board.pseudolegal_moves_in_direction(north, h4), north_moves);
+  EXPECT_EQ(board.pseudolegal_moves_in_direction(south, h4), south_moves);
+  EXPECT_TRUE(board.pseudolegal_moves_in_direction(west, h4).empty());
+  EXPECT_TRUE(board.pseudolegal_moves_in_direction(east, h4).empty());
+  EXPECT_TRUE(board.pseudolegal_moves_in_direction(northeast, h4).empty());
+  EXPECT_TRUE(board.pseudolegal_moves_in_direction(southeast, h4).empty());
+  EXPECT_EQ(board.pseudolegal_moves_in_direction(northwest, h4),
+            northwest_moves);
+  EXPECT_EQ(board.pseudolegal_moves_in_direction(southwest, h4),
+            southwest_moves);
+}
