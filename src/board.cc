@@ -434,6 +434,21 @@ void Board::pseudolegal_rook_moves(std::vector<Move>* res_ptr) const {
   }
 }
 
+void Board::pseudolegal_queen_moves(std::vector<Move>* res_ptr) const {
+  Bitboard queens =
+      side_to_move_ == Color::white ? white_queens_ : black_queens_;
+  for (Bitboard queen : bitboard_split(queens)) {
+    pseudolegal_moves_in_direction(north, queen, res_ptr);
+    pseudolegal_moves_in_direction(northeast, queen, res_ptr);
+    pseudolegal_moves_in_direction(northwest, queen, res_ptr);
+    pseudolegal_moves_in_direction(southeast, queen, res_ptr);
+    pseudolegal_moves_in_direction(southwest, queen, res_ptr);
+    pseudolegal_moves_in_direction(south, queen, res_ptr);
+    pseudolegal_moves_in_direction(east, queen, res_ptr);
+    pseudolegal_moves_in_direction(west, queen, res_ptr);
+  }
+}
+
 void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (side_to_move_ == Color::white) {
