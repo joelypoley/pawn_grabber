@@ -555,6 +555,43 @@ void Board::pseudolegal_promotions(std::vector<Move>* res_ptr) {
   }
 }
 
+void Board::pseudolegal_pawn_captures(std::vector<Move>* res_ptr) {
+  std::vector<Move>& res = *res_ptr;
+  if (side_to_move_ == Color::white) {
+    const Bitboard white_pawns_excluding_seventh =
+        white_pawns_ & (~seventh_rank_mask);
+    for (Bitboard single_pawn : bitboard_split(white_pawns_excluding_seventh)) {
+      const Bitboard northeast_of_pawn = northeast(single_pawn);
+      const bool can_capture_northeast = black_pieces() & northeast_of_pawn;
+      if (can_capture_northeast) {
+        res.emplace_back(single_pawn, northeast_of_pawn);
+      }
+
+      const Bitboard northwest_of_pawn = northwest(single_pawn);
+      const bool can_capture_northwest = black_pieces() & northwest_of_pawn;
+      if (can_capture_northwest) {
+        res.emplace_back(single_pawn, northwest_of_pawn);
+      }
+    }
+  } else {
+    const Bitboard black_pawns_excluding_seventh =
+        black_pawns_ & (~second_rank_mask);
+    for (Bitboard single_pawn : bitboard_split(black_pawns_excluding_seventh)) {
+      const Bitboard southeast_of_pawn = southeast(single_pawn);
+      const bool can_capture_southeast = white_pieces() & southeast_of_pawn;
+      if (can_capture_southeast) {
+        res.emplace_back(single_pawn, southeast_of_pawn);
+      }
+
+      const Bitboard southwest_of_pawn = southwest(single_pawn);
+      const bool can_capture_southwest = white_pieces() & southwest_of_pawn;
+      if (can_capture_southwest) {
+        res.emplace_back(single_pawn, southwest_of_pawn);
+      }
+    }
+  }
+}
+
 Bitboard str_to_square(const std::string_view algebraic_square) {
   const char file_char = algebraic_square[0];
   const char rank_char = algebraic_square[1];

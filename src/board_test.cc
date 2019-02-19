@@ -931,3 +931,37 @@ TEST(PseudoLegalMoves, PromotionsBlack) {
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
 }
+
+TEST(PseudoLegalMoves, PawnCapturesWhite) {
+  Board board(
+      "rn1qk2r/Pp2pp1p/2p5/1p1pbbpn/2PPPPPN/8/1P5P/RNBQK2R w KQkq - 1 13");
+
+  std::vector<Move> moves = {Move(str_to_square("g4"), str_to_square("h5")),
+                             Move(str_to_square("g4"), str_to_square("f5")),
+                             Move(str_to_square("f4"), str_to_square("g5")),
+                             Move(str_to_square("f4"), str_to_square("e5")),
+                             Move(str_to_square("e4"), str_to_square("f5")),
+                             Move(str_to_square("e4"), str_to_square("d5")),
+                             Move(str_to_square("d4"), str_to_square("e5")),
+                             Move(str_to_square("c4"), str_to_square("d5")),
+                             Move(str_to_square("c4"), str_to_square("b5"))};
+  std::vector<Move> test_moves;
+  board.pseudolegal_pawn_captures(&test_moves);
+  EXPECT_EQ(test_moves, moves);
+}
+
+TEST(PseudoLegalMoves, PawnCapturesBlack) {
+  Board board(
+      "rn1qk2r/Pp2pp1p/2p5/1p1pbbpn/2PPPPPN/8/1P5P/RNBQK2R b KQkq - 1 13");
+
+  std::vector<Move> moves = {
+      Move(str_to_square("g5"), str_to_square("h4")),
+      Move(str_to_square("g5"), str_to_square("f4")),
+      Move(str_to_square("d5"), str_to_square("e4")),
+      Move(str_to_square("d5"), str_to_square("c4")),
+      Move(str_to_square("b5"), str_to_square("c4")),
+  };
+  std::vector<Move> test_moves;
+  board.pseudolegal_pawn_captures(&test_moves);
+  EXPECT_EQ(test_moves, moves);
+}
