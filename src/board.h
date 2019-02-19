@@ -149,12 +149,16 @@ class Board {
   int num_moves_;
   Bitboard white_pieces();
   Bitboard black_pieces();
+  Bitboard all_pieces();
   // The pseudo prefix refers to the fact that these functions generate
   // pesudolegal moves. We must also check if the king is in check before
   // generating all legal moves.
   void pseudolegal_moves_in_direction(
       std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_squares,
       std::vector<Move>* res_ptr);
+  // "Simple" in this context means no two-step moves, no promotions, no en
+  // passant.
+  void pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr);
 
  private:
   void zero_all_bitboards();
@@ -173,5 +177,6 @@ class Board {
 Bitboard str_to_square(const std::string_view alegbraic_square);
 std::string square_to_str(Bitboard sq);
 Bitboard coordinates_to_square(int file, int rank);
+std::vector<Bitboard> bitboard_split(Bitboard bb);
 
 #endif

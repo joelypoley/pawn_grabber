@@ -41,6 +41,10 @@ get_piece_to_char_and_unicode() {
 
 const int board_size = 8;
 const Bitboard lsb_bitboard = 1;
+const Bitboard seventh_rank_mask = str_to_square("a7") | str_to_square("b7") |
+                                   str_to_square("c7") | str_to_square("d7") |
+                                   str_to_square("e7") | str_to_square("f7") |
+                                   str_to_square("g7") | str_to_square("h7");
 }  // namespace.
 
 // Check that the bitboard has exactly one bit set.
@@ -409,6 +413,19 @@ void Board::pseudolegal_moves_in_direction(
                     [=](Bitboard dst) { return Move(src_square, dst); });
 }
 
+void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) {
+  std::vector<Move>& res = *res_ptr;
+  const Bitboard white_pawns_excluding_seventh =
+      white_pawns_ & (~seventh_rank_mask);
+  for (Bitboard single_pawn : bitboard_split(white_pawns_)) {
+    const Bitboard north_of_pawn = north(single_pawn);
+    const bool blocked = ((all_pieces() & north_of_pawn) != 0);
+    if (!blocked) {
+      res.push_back(Move(single_pawn, north_of_pawn));
+    }
+  }
+}
+
 Bitboard str_to_square(const std::string_view algebraic_square) {
   const char file_char = algebraic_square[0];
   const char rank_char = algebraic_square[1];
@@ -441,4 +458,17 @@ Bitboard Board::white_pieces() {
 Bitboard Board::black_pieces() {
   return black_pawns_ | black_knights_ | black_bishops_ | black_rooks_ |
          black_queens_ | black_king_;
+}
+
+Bitboard Board::all_pieces() { return white_pieces() | black_pieces(); }
+
+std::vector<Bitboard> bitboard_split(Bitboard bb) {
+  std::vector<Bitboard> res;
+  while (bb) {
+    const Bitboard bb_with_lsb_cleared = bb & bb - 1;
+    const Bitboard bb_with_only_lsb = bb ^ bb_with_lsb_cleared;
+    res.push_back(bb_with_only_lsb);
+    bb = bb_with_lsb_cleared;
+  }
+  return res;
 }

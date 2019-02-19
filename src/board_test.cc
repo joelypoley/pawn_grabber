@@ -740,3 +740,17 @@ TEST(SquareToStr, Simple) {
   EXPECT_EQ(square_to_str(str_to_square("h8")), "h8");
   EXPECT_EQ(square_to_str(str_to_square("d4")), "d4");
 }
+
+TEST(PseudoLegalMoves, SimplePawnMoves) {
+  Board board("r4rk1/pp3pp1/2p3bp/8/3Pp1nq/1QN1P2P/PP1N1PP1/R4R1K w - - 1 18");
+
+  std::vector<Move> moves = {Move(str_to_square("g2"), str_to_square("g3")),
+                             Move(str_to_square("f2"), str_to_square("f3")),
+                             Move(str_to_square("a2"), str_to_square("a3")),
+                             Move(str_to_square("d4"), str_to_square("d5"))
+
+  };
+  std::vector<Move> test_moves;
+  board.pseudolegal_simple_pawn_moves(&test_moves);
+  EXPECT_EQ(test_moves, moves);
+}
