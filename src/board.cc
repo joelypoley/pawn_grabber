@@ -45,6 +45,10 @@ const Bitboard seventh_rank_mask = str_to_square("a7") | str_to_square("b7") |
                                    str_to_square("c7") | str_to_square("d7") |
                                    str_to_square("e7") | str_to_square("f7") |
                                    str_to_square("g7") | str_to_square("h7");
+const Bitboard second_rank_mask = str_to_square("a2") | str_to_square("b2") |
+                                  str_to_square("c2") | str_to_square("d2") |
+                                  str_to_square("e2") | str_to_square("f2") |
+                                  str_to_square("g2") | str_to_square("h2");
 }  // namespace.
 
 // Check that the bitboard has exactly one bit set.
@@ -415,13 +419,25 @@ void Board::pseudolegal_moves_in_direction(
 
 void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) {
   std::vector<Move>& res = *res_ptr;
-  const Bitboard white_pawns_excluding_seventh =
-      white_pawns_ & (~seventh_rank_mask);
-  for (Bitboard single_pawn : bitboard_split(white_pawns_)) {
-    const Bitboard north_of_pawn = north(single_pawn);
-    const bool blocked = ((all_pieces() & north_of_pawn) != 0);
-    if (!blocked) {
-      res.push_back(Move(single_pawn, north_of_pawn));
+  if (side_to_move_ == Color::white) {
+    const Bitboard white_pawns_excluding_seventh =
+        white_pawns_ & (~seventh_rank_mask);
+    for (Bitboard single_pawn : bitboard_split(white_pawns_excluding_seventh)) {
+      const Bitboard north_of_pawn = north(single_pawn);
+      const bool blocked = ((all_pieces() & north_of_pawn) != 0);
+      if (!blocked) {
+        res.push_back(Move(single_pawn, north_of_pawn));
+      }
+    }
+  } else {
+    const Bitboard black_pawns_excluding_second =
+        black_pawns_ & (~second_rank_mask);
+    for (Bitboard single_pawn : bitboard_split(black_pawns_excluding_second)) {
+      const Bitboard south_of_pawn = south(single_pawn);
+      const bool blocked = ((all_pieces() & south_of_pawn) != 0);
+      if (!blocked) {
+        res.push_back(Move(single_pawn, south_of_pawn));
+      }
     }
   }
 }
