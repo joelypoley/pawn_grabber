@@ -121,7 +121,7 @@ Bitboard southwest(Bitboard square) {
   return south_square ? west(south_square) : 0;
 }
 
-std::string Move::to_pretty_str() {
+std::string Move::to_pretty_str() const {
   std::string promotion_str;
   if (promotion_piece) {
     const auto& piece_map = get_piece_to_char_and_unicode();
@@ -130,6 +130,10 @@ std::string Move::to_pretty_str() {
   }
   return absl::StrCat(square_to_str(src_square), square_to_str(dst_square),
                       promotion_str);
+}
+
+void PrintTo(const Move& move, std::ostream* os) {
+  *os << move.to_pretty_str();
 }
 
 Board::Board() : Board(get_start_fen()) {}
@@ -270,7 +274,7 @@ void Board::init_en_passant(const std::string_view algebraic_square) {
   }
 }
 
-std::string Board::to_pretty_str() {
+std::string Board::to_pretty_str() const {
   const std::string top_left_corner = "┌";      // U+250C
   const std::string top_right_corner = "┐";     // U+2510
   const std::string bottom_left_corner = "└";   // U+2514
@@ -345,7 +349,11 @@ std::string Board::to_pretty_str() {
   return res;
 }
 
-std::string Board::square_to_unicode(Bitboard square) {
+void PrintTo(const Board& board, std::ostream* os) {
+  *os << board.to_pretty_str();
+}
+
+std::string Board::square_to_unicode(Bitboard square) const {
   if (square & white_pawns_) {
     return "♙";  // U+2564
   } else if (square & white_rooks_) {

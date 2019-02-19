@@ -51,7 +51,8 @@ struct Move {
       : src_square(p_src_square),
         dst_square(p_dst_square),
         promotion_piece(p_promotion_piece) {}
-  std::string to_pretty_str();
+  std::string to_pretty_str() const;
+  friend void PrintTo(const Move& move, std::ostream* os);
 };
 
 bool operator==(const Move& lhs, const Move& rhs) {
@@ -123,7 +124,8 @@ class Board {
  public:
   Board();
   Board(std::string_view fen);
-  std::string to_pretty_str();
+  std::string to_pretty_str() const;
+  friend void PrintTo(const Board& board, std::ostream* os);
   std::vector<Move> legal_moves();
   Bitboard white_pawns_;
   Bitboard white_rooks_;
@@ -162,7 +164,7 @@ class Board {
   void init_en_passant(const std::string_view algebraic_square);
   void init_fifty_move_clock(const std::string_view num_half_moves_fen);
   void init_num_moves(const std::string_view num_moves_fen);
-  std::string square_to_unicode(Bitboard square);
+  std::string square_to_unicode(Bitboard square) const;
 
   std::vector<Move> pseudo_pawn_moves_excluding_promo();
 };
