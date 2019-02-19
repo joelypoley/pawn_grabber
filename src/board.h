@@ -2,8 +2,11 @@
 #define BOARD_H
 
 #include <array>
+#include <cstdint>
+#include <functional>
 #include <optional>
 #include <string>
+#include <vector>
 
 // Each bit of a Bitboard represents a square. The a8 square is the most
 // significant bit and the h1 square is the least significant bit. So the
@@ -124,6 +127,7 @@ class Board {
  public:
   Board();
   Board(std::string_view fen);
+  Board(const Board& other);
   std::string to_pretty_str() const;
   friend void PrintTo(const Board& board, std::ostream* os);
   std::vector<Move> legal_moves();
@@ -172,6 +176,8 @@ class Board {
   void pseudolegal_knight_moves(std::vector<Move>* res_ptr) const;
 
   std::vector<Move> pseudolegal_moves() const;
+
+  Bitboard all_dst_squares(Color color) const;
 
  private:
   void zero_all_bitboards();

@@ -5,6 +5,7 @@
 #include <string_view>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "absl/algorithm/container.h"
 #include "absl/base/internal/raw_logging.h"
@@ -158,6 +159,32 @@ Board::Board(std::string_view fen) {
   ABSL_RAW_CHECK(absl::SimpleAtoi(split_fen[5], &num_moves_),
                  "FEN invalid: Number of moves not convertible to integer.");
 }
+
+Board::Board(const Board& other)
+    : white_pawns_(other.white_pawns_),
+      white_rooks_(other.white_rooks_),
+      white_knights_(other.white_knights_),
+      white_bishops_(other.white_bishops_),
+      white_queens_(other.white_queens_),
+      white_king_(other.white_king_),
+      black_pawns_(other.black_pawns_),
+      black_rooks_(other.black_rooks_),
+      black_knights_(other.black_knights_),
+      black_bishops_(other.black_bishops_),
+      black_queens_(other.black_queens_),
+      black_king_(other.black_king_),
+      side_to_move_(other.side_to_move_),
+      en_passant_square_(other.en_passant_square_),
+      white_has_right_to_castle_kingside_(
+          other.white_has_right_to_castle_kingside_),
+      white_has_right_to_castle_queenside_(
+          other.white_has_right_to_castle_queenside_),
+      black_has_right_to_castle_kingside_(
+          other.black_has_right_to_castle_kingside_),
+      black_has_right_to_castle_queenside_(
+          other.black_has_right_to_castle_queenside_),
+      fifty_move_clock_(other.fifty_move_clock_),
+      num_moves_(other.num_moves_) {}
 
 void Board::zero_all_bitboards() {
   white_pawns_ = 0;
@@ -692,62 +719,64 @@ void Board::pseudolegal_king_moves(std::vector<Move>* res_ptr) const {
 
 void Board::pseudolegal_knight_moves(std::vector<Move>* res_ptr) const {
   bool whites_move = side_to_move_ == Color::white;
-  Bitboard knight = whites_move ? white_knights_ : black_knights_;
+  Bitboard knights = whites_move ? white_knights_ : black_knights_;
   Bitboard friends = whites_move ? white_pieces() : black_pieces();
 
-  Bitboard n_knight = north(knight);
-  if (n_knight) {
-    Bitboard ne_n_knight = northeast(n_knight);
-    bool friendly_piece_ne_n_knight = ne_n_knight & friends;
-    if (!friendly_piece_ne_n_knight && ne_n_knight) {
-      res_ptr->emplace_back(knight, ne_n_knight);
+  for (Bitboard knight : bitboard_split(knights)) {
+    Bitboard n_knight = north(knight);
+    if (n_knight) {
+      Bitboard ne_n_knight = northeast(n_knight);
+      bool friendly_piece_ne_n_knight = ne_n_knight & friends;
+      if (!friendly_piece_ne_n_knight && ne_n_knight) {
+        res_ptr->emplace_back(knight, ne_n_knight);
+      }
+      Bitboard nw_n_knight = northwest(n_knight);
+      bool friendly_piece_nw_n_knight = nw_n_knight & friends;
+      if (!friendly_piece_nw_n_knight && nw_n_knight) {
+        res_ptr->emplace_back(knight, nw_n_knight);
+      }
     }
-    Bitboard nw_n_knight = northwest(n_knight);
-    bool friendly_piece_nw_n_knight = nw_n_knight & friends;
-    if (!friendly_piece_nw_n_knight && nw_n_knight) {
-      res_ptr->emplace_back(knight, nw_n_knight);
-    }
-  }
 
-  Bitboard s_knight = south(knight);
-  if (s_knight) {
-    Bitboard se_s_knight = southeast(s_knight);
-    bool friendly_piece_se_s_knight = se_s_knight & friends;
-    if (!friendly_piece_se_s_knight && se_s_knight) {
-      res_ptr->emplace_back(knight, se_s_knight);
+    Bitboard s_knight = south(knight);
+    if (s_knight) {
+      Bitboard se_s_knight = southeast(s_knight);
+      bool friendly_piece_se_s_knight = se_s_knight & friends;
+      if (!friendly_piece_se_s_knight && se_s_knight) {
+        res_ptr->emplace_back(knight, se_s_knight);
+      }
+      Bitboard sw_s_knight = southwest(s_knight);
+      bool friendly_piece_sw_s_knight = sw_s_knight & friends;
+      if (!friendly_piece_sw_s_knight && sw_s_knight) {
+        res_ptr->emplace_back(knight, sw_s_knight);
+      }
     }
-    Bitboard sw_s_knight = southwest(s_knight);
-    bool friendly_piece_sw_s_knight = sw_s_knight & friends;
-    if (!friendly_piece_sw_s_knight && sw_s_knight) {
-      res_ptr->emplace_back(knight, sw_s_knight);
-    }
-  }
 
-  Bitboard e_knight = east(knight);
-  if (e_knight) {
-    Bitboard ne_e_knight = northeast(e_knight);
-    bool friendly_piece_ne_e_knight = ne_e_knight & friends;
-    if (!friendly_piece_ne_e_knight && ne_e_knight) {
-      res_ptr->emplace_back(knight, ne_e_knight);
+    Bitboard e_knight = east(knight);
+    if (e_knight) {
+      Bitboard ne_e_knight = northeast(e_knight);
+      bool friendly_piece_ne_e_knight = ne_e_knight & friends;
+      if (!friendly_piece_ne_e_knight && ne_e_knight) {
+        res_ptr->emplace_back(knight, ne_e_knight);
+      }
+      Bitboard se_e_knight = southeast(e_knight);
+      bool friendly_piece_se_e_knight = se_e_knight & friends;
+      if (!friendly_piece_se_e_knight && se_e_knight) {
+        res_ptr->emplace_back(knight, se_e_knight);
+      }
     }
-    Bitboard se_e_knight = southeast(e_knight);
-    bool friendly_piece_se_e_knight = se_e_knight & friends;
-    if (!friendly_piece_se_e_knight && se_e_knight) {
-      res_ptr->emplace_back(knight, se_e_knight);
-    }
-  }
 
-  Bitboard w_knight = west(knight);
-  if (w_knight) {
-    Bitboard nw_w_knight = northwest(w_knight);
-    bool friendly_piecw_nw_w_knight = nw_w_knight & friends;
-    if (!friendly_piecw_nw_w_knight && nw_w_knight) {
-      res_ptr->emplace_back(knight, nw_w_knight);
-    }
-    Bitboard sw_w_knight = southwest(w_knight);
-    bool friendly_piecw_sw_w_knight = sw_w_knight & friends;
-    if (!friendly_piecw_sw_w_knight && sw_w_knight) {
-      res_ptr->emplace_back(knight, sw_w_knight);
+    Bitboard w_knight = west(knight);
+    if (w_knight) {
+      Bitboard nw_w_knight = northwest(w_knight);
+      bool friendly_piecw_nw_w_knight = nw_w_knight & friends;
+      if (!friendly_piecw_nw_w_knight && nw_w_knight) {
+        res_ptr->emplace_back(knight, nw_w_knight);
+      }
+      Bitboard sw_w_knight = southwest(w_knight);
+      bool friendly_piecw_sw_w_knight = sw_w_knight & friends;
+      if (!friendly_piecw_sw_w_knight && sw_w_knight) {
+        res_ptr->emplace_back(knight, sw_w_knight);
+      }
     }
   }
 }
@@ -760,6 +789,16 @@ std::vector<Move> Board::pseudolegal_moves() const {
   pseudolegal_pawn_moves(&res);
   pseudolegal_king_moves(&res);
   pseudolegal_knight_moves(&res);
+  return res;
+}
+
+Bitboard Board::all_dst_squares(Color color) const {
+  Board copy(*this);
+  copy.side_to_move_ = color;
+  std::vector<Move> moves = copy.pseudolegal_moves();
+  Bitboard res = absl::c_accumulate(
+      moves, uint64_t(0),
+      [](Bitboard acc, Move move) { return acc | move.dst_square; });
   return res;
 }
 

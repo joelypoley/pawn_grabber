@@ -1048,6 +1048,15 @@ TEST(PseudoLegalMoves, Black) {
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
 }
 
+TEST(AttackMoves, Simple) {
+  Board board("4k3/8/8/8/4P3/8/8/2K5 w - - 0 1");
+
+  Bitboard bb = str_to_square("b1") | str_to_square("d1") |
+                str_to_square("b2") | str_to_square("c2") |
+                str_to_square("d2") | str_to_square("e5");
+  EXPECT_EQ(board.all_dst_squares(Color::white), bb);
+}
+
 TEST(SquareToStr, Simple) {
   EXPECT_EQ(square_to_str(str_to_square("a1")), "a1");
   EXPECT_EQ(square_to_str(str_to_square("e4")), "e4");
