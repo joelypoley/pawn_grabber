@@ -129,7 +129,7 @@ TEST(BoardConstructor, StartPosition) {
   EXPECT_EQ(start_board.black_bishops_, 0x2400000000000000);
   EXPECT_EQ(start_board.black_queens_, 0x1000000000000000);
   EXPECT_EQ(start_board.black_king_, 0x800000000000000);
-  EXPECT_EQ(start_board.side_to_move_, Color::white);
+  EXPECT_TRUE(start_board.is_whites_move_);
   EXPECT_EQ(start_board.en_passant_square_, std::nullopt);
   EXPECT_TRUE(start_board.white_has_right_to_castle_kingside_);
   EXPECT_TRUE(start_board.white_has_right_to_castle_queenside_);
@@ -176,7 +176,7 @@ TEST(BoardConstructor, KingsPawn) {
   EXPECT_EQ(board.black_bishops_, 0x2400000000000000);
   EXPECT_EQ(board.black_queens_, 0x1000000000000000);
   EXPECT_EQ(board.black_king_, 0x800000000000000);
-  EXPECT_EQ(board.side_to_move_, Color::black);
+  EXPECT_FALSE(board.is_whites_move_);
   const Bitboard e3 = (1ULL << (2 * board_size + 3));
   EXPECT_EQ(board.en_passant_square_, e3);
   EXPECT_TRUE(board.white_has_right_to_castle_kingside_);
@@ -224,7 +224,7 @@ TEST(BoardConstructor, Sicilian) {
   EXPECT_EQ(board.black_bishops_, 0x2400000000000000);
   EXPECT_EQ(board.black_queens_, 0x1000000000000000);
   EXPECT_EQ(board.black_king_, 0x800000000000000);
-  EXPECT_EQ(board.side_to_move_, Color::white);
+  EXPECT_TRUE(board.is_whites_move_);
   const Bitboard c6 = (1ULL << (5 * board_size + 5));
   EXPECT_EQ(board.en_passant_square_, c6);
   EXPECT_TRUE(board.white_has_right_to_castle_kingside_);
@@ -272,7 +272,7 @@ TEST(BoardConstructor, Nf3Sicilian) {
   EXPECT_EQ(board.black_bishops_, 0x2400000000000000);
   EXPECT_EQ(board.black_queens_, 0x1000000000000000);
   EXPECT_EQ(board.black_king_, 0x800000000000000);
-  EXPECT_EQ(board.side_to_move_, Color::black);
+  EXPECT_FALSE(board.is_whites_move_);
   EXPECT_EQ(board.en_passant_square_, std::nullopt);
   EXPECT_TRUE(board.white_has_right_to_castle_kingside_);
   EXPECT_TRUE(board.white_has_right_to_castle_queenside_);
@@ -319,7 +319,7 @@ TEST(BoardConstructor, SicilianWith2Ke2) {
   EXPECT_EQ(board.black_bishops_, 0x2400000000000000);
   EXPECT_EQ(board.black_queens_, 0x1000000000000000);
   EXPECT_EQ(board.black_king_, 0x800000000000000);
-  EXPECT_EQ(board.side_to_move_, Color::black);
+  EXPECT_FALSE(board.is_whites_move_);
   EXPECT_EQ(board.en_passant_square_, std::nullopt);
   EXPECT_FALSE(board.white_has_right_to_castle_kingside_);
   EXPECT_FALSE(board.white_has_right_to_castle_queenside_);
@@ -366,7 +366,7 @@ TEST(BoardConstructor, KingVsKing) {
   EXPECT_EQ(board.black_bishops_, 0x0);
   EXPECT_EQ(board.black_queens_, 0x0);
   EXPECT_EQ(board.black_king_, 0x800000000000000);
-  EXPECT_EQ(board.side_to_move_, Color::white);
+  EXPECT_TRUE(board.is_whites_move_);
   EXPECT_EQ(board.en_passant_square_, std::nullopt);
   EXPECT_FALSE(board.white_has_right_to_castle_kingside_);
   EXPECT_FALSE(board.white_has_right_to_castle_queenside_);
@@ -413,7 +413,7 @@ TEST(BoardConstructor, LucenaPosition) {
   EXPECT_EQ(board.black_bishops_, 0x0);
   EXPECT_EQ(board.black_queens_, 0x0);
   EXPECT_EQ(board.black_king_, 0x1000000000000000);
-  EXPECT_EQ(board.side_to_move_, Color::white);
+  EXPECT_TRUE(board.is_whites_move_);
   EXPECT_EQ(board.en_passant_square_, std::nullopt);
   EXPECT_FALSE(board.white_has_right_to_castle_kingside_);
   EXPECT_FALSE(board.white_has_right_to_castle_queenside_);
@@ -466,7 +466,7 @@ TEST(BoardConstructor, MiddleGame) {
   EXPECT_EQ(board.black_bishops_, str_to_square("g6"));
   EXPECT_EQ(board.black_queens_, str_to_square("h4"));
   EXPECT_EQ(board.black_king_, str_to_square("g8"));
-  EXPECT_EQ(board.side_to_move_, Color::white);
+  EXPECT_TRUE(board.is_whites_move_);
   EXPECT_EQ(board.en_passant_square_, std::nullopt);
   EXPECT_FALSE(board.white_has_right_to_castle_kingside_);
   EXPECT_FALSE(board.white_has_right_to_castle_queenside_);

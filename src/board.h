@@ -143,7 +143,7 @@ class Board {
   Bitboard black_bishops_;
   Bitboard black_queens_;
   Bitboard black_king_;
-  Color side_to_move_;
+  bool is_whites_move_;
   std::optional<Bitboard> en_passant_square_;
   bool white_has_right_to_castle_kingside_;
   bool white_has_right_to_castle_queenside_;
@@ -182,7 +182,7 @@ class Board {
  private:
   void zero_all_bitboards();
   void init_bitboards(const std::string_view pieces_fen);
-  void init_side_to_move(const std::string_view pieces_fen);
+  void init_is_whites_move(const std::string_view pieces_fen);
   void init_color(const std::string_view side_to_move_fen);
   void init_castling_rights(const std::string_view castling_rights_fen);
   void init_en_passant(const std::string_view algebraic_square);

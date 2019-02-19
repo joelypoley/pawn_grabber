@@ -151,7 +151,7 @@ Board::Board(std::string_view fen) {
   std::vector<std::string_view> split_fen = absl::StrSplit(fen, " ");
 
   init_bitboards(split_fen[0]);
-  init_side_to_move(split_fen[1]);
+  init_is_whites_move(split_fen[1]);
   init_castling_rights(split_fen[2]);
   init_en_passant(split_fen[3]);
   ABSL_RAW_CHECK(absl::SimpleAtoi(split_fen[4], &fifty_move_clock_),
@@ -173,7 +173,7 @@ Board::Board(const Board& other)
       black_bishops_(other.black_bishops_),
       black_queens_(other.black_queens_),
       black_king_(other.black_king_),
-      side_to_move_(other.side_to_move_),
+      is_whites_move_(other.is_whites_move_),
       en_passant_square_(other.en_passant_square_),
       white_has_right_to_castle_kingside_(
           other.white_has_right_to_castle_kingside_),
@@ -280,13 +280,13 @@ void Board::init_bitboards(const std::string_view pieces_fen) {
   }
 }
 
-void Board::init_side_to_move(const std::string_view side_to_move) {
+void Board::init_is_whites_move(const std::string_view side_to_move) {
+  ABSL_RAW_CHECK(side_to_move == "w" || side_to_move == "b",
+                 "Invalid FEN. Side to move must be either w or b");
   if (side_to_move == "w") {
-    side_to_move_ = Color::white;
+    is_whites_move_ = true;
   } else if (side_to_move == "b") {
-    side_to_move_ = Color::black;
-  } else {
-    assert(false);
+    is_whites_move_ = false;
   }
 }
 
@@ -422,9 +422,8 @@ void Board::pseudolegal_moves_in_direction(
     std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_square,
     std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
-  bool whites_move = side_to_move_ == Color::white;
-  Bitboard friends = whites_move ? white_pieces() : black_pieces();
-  Bitboard enemies = whites_move ? black_pieces() : white_pieces();
+  Bitboard friends = is_whites_move_ ? white_pieces() : black_pieces();
+  Bitboard enemies = is_whites_move_ ? black_pieces() : white_pieces();
   ABSL_RAW_CHECK(src_square & friends,
                  "src_square must have a piece with the correct color on it.");
 
@@ -441,8 +440,7 @@ void Board::pseudolegal_moves_in_direction(
 }
 
 void Board::pseudolegal_bishop_moves(std::vector<Move>* res_ptr) const {
-  Bitboard bishops =
-      side_to_move_ == Color::white ? white_bishops_ : black_bishops_;
+  Bitboard bishops = is_whites_move_ ? white_bishops_ : black_bishops_;
   for (Bitboard bishop : bitboard_split(bishops)) {
     pseudolegal_moves_in_direction(northeast, bishop, res_ptr);
     pseudolegal_moves_in_direction(northwest, bishop, res_ptr);
@@ -452,7 +450,7 @@ void Board::pseudolegal_bishop_moves(std::vector<Move>* res_ptr) const {
 }
 
 void Board::pseudolegal_rook_moves(std::vector<Move>* res_ptr) const {
-  Bitboard rooks = side_to_move_ == Color::white ? white_rooks_ : black_rooks_;
+  Bitboard rooks = is_whites_move_ ? white_rooks_ : black_rooks_;
   for (Bitboard rook : bitboard_split(rooks)) {
     pseudolegal_moves_in_direction(north, rook, res_ptr);
     pseudolegal_moves_in_direction(south, rook, res_ptr);
@@ -462,8 +460,7 @@ void Board::pseudolegal_rook_moves(std::vector<Move>* res_ptr) const {
 }
 
 void Board::pseudolegal_queen_moves(std::vector<Move>* res_ptr) const {
-  Bitboard queens =
-      side_to_move_ == Color::white ? white_queens_ : black_queens_;
+  Bitboard queens = is_whites_move_ ? white_queens_ : black_queens_;
   for (Bitboard queen : bitboard_split(queens)) {
     pseudolegal_moves_in_direction(north, queen, res_ptr);
     pseudolegal_moves_in_direction(northeast, queen, res_ptr);
@@ -478,7 +475,7 @@ void Board::pseudolegal_queen_moves(std::vector<Move>* res_ptr) const {
 
 void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
-  if (side_to_move_ == Color::white) {
+  if (is_whites_move_) {
     const Bitboard white_pawns_excluding_seventh =
         white_pawns_ & (~seventh_rank_mask);
     for (Bitboard single_pawn : bitboard_split(white_pawns_excluding_seventh)) {
@@ -503,7 +500,7 @@ void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) const {
 
 void Board::pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
-  if (side_to_move_ == Color::white) {
+  if (is_whites_move_) {
     const Bitboard white_pawns_on_second = white_pawns_ & second_rank_mask;
     for (Bitboard single_pawn : bitboard_split(white_pawns_on_second)) {
       const Bitboard north_of_pawn = north(single_pawn);
@@ -531,7 +528,7 @@ void Board::pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr) const {
 void Board::pseudolegal_en_passant_moves(std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (en_passant_square_) {
-    if (side_to_move_ == Color::white) {
+    if (is_whites_move_) {
       Bitboard southeast_of_ep_square = southeast(en_passant_square_.value());
       Bitboard southwest_of_ep_square = southwest(en_passant_square_.value());
       if (southwest_of_ep_square & white_pieces()) {
@@ -555,7 +552,7 @@ void Board::pseudolegal_en_passant_moves(std::vector<Move>* res_ptr) const {
 
 void Board::pseudolegal_promotions(std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
-  if (side_to_move_ == Color::white) {
+  if (is_whites_move_) {
     const Bitboard white_pawns_on_seventh = white_pawns_ & seventh_rank_mask;
     for (Bitboard single_pawn : bitboard_split(white_pawns_on_seventh)) {
       const Bitboard north_of_pawn = north(single_pawn);
@@ -620,7 +617,7 @@ void Board::pseudolegal_promotions(std::vector<Move>* res_ptr) const {
 
 void Board::pseudolegal_pawn_captures(std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
-  if (side_to_move_ == Color::white) {
+  if (is_whites_move_) {
     const Bitboard white_pawns_excluding_seventh =
         white_pawns_ & (~seventh_rank_mask);
     for (Bitboard single_pawn : bitboard_split(white_pawns_excluding_seventh)) {
@@ -664,9 +661,8 @@ void Board::pseudolegal_pawn_moves(std::vector<Move>* res_ptr) const {
 }
 
 void Board::pseudolegal_king_moves(std::vector<Move>* res_ptr) const {
-  bool whites_move = side_to_move_ == Color::white;
-  Bitboard king = whites_move ? white_king_ : black_king_;
-  Bitboard friends = whites_move ? white_pieces() : black_pieces();
+  Bitboard king = is_whites_move_ ? white_king_ : black_king_;
+  Bitboard friends = is_whites_move_ ? white_pieces() : black_pieces();
 
   Bitboard north_of_king = north(king);
   bool friendly_piece_north_of_king = north_of_king & friends;
@@ -718,9 +714,8 @@ void Board::pseudolegal_king_moves(std::vector<Move>* res_ptr) const {
 }
 
 void Board::pseudolegal_knight_moves(std::vector<Move>* res_ptr) const {
-  bool whites_move = side_to_move_ == Color::white;
-  Bitboard knights = whites_move ? white_knights_ : black_knights_;
-  Bitboard friends = whites_move ? white_pieces() : black_pieces();
+  Bitboard knights = is_whites_move_ ? white_knights_ : black_knights_;
+  Bitboard friends = is_whites_move_ ? white_pieces() : black_pieces();
 
   for (Bitboard knight : bitboard_split(knights)) {
     Bitboard n_knight = north(knight);
@@ -794,7 +789,7 @@ std::vector<Move> Board::pseudolegal_moves() const {
 
 Bitboard Board::all_dst_squares(Color color) const {
   Board copy(*this);
-  copy.side_to_move_ = color;
+  copy.is_whites_move_ = color == Color::white;
   std::vector<Move> moves = copy.pseudolegal_moves();
   Bitboard res = absl::c_accumulate(
       moves, uint64_t(0),
