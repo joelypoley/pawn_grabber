@@ -529,6 +529,7 @@ TEST(PseudoLegalMoves, A1Rook) {
   board.pseudolegal_moves_in_direction(south, a1, &test_south_moves);
   EXPECT_TRUE(test_south_moves.empty());
 
+  // TODO: Change to computed_east_moves and east_moves.
   std::vector<Move> east_moves = {
       Move(a1, str_to_square("b1")), Move(a1, str_to_square("c1")),
       Move(a1, str_to_square("d1")), Move(a1, str_to_square("e1"))};
@@ -849,4 +850,84 @@ TEST(PseudoLegalMoves, TwoEnPassantMovesBlack) {
   std::vector<Move> test_moves;
   board.pseudolegal_en_passant_moves(&test_moves);
   EXPECT_EQ(test_moves, moves);
+}
+
+TEST(PseudoLegalMoves, PromotionsWhite) {
+  Board board("1Q1r1Q1q/PPP1PPPP/3P4/8/8/8/8/k2K4 w - - 0 1");
+
+  std::vector<Move> moves = {
+      Move(str_to_square("a7"), str_to_square("a8"), Piece::white_rook),
+      Move(str_to_square("a7"), str_to_square("a8"), Piece::white_knight),
+      Move(str_to_square("a7"), str_to_square("a8"), Piece::white_bishop),
+      Move(str_to_square("a7"), str_to_square("a8"), Piece::white_queen),
+      Move(str_to_square("c7"), str_to_square("c8"), Piece::white_rook),
+      Move(str_to_square("c7"), str_to_square("c8"), Piece::white_knight),
+      Move(str_to_square("c7"), str_to_square("c8"), Piece::white_bishop),
+      Move(str_to_square("c7"), str_to_square("c8"), Piece::white_queen),
+      Move(str_to_square("c7"), str_to_square("d8"), Piece::white_rook),
+      Move(str_to_square("c7"), str_to_square("d8"), Piece::white_knight),
+      Move(str_to_square("c7"), str_to_square("d8"), Piece::white_bishop),
+      Move(str_to_square("c7"), str_to_square("d8"), Piece::white_queen),
+      Move(str_to_square("e7"), str_to_square("e8"), Piece::white_rook),
+      Move(str_to_square("e7"), str_to_square("e8"), Piece::white_knight),
+      Move(str_to_square("e7"), str_to_square("e8"), Piece::white_bishop),
+      Move(str_to_square("e7"), str_to_square("e8"), Piece::white_queen),
+      Move(str_to_square("e7"), str_to_square("d8"), Piece::white_rook),
+      Move(str_to_square("e7"), str_to_square("d8"), Piece::white_knight),
+      Move(str_to_square("e7"), str_to_square("d8"), Piece::white_bishop),
+      Move(str_to_square("e7"), str_to_square("d8"), Piece::white_queen),
+      Move(str_to_square("g7"), str_to_square("g8"), Piece::white_rook),
+      Move(str_to_square("g7"), str_to_square("g8"), Piece::white_knight),
+      Move(str_to_square("g7"), str_to_square("g8"), Piece::white_bishop),
+      Move(str_to_square("g7"), str_to_square("g8"), Piece::white_queen),
+      Move(str_to_square("g7"), str_to_square("h8"), Piece::white_rook),
+      Move(str_to_square("g7"), str_to_square("h8"), Piece::white_knight),
+      Move(str_to_square("g7"), str_to_square("h8"), Piece::white_bishop),
+      Move(str_to_square("g7"), str_to_square("h8"), Piece::white_queen),
+  };
+  std::vector<Move> test_moves;
+  board.pseudolegal_promotions(&test_moves);
+  EXPECT_EQ(test_moves.size(), moves.size());
+  EXPECT_TRUE(
+      std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
+}
+
+TEST(PseudoLegalMoves, PromotionsBlack) {
+  Board board("1K1k4/8/8/8/8/3p4/ppp1pppp/1q1R1q1Q b - - 0 1");
+
+  std::vector<Move> moves = {
+      Move(str_to_square("a2"), str_to_square("a1"), Piece::black_rook),
+      Move(str_to_square("a2"), str_to_square("a1"), Piece::black_knight),
+      Move(str_to_square("a2"), str_to_square("a1"), Piece::black_bishop),
+      Move(str_to_square("a2"), str_to_square("a1"), Piece::black_queen),
+      Move(str_to_square("c2"), str_to_square("c1"), Piece::black_rook),
+      Move(str_to_square("c2"), str_to_square("c1"), Piece::black_knight),
+      Move(str_to_square("c2"), str_to_square("c1"), Piece::black_bishop),
+      Move(str_to_square("c2"), str_to_square("c1"), Piece::black_queen),
+      Move(str_to_square("c2"), str_to_square("d1"), Piece::black_rook),
+      Move(str_to_square("c2"), str_to_square("d1"), Piece::black_knight),
+      Move(str_to_square("c2"), str_to_square("d1"), Piece::black_bishop),
+      Move(str_to_square("c2"), str_to_square("d1"), Piece::black_queen),
+      Move(str_to_square("e2"), str_to_square("e1"), Piece::black_rook),
+      Move(str_to_square("e2"), str_to_square("e1"), Piece::black_knight),
+      Move(str_to_square("e2"), str_to_square("e1"), Piece::black_bishop),
+      Move(str_to_square("e2"), str_to_square("e1"), Piece::black_queen),
+      Move(str_to_square("e2"), str_to_square("d1"), Piece::black_rook),
+      Move(str_to_square("e2"), str_to_square("d1"), Piece::black_knight),
+      Move(str_to_square("e2"), str_to_square("d1"), Piece::black_bishop),
+      Move(str_to_square("e2"), str_to_square("d1"), Piece::black_queen),
+      Move(str_to_square("g2"), str_to_square("g1"), Piece::black_rook),
+      Move(str_to_square("g2"), str_to_square("g1"), Piece::black_knight),
+      Move(str_to_square("g2"), str_to_square("g1"), Piece::black_bishop),
+      Move(str_to_square("g2"), str_to_square("g1"), Piece::black_queen),
+      Move(str_to_square("g2"), str_to_square("h1"), Piece::black_rook),
+      Move(str_to_square("g2"), str_to_square("h1"), Piece::black_knight),
+      Move(str_to_square("g2"), str_to_square("h1"), Piece::black_bishop),
+      Move(str_to_square("g2"), str_to_square("h1"), Piece::black_queen),
+  };
+  std::vector<Move> test_moves;
+  board.pseudolegal_promotions(&test_moves);
+  EXPECT_EQ(test_moves.size(), moves.size());
+  EXPECT_TRUE(
+      std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
 }

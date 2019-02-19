@@ -422,7 +422,7 @@ void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) {
       const Bitboard north_of_pawn = north(single_pawn);
       const bool blocked = all_pieces() & north_of_pawn;
       if (!blocked) {
-        res.push_back(Move(single_pawn, north_of_pawn));
+        res.emplace_back(single_pawn, north_of_pawn);
       }
     }
   } else {
@@ -432,7 +432,7 @@ void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) {
       const Bitboard south_of_pawn = south(single_pawn);
       const bool blocked = all_pieces() & south_of_pawn;
       if (!blocked) {
-        res.push_back(Move(single_pawn, south_of_pawn));
+        res.emplace_back(single_pawn, south_of_pawn);
       }
     }
   }
@@ -448,7 +448,7 @@ void Board::pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr) {
       const bool blocked =
           (all_pieces() & north_of_pawn) || (all_pieces() & two_north_of_pawn);
       if (!blocked) {
-        res.push_back(Move(single_pawn, two_north_of_pawn));
+        res.emplace_back(single_pawn, two_north_of_pawn);
       }
     }
   } else {
@@ -459,7 +459,7 @@ void Board::pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr) {
       const bool blocked =
           (all_pieces() & south_of_pawn) || (all_pieces() & two_south_of_pawn);
       if (!blocked) {
-        res.push_back(Move(single_pawn, two_south_of_pawn));
+        res.emplace_back(single_pawn, two_south_of_pawn);
       }
     }
   }
@@ -485,6 +485,71 @@ void Board::pseudolegal_en_passant_moves(std::vector<Move>* res_ptr) {
       }
       if (northeast_of_ep_square & black_pieces()) {
         res.emplace_back(northeast_of_ep_square, en_passant_square_.value());
+      }
+    }
+  }
+}
+
+void Board::pseudolegal_promotions(std::vector<Move>* res_ptr) {
+  std::vector<Move>& res = *res_ptr;
+  if (side_to_move_ == Color::white) {
+    const Bitboard white_pawns_on_seventh = white_pawns_ & seventh_rank_mask;
+    for (Bitboard single_pawn : bitboard_split(white_pawns_on_seventh)) {
+      const Bitboard north_of_pawn = north(single_pawn);
+      const bool blocked = all_pieces() & north_of_pawn;
+      if (!blocked) {
+        res.emplace_back(single_pawn, north_of_pawn, Piece::white_rook);
+        res.emplace_back(single_pawn, north_of_pawn, Piece::white_knight);
+        res.emplace_back(single_pawn, north_of_pawn, Piece::white_bishop);
+        res.emplace_back(single_pawn, north_of_pawn, Piece::white_queen);
+      }
+
+      const Bitboard northeast_of_pawn = northeast(single_pawn);
+      const bool black_piece_northeast = black_pieces() & northeast_of_pawn;
+      if (black_piece_northeast) {
+        res.emplace_back(single_pawn, northeast_of_pawn, Piece::white_rook);
+        res.emplace_back(single_pawn, northeast_of_pawn, Piece::white_knight);
+        res.emplace_back(single_pawn, northeast_of_pawn, Piece::white_bishop);
+        res.emplace_back(single_pawn, northeast_of_pawn, Piece::white_queen);
+      }
+
+      const Bitboard northwest_of_pawn = northwest(single_pawn);
+      const bool black_piece_northwest = black_pieces() & northwest_of_pawn;
+      if (black_piece_northwest) {
+        res.emplace_back(single_pawn, northwest_of_pawn, Piece::white_rook);
+        res.emplace_back(single_pawn, northwest_of_pawn, Piece::white_knight);
+        res.emplace_back(single_pawn, northwest_of_pawn, Piece::white_bishop);
+        res.emplace_back(single_pawn, northwest_of_pawn, Piece::white_queen);
+      }
+    }
+  } else {
+    const Bitboard black_pawns_on_second = black_pawns_ & second_rank_mask;
+    for (Bitboard single_pawn : bitboard_split(black_pawns_on_second)) {
+      const Bitboard south_of_pawn = south(single_pawn);
+      const bool blocked = all_pieces() & south_of_pawn;
+      if (!blocked) {
+        res.emplace_back(single_pawn, south_of_pawn, Piece::black_rook);
+        res.emplace_back(single_pawn, south_of_pawn, Piece::black_knight);
+        res.emplace_back(single_pawn, south_of_pawn, Piece::black_bishop);
+        res.emplace_back(single_pawn, south_of_pawn, Piece::black_queen);
+      }
+
+      const Bitboard southeast_of_pawn = southeast(single_pawn);
+      const bool white_piece_southeast = white_pieces() & southeast_of_pawn;
+      if (white_piece_southeast) {
+        res.emplace_back(single_pawn, southeast_of_pawn, Piece::black_rook);
+        res.emplace_back(single_pawn, southeast_of_pawn, Piece::black_knight);
+        res.emplace_back(single_pawn, southeast_of_pawn, Piece::black_bishop);
+        res.emplace_back(single_pawn, southeast_of_pawn, Piece::black_queen);
+      }
+
+      const Bitboard southwest_of_pawn = southwest(single_pawn);
+      const bool white_piece_southwest = white_pieces() & southwest_of_pawn;
+      if (white_piece_southwest) {
+        res.emplace_back(single_pawn, southwest_of_pawn, Piece::black_rook);
+        res.emplace_back(single_pawn, southwest_of_pawn, Piece::black_knight);
+        res.emplace_back(single_pawn, southwest_of_pawn, Piece::black_bishop);
+        res.emplace_back(single_pawn, southwest_of_pawn, Piece::black_queen);
       }
     }
   }

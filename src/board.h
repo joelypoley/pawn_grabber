@@ -161,6 +161,7 @@ class Board {
   void pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr);
   void pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr);
   void pseudolegal_en_passant_moves(std::vector<Move>* res_ptr);
+  void pseudolegal_promotions(std::vector<Move>* res_ptr);
 
  private:
   void zero_all_bitboards();
