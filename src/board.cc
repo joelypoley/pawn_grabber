@@ -595,9 +595,9 @@ void Board::pseudolegal_pawn_captures(std::vector<Move>* res_ptr) const {
 void Board::pseudolegal_pawn_moves(std::vector<Move>* res_ptr) const {
   pseudolegal_simple_pawn_moves(res_ptr);
   pseudolegal_two_step_pawn_moves(res_ptr);
+  pseudolegal_pawn_captures(res_ptr);
   pseudolegal_en_passant_moves(res_ptr);
   pseudolegal_promotions(res_ptr);
-  pseudolegal_pawn_captures(res_ptr);
 }
 
 Bitboard str_to_square(const std::string_view algebraic_square) {

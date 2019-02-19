@@ -965,3 +965,26 @@ TEST(PseudoLegalMoves, PawnCapturesBlack) {
   board.pseudolegal_pawn_captures(&test_moves);
   EXPECT_EQ(test_moves, moves);
 }
+
+TEST(PseudoLegalMoves, PawnsWhite) {
+  Board board(
+      "1n1qkbnr/1p2pppp/r7/1Ppp3P/3PP3/2N2N2/pPP2PP1/1RBQKB1R w Kk - 6 12");
+
+  std::vector<Move> moves = {
+      Move(str_to_square("g2"), str_to_square("g3")),
+      Move(str_to_square("g2"), str_to_square("g4")),
+      Move(str_to_square("b2"), str_to_square("b3")),
+      Move(str_to_square("b2"), str_to_square("b4")),
+      Move(str_to_square("e4"), str_to_square("e5")),
+      Move(str_to_square("e4"), str_to_square("d5")),
+      Move(str_to_square("d4"), str_to_square("c5")),
+      Move(str_to_square("h5"), str_to_square("h6")),
+      Move(str_to_square("b5"), str_to_square("b6")),
+      Move(str_to_square("b5"), str_to_square("a6")),
+  };
+  std::vector<Move> test_moves;
+  board.pseudolegal_pawn_moves(&test_moves);
+  EXPECT_EQ(test_moves.size(), moves.size());
+  EXPECT_TRUE(
+      std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
+}
