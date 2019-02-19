@@ -766,6 +766,52 @@ TEST(PseudoLegalMoves, BishopMovesBlack) {
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
 }
 
+TEST(PseudoLegalMoves, RookMovesWhite) {
+  Board board("r2r1bn1/5ppk/7p/3PpN2/p6Q/1qP2P1P/1P1B2PK/R2R4 w - - 4 36");
+
+  std::vector<Move> moves = {Move(str_to_square("a1"), str_to_square("a2")),
+                             Move(str_to_square("a1"), str_to_square("a3")),
+                             Move(str_to_square("a1"), str_to_square("b1")),
+                             Move(str_to_square("a1"), str_to_square("c1")),
+                             Move(str_to_square("a1"), str_to_square("a4")),
+                             Move(str_to_square("d1"), str_to_square("c1")),
+                             Move(str_to_square("d1"), str_to_square("b1")),
+                             Move(str_to_square("d1"), str_to_square("e1")),
+                             Move(str_to_square("d1"), str_to_square("f1")),
+                             Move(str_to_square("d1"), str_to_square("g1")),
+                             Move(str_to_square("d1"), str_to_square("h1"))
+
+  };
+  std::vector<Move> test_moves;
+  board.pseudolegal_rook_moves(&test_moves);
+  EXPECT_EQ(test_moves.size(), moves.size());
+  EXPECT_TRUE(
+      std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
+}
+
+TEST(PseudoLegalMoves, RookMovesBlack) {
+  Board board("r2r1bn1/5ppk/7p/3PpN2/p6Q/1qP2P1P/1P1B2PK/R2R4 b - - 4 36");
+
+  std::vector<Move> moves = {
+      Move(str_to_square("a8"), str_to_square("a7")),
+      Move(str_to_square("a8"), str_to_square("a6")),
+      Move(str_to_square("a8"), str_to_square("a5")),
+      Move(str_to_square("a8"), str_to_square("b8")),
+      Move(str_to_square("a8"), str_to_square("c8")),
+      Move(str_to_square("d8"), str_to_square("c8")),
+      Move(str_to_square("d8"), str_to_square("b8")),
+      Move(str_to_square("d8"), str_to_square("e8")),
+      Move(str_to_square("d8"), str_to_square("d7")),
+      Move(str_to_square("d8"), str_to_square("d6")),
+      Move(str_to_square("d8"), str_to_square("d5")),
+  };
+  std::vector<Move> test_moves;
+  board.pseudolegal_rook_moves(&test_moves);
+  EXPECT_EQ(test_moves.size(), moves.size());
+  EXPECT_TRUE(
+      std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
+}
+
 TEST(SquareToStr, Simple) {
   EXPECT_EQ(square_to_str(str_to_square("a1")), "a1");
   EXPECT_EQ(square_to_str(str_to_square("e4")), "e4");

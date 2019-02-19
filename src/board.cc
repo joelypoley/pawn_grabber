@@ -424,6 +424,16 @@ void Board::pseudolegal_bishop_moves(std::vector<Move>* res_ptr) const {
   }
 }
 
+void Board::pseudolegal_rook_moves(std::vector<Move>* res_ptr) const {
+  Bitboard rooks = side_to_move_ == Color::white ? white_rooks_ : black_rooks_;
+  for (Bitboard rook : bitboard_split(rooks)) {
+    pseudolegal_moves_in_direction(north, rook, res_ptr);
+    pseudolegal_moves_in_direction(south, rook, res_ptr);
+    pseudolegal_moves_in_direction(east, rook, res_ptr);
+    pseudolegal_moves_in_direction(west, rook, res_ptr);
+  }
+}
+
 void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (side_to_move_ == Color::white) {
