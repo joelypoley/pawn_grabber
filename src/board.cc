@@ -413,6 +413,17 @@ void Board::pseudolegal_moves_in_direction(
   }
 }
 
+void Board::pseudolegal_bishop_moves(std::vector<Move>* res_ptr) const {
+  Bitboard bishops =
+      side_to_move_ == Color::white ? white_bishops_ : black_bishops_;
+  for (Bitboard bishop : bitboard_split(bishops)) {
+    pseudolegal_moves_in_direction(northeast, bishop, res_ptr);
+    pseudolegal_moves_in_direction(northwest, bishop, res_ptr);
+    pseudolegal_moves_in_direction(southeast, bishop, res_ptr);
+    pseudolegal_moves_in_direction(southwest, bishop, res_ptr);
+  }
+}
+
 void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (side_to_move_ == Color::white) {
