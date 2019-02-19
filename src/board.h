@@ -159,6 +159,7 @@ class Board {
   // "Simple" in this context means no two-step moves, no promotions, no en
   // passant.
   void pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr);
+  void pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr);
 
  private:
   void zero_all_bitboards();

@@ -769,3 +769,26 @@ TEST(PseudoLegalMoves, SimplePawnMovesBlack) {
   board.pseudolegal_simple_pawn_moves(&test_moves);
   EXPECT_EQ(test_moves, moves);
 }
+
+TEST(PseudoLegalMoves, TwoStepPawnMovesWhite) {
+  Board board("r4rk1/pp3pp1/2p3bp/8/3Pp1nq/1QN1P2P/PP1N1PP1/R4R1K w - - 1 18");
+
+  std::vector<Move> moves = {Move(str_to_square("f2"), str_to_square("f4")),
+                             Move(str_to_square("a2"), str_to_square("a4"))};
+  std::vector<Move> test_moves;
+  board.pseudolegal_two_step_pawn_moves(&test_moves);
+  EXPECT_EQ(test_moves, moves);
+}
+
+TEST(PseudoLegalMoves, TwoStepPawnMovesBlack) {
+  Board board("r4rk1/pp3pp1/2p3bp/8/3Pp1nq/1QN1P2P/PP1N1PP1/R4R1K b - - 1 18");
+
+  std::vector<Move> moves = {Move(str_to_square("f7"), str_to_square("f5")),
+                             Move(str_to_square("b7"), str_to_square("b5")),
+                             Move(str_to_square("a7"), str_to_square("a5"))
+
+  };
+  std::vector<Move> test_moves;
+  board.pseudolegal_two_step_pawn_moves(&test_moves);
+  EXPECT_EQ(test_moves, moves);
+}

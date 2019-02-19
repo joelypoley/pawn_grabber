@@ -424,7 +424,7 @@ void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) {
         white_pawns_ & (~seventh_rank_mask);
     for (Bitboard single_pawn : bitboard_split(white_pawns_excluding_seventh)) {
       const Bitboard north_of_pawn = north(single_pawn);
-      const bool blocked = ((all_pieces() & north_of_pawn) != 0);
+      const bool blocked = all_pieces() & north_of_pawn;
       if (!blocked) {
         res.push_back(Move(single_pawn, north_of_pawn));
       }
@@ -434,9 +434,36 @@ void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) {
         black_pawns_ & (~second_rank_mask);
     for (Bitboard single_pawn : bitboard_split(black_pawns_excluding_second)) {
       const Bitboard south_of_pawn = south(single_pawn);
-      const bool blocked = ((all_pieces() & south_of_pawn) != 0);
+      const bool blocked = all_pieces() & south_of_pawn;
       if (!blocked) {
         res.push_back(Move(single_pawn, south_of_pawn));
+      }
+    }
+  }
+}
+
+void Board::pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr) {
+  std::vector<Move>& res = *res_ptr;
+  if (side_to_move_ == Color::white) {
+    const Bitboard white_pawns_on_second = white_pawns_ & second_rank_mask;
+    for (Bitboard single_pawn : bitboard_split(white_pawns_on_second)) {
+      const Bitboard north_of_pawn = north(single_pawn);
+      const Bitboard two_north_of_pawn = north(north_of_pawn);
+      const bool blocked =
+          (all_pieces() & north_of_pawn) || (all_pieces() & two_north_of_pawn);
+      if (!blocked) {
+        res.push_back(Move(single_pawn, two_north_of_pawn));
+      }
+    }
+  } else {
+    const Bitboard black_pawns_on_seventh = black_pawns_ & seventh_rank_mask;
+    for (Bitboard single_pawn : bitboard_split(black_pawns_on_seventh)) {
+      const Bitboard south_of_pawn = south(single_pawn);
+      const Bitboard two_south_of_pawn = south(south_of_pawn);
+      const bool blocked =
+          (all_pieces() & south_of_pawn) || (all_pieces() & two_south_of_pawn);
+      if (!blocked) {
+        res.push_back(Move(single_pawn, two_south_of_pawn));
       }
     }
   }
