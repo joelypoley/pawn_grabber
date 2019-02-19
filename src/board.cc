@@ -233,7 +233,7 @@ void Board::init_en_passant(const std::string_view algebraic_square) {
   if (algebraic_square == "-") {
     en_passant_square_ = std::nullopt;
   } else {
-    en_passant_square_ = algebraic_to_square(algebraic_square);
+    en_passant_square_ = str_to_square(algebraic_square);
   }
 }
 
@@ -366,7 +366,7 @@ std::vector<Move> Board::pseudolegal_moves_in_direction(
   return res;
 }
 
-Bitboard algebraic_to_square(const std::string_view algebraic_square) {
+Bitboard str_to_square(const std::string_view algebraic_square) {
   const char file_char = algebraic_square[0];
   const char rank_char = algebraic_square[1];
   ABSL_RAW_CHECK('a' <= file_char && file_char <= 'h', "Invalid file.");
@@ -374,6 +374,16 @@ Bitboard algebraic_to_square(const std::string_view algebraic_square) {
   const int file = file_char - 'a';
   const int rank = rank_char - 1;
   return coordinates_to_square(file, rank);
+}
+
+std::string square_to_str(Bitboard sq) {
+  ABSL_RAW_CHECK(is_square(sq), "Not a square.");
+  char rank = rank_idx(sq);
+  char file = file_idx(sq);
+  std::string res;
+  res.push_back('a' + file);
+  res.push_back('1' + rank);
+  return res;
 }
 
 Bitboard coordinates_to_square(int file, int rank) {

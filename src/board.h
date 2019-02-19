@@ -166,7 +166,8 @@ class Board {
   std::vector<Move> pseudo_pawn_moves_excluding_promo();
 };
 
-Bitboard algebraic_to_square(const std::string_view alegbraic_square);
+Bitboard str_to_square(const std::string_view alegbraic_square);
+std::string square_to_str(Bitboard sq);
 Bitboard coordinates_to_square(int file, int rank);
 
 #endif
