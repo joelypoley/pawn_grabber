@@ -751,6 +751,21 @@ TEST(PseudoLegalMoves, BishopMovesWhite) {
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
 }
 
+TEST(PseudoLegalMoves, BishopMovesBlack) {
+  Board board("r2r1bn1/5ppk/7p/3PpN2/p6Q/1qP2P1P/1P1B2PK/R2R4 b - - 4 36");
+
+  std::vector<Move> moves = {Move(str_to_square("f8"), str_to_square("e7")),
+                             Move(str_to_square("f8"), str_to_square("d6")),
+                             Move(str_to_square("f8"), str_to_square("c5")),
+                             Move(str_to_square("f8"), str_to_square("b4")),
+                             Move(str_to_square("f8"), str_to_square("a3"))};
+  std::vector<Move> test_moves;
+  board.pseudolegal_bishop_moves(&test_moves);
+  EXPECT_EQ(test_moves.size(), moves.size());
+  EXPECT_TRUE(
+      std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
+}
+
 TEST(SquareToStr, Simple) {
   EXPECT_EQ(square_to_str(str_to_square("a1")), "a1");
   EXPECT_EQ(square_to_str(str_to_square("e4")), "e4");
