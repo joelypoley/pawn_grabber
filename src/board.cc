@@ -393,7 +393,7 @@ std::string Board::square_to_unicode(Bitboard square) const {
 
 void Board::pseudolegal_moves_in_direction(
     std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_square,
-    std::vector<Move>* res_ptr) {
+    std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   bool whites_move = side_to_move_ == Color::white;
   Bitboard friends = whites_move ? white_pieces() : black_pieces();
@@ -413,7 +413,7 @@ void Board::pseudolegal_moves_in_direction(
   }
 }
 
-void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) {
+void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (side_to_move_ == Color::white) {
     const Bitboard white_pawns_excluding_seventh =
@@ -438,7 +438,7 @@ void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) {
   }
 }
 
-void Board::pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr) {
+void Board::pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (side_to_move_ == Color::white) {
     const Bitboard white_pawns_on_second = white_pawns_ & second_rank_mask;
@@ -465,7 +465,7 @@ void Board::pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr) {
   }
 }
 
-void Board::pseudolegal_en_passant_moves(std::vector<Move>* res_ptr) {
+void Board::pseudolegal_en_passant_moves(std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (en_passant_square_) {
     if (side_to_move_ == Color::white) {
@@ -490,7 +490,7 @@ void Board::pseudolegal_en_passant_moves(std::vector<Move>* res_ptr) {
   }
 }
 
-void Board::pseudolegal_promotions(std::vector<Move>* res_ptr) {
+void Board::pseudolegal_promotions(std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (side_to_move_ == Color::white) {
     const Bitboard white_pawns_on_seventh = white_pawns_ & seventh_rank_mask;
@@ -555,7 +555,7 @@ void Board::pseudolegal_promotions(std::vector<Move>* res_ptr) {
   }
 }
 
-void Board::pseudolegal_pawn_captures(std::vector<Move>* res_ptr) {
+void Board::pseudolegal_pawn_captures(std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (side_to_move_ == Color::white) {
     const Bitboard white_pawns_excluding_seventh =
@@ -592,6 +592,8 @@ void Board::pseudolegal_pawn_captures(std::vector<Move>* res_ptr) {
   }
 }
 
+void Board::pseudolegal_pawn_moves(std::vector<Move>* res_ptr) const {}
+
 Bitboard str_to_square(const std::string_view algebraic_square) {
   const char file_char = algebraic_square[0];
   const char rank_char = algebraic_square[1];
@@ -616,17 +618,17 @@ Bitboard coordinates_to_square(int file, int rank) {
   return lsb_bitboard << (rank * board_size + board_size - file - 1);
 }
 
-Bitboard Board::white_pieces() {
+Bitboard Board::white_pieces() const {
   return white_pawns_ | white_knights_ | white_bishops_ | white_rooks_ |
          white_queens_ | white_king_;
 }
 
-Bitboard Board::black_pieces() {
+Bitboard Board::black_pieces() const {
   return black_pawns_ | black_knights_ | black_bishops_ | black_rooks_ |
          black_queens_ | black_king_;
 }
 
-Bitboard Board::all_pieces() { return white_pieces() | black_pieces(); }
+Bitboard Board::all_pieces() const { return white_pieces() | black_pieces(); }
 
 std::vector<Bitboard> bitboard_split(Bitboard bb) {
   std::vector<Bitboard> res;

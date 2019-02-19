@@ -147,22 +147,23 @@ class Board {
   bool black_has_right_to_castle_queenside_;
   int fifty_move_clock_;
   int num_moves_;
-  Bitboard white_pieces();
-  Bitboard black_pieces();
-  Bitboard all_pieces();
+  Bitboard white_pieces() const;
+  Bitboard black_pieces() const;
+  Bitboard all_pieces() const;
   // The pseudo prefix refers to the fact that these functions generate
   // pesudolegal moves. We must also check if the king is in check before
   // generating all legal moves.
   void pseudolegal_moves_in_direction(
       std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_squares,
-      std::vector<Move>* res_ptr);
+      std::vector<Move>* res_ptr) const;
   // "Simple" in this context means no two-step moves, no promotions, no en
   // passant.
-  void pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr);
-  void pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr);
-  void pseudolegal_en_passant_moves(std::vector<Move>* res_ptr);
-  void pseudolegal_promotions(std::vector<Move>* res_ptr);
-  void pseudolegal_pawn_captures(std::vector<Move>* res_ptr);
+  void pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) const;
+  void pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr) const;
+  void pseudolegal_en_passant_moves(std::vector<Move>* res_ptr) const;
+  void pseudolegal_promotions(std::vector<Move>* res_ptr) const;
+  void pseudolegal_pawn_captures(std::vector<Move>* res_ptr) const;
+  void pseudolegal_pawn_moves(std::vector<Move>* res_ptr) const;
 
  private:
   void zero_all_bitboards();
@@ -174,8 +175,6 @@ class Board {
   void init_fifty_move_clock(const std::string_view num_half_moves_fen);
   void init_num_moves(const std::string_view num_moves_fen);
   std::string square_to_unicode(Bitboard square) const;
-
-  std::vector<Move> pseudo_pawn_moves_excluding_promo();
 };
 
 Bitboard str_to_square(const std::string_view alegbraic_square);
