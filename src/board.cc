@@ -3,6 +3,8 @@
 #include <cassert>
 #include <optional>
 #include <string_view>
+#include <unordered_map>
+#include <utility>
 
 #include "absl/algorithm/container.h"
 #include "absl/base/internal/raw_logging.h"
@@ -15,6 +17,26 @@ const std::string& get_start_fen() {
   const static std::string& start_fen = *new std::string(
       "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
   return start_fen;
+}
+
+const std::unordered_map<Piece, std::pair<char, std::string>>
+get_piece_to_char_and_unicode() {
+  const static auto& piece_to_char_and_unicode =
+      *new std::unordered_map<Piece, std::pair<char, std::string>>{
+          {Piece::white_pawn, {'P', "♙"}},    // U+2564
+          {Piece::white_rook, {'R', "♖"}},    // U+2656
+          {Piece::white_knight, {'N', "♘"}},  // U+2658
+          {Piece::white_bishop, {'B', "♗"}},  // U+2657
+          {Piece::white_queen, {'Q', "♕"}},   // U+2655
+          {Piece::white_king, {'K', "♔"}},    // U+2654
+          {Piece::black_pawn, {'p', "♟"}},    // U+265F
+          {Piece::black_rook, {'r', "♜"}},    // U+265C
+          {Piece::black_knight, {'n', "♞"}},  // U+265E
+          {Piece::black_bishop, {'b', "♝"}},  // U+265D
+          {Piece::black_queen, {'q', "♛"}},   // U+265B
+          {Piece::black_king, {'k', "♚"}},    // U+265A
+      };
+  return piece_to_char_and_unicode;
 }
 
 const int board_size = 8;
@@ -97,6 +119,17 @@ Bitboard southwest(Bitboard square) {
   ABSL_RAW_CHECK(is_square(square), "Is not square.");
   const Bitboard south_square = south(square);
   return south_square ? west(south_square) : 0;
+}
+
+std::string Move::to_pretty_str() {
+  std::string promotion_str;
+  if (promotion_piece) {
+    const auto& piece_map = get_piece_to_char_and_unicode();
+    promotion_str.push_back(
+        piece_map.find(promotion_piece.value())->second.first);
+  }
+  return absl::StrCat(square_to_str(src_square), square_to_str(dst_square),
+                      promotion_str);
 }
 
 Board::Board() : Board(get_start_fen()) {}

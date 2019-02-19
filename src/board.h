@@ -51,6 +51,7 @@ struct Move {
       : src_square(p_src_square),
         dst_square(p_dst_square),
         promotion_piece(p_promotion_piece) {}
+  std::string to_pretty_str();
 };
 
 bool operator==(const Move& lhs, const Move& rhs) {
