@@ -405,16 +405,12 @@ void Board::pseudolegal_moves_in_direction(
   Bitboard curr_square = direction_fn(src_square);
   Bitboard all_pieces_mask = friends | enemies;
   while (curr_square && !(curr_square & all_pieces_mask)) {
-    dst_squares.push_back(curr_square);
+    res.emplace_back(src_square, curr_square);
     curr_square = direction_fn(curr_square);
   }
   if (curr_square & enemies) {
-    dst_squares.push_back(curr_square);
+    res.emplace_back(src_square, curr_square);
   }
-  size_t size_before = res.size();
-  res.resize(res.size() + dst_squares.size());
-  absl::c_transform(dst_squares, res.begin() + size_before,
-                    [=](Bitboard dst) { return Move(src_square, dst); });
 }
 
 void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) {
