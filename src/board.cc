@@ -383,8 +383,10 @@ std::string Board::square_to_unicode(Bitboard square) const {
   }
 }
 
-std::vector<Move> Board::pseudolegal_moves_in_direction(
-    std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_square) {
+void Board::pseudolegal_moves_in_direction(
+    std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_square,
+    std::vector<Move>* res_ptr) {
+  std::vector<Move>& res = *res_ptr;
   bool whites_move = side_to_move_ == Color::white;
   Bitboard friends = whites_move ? white_pieces() : black_pieces();
   Bitboard enemies = whites_move ? black_pieces() : white_pieces();
@@ -401,10 +403,10 @@ std::vector<Move> Board::pseudolegal_moves_in_direction(
   if (curr_square & enemies) {
     dst_squares.push_back(curr_square);
   }
-  std::vector<Move> res(dst_squares.size());
-  absl::c_transform(dst_squares, res.begin(),
+  size_t size_before = res.size();
+  res.resize(res.size() + dst_squares.size());
+  absl::c_transform(dst_squares, res.begin() + size_before,
                     [=](Bitboard dst) { return Move(src_square, dst); });
-  return res;
 }
 
 Bitboard str_to_square(const std::string_view algebraic_square) {
