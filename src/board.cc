@@ -465,6 +465,31 @@ void Board::pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr) {
   }
 }
 
+void Board::pseudolegal_en_passant_moves(std::vector<Move>* res_ptr) {
+  std::vector<Move>& res = *res_ptr;
+  if (en_passant_square_) {
+    if (side_to_move_ == Color::white) {
+      Bitboard southeast_of_ep_square = southeast(en_passant_square_.value());
+      Bitboard southwest_of_ep_square = southwest(en_passant_square_.value());
+      if (southwest_of_ep_square & white_pieces()) {
+        res.emplace_back(southwest_of_ep_square, en_passant_square_.value());
+      }
+      if (southeast_of_ep_square & white_pieces()) {
+        res.emplace_back(southeast_of_ep_square, en_passant_square_.value());
+      }
+    } else {
+      Bitboard northeast_of_ep_square = northeast(en_passant_square_.value());
+      Bitboard northwest_of_ep_square = northwest(en_passant_square_.value());
+      if (northwest_of_ep_square & black_pieces()) {
+        res.emplace_back(northwest_of_ep_square, en_passant_square_.value());
+      }
+      if (northeast_of_ep_square & black_pieces()) {
+        res.emplace_back(northeast_of_ep_square, en_passant_square_.value());
+      }
+    }
+  }
+}
+
 Bitboard str_to_square(const std::string_view algebraic_square) {
   const char file_char = algebraic_square[0];
   const char rank_char = algebraic_square[1];

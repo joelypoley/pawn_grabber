@@ -792,3 +792,61 @@ TEST(PseudoLegalMoves, TwoStepPawnMovesBlack) {
   board.pseudolegal_two_step_pawn_moves(&test_moves);
   EXPECT_EQ(test_moves, moves);
 }
+
+TEST(PseudoLegalMoves, NoEnPassantMovesWhite) {
+  Board board("r4rk1/pp3pp1/2p3bp/8/3Pp1nq/1QN1P2P/PP1N1PP1/R4R1K w - - 1 18");
+
+  std::vector<Move> test_moves;
+  board.pseudolegal_en_passant_moves(&test_moves);
+  EXPECT_TRUE(test_moves.empty());
+}
+
+TEST(PseudoLegalMoves, OneEnPassantMoveWhite) {
+  Board board("rnbqkbnr/1pp1pppp/p7/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3");
+
+  std::vector<Move> moves = {Move(str_to_square("e5"), str_to_square("d6"))};
+  std::vector<Move> test_moves;
+  board.pseudolegal_en_passant_moves(&test_moves);
+  EXPECT_EQ(test_moves, moves);
+}
+
+TEST(PseudoLegalMoves, TwoEnPassantMovesWhite) {
+  Board board("rnbqkbnr/1pp1pppp/8/2PpP3/p7/8/PP1P1PPP/RNBQKBNR w KQkq d6 0 5");
+
+  std::vector<Move> moves = {Move(str_to_square("c5"), str_to_square("d6")),
+                             Move(str_to_square("e5"), str_to_square("d6"))};
+  std::vector<Move> test_moves;
+  board.pseudolegal_en_passant_moves(&test_moves);
+  EXPECT_EQ(test_moves, moves);
+}
+
+TEST(PseudoLegalMoves, NoEnPassantMovesBlack) {
+  Board board("r4rk1/pp3pp1/2p3bp/8/3Pp1nq/1QN1P2P/PP1N1PP1/R4R1K b - - 1 18");
+
+  std::vector<Move> test_moves;
+  board.pseudolegal_en_passant_moves(&test_moves);
+  EXPECT_TRUE(test_moves.empty());
+}
+
+TEST(PseudoLegalMoves, OneEnPassantMoveBlack) {
+  Board board(
+      "rnbqkbnr/ppp1p1pp/8/5p2/P2pP3/7P/1PPP1PP1/RNBQKBNR b KQkq e3 0 4");
+
+  std::vector<Move> moves = {Move(str_to_square("d4"), str_to_square("e3"))};
+  std::vector<Move> test_moves;
+  board.pseudolegal_en_passant_moves(&test_moves);
+  EXPECT_EQ(test_moves, moves);
+}
+
+TEST(PseudoLegalMoves, TwoEnPassantMovesBlack) {
+  Board board(
+      "rnbqkbnr/ppp1p1pp/8/P7/3pPp2/7P/1PPP1PP1/RNBQKBNR b KQkq e3 0 5");
+
+  std::vector<Move> moves = {Move(str_to_square("d4"), str_to_square("e3")),
+                             Move(str_to_square("f4"), str_to_square("e3"))
+
+  };
+  std::vector<Move> test_moves;
+  board.pseudolegal_en_passant_moves(&test_moves);
+  EXPECT_EQ(test_moves, moves);
+}
