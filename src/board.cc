@@ -690,6 +690,68 @@ void Board::pseudolegal_king_moves(std::vector<Move>* res_ptr) const {
   }
 }
 
+void Board::pseudolegal_knight_moves(std::vector<Move>* res_ptr) const {
+  bool whites_move = side_to_move_ == Color::white;
+  Bitboard knight = whites_move ? white_knights_ : black_knights_;
+  Bitboard friends = whites_move ? white_pieces() : black_pieces();
+
+  Bitboard n_knight = north(knight);
+  if (n_knight) {
+    Bitboard ne_n_knight = northeast(n_knight);
+    bool friendly_piece_ne_n_knight = ne_n_knight & friends;
+    if (!friendly_piece_ne_n_knight && ne_n_knight) {
+      res_ptr->emplace_back(knight, ne_n_knight);
+    }
+    Bitboard nw_n_knight = northwest(n_knight);
+    bool friendly_piece_nw_n_knight = nw_n_knight & friends;
+    if (!friendly_piece_nw_n_knight && nw_n_knight) {
+      res_ptr->emplace_back(knight, nw_n_knight);
+    }
+  }
+
+  Bitboard s_knight = south(knight);
+  if (s_knight) {
+    Bitboard se_s_knight = southeast(s_knight);
+    bool friendly_piece_se_s_knight = se_s_knight & friends;
+    if (!friendly_piece_se_s_knight && se_s_knight) {
+      res_ptr->emplace_back(knight, se_s_knight);
+    }
+    Bitboard sw_s_knight = southwest(s_knight);
+    bool friendly_piece_sw_s_knight = sw_s_knight & friends;
+    if (!friendly_piece_sw_s_knight && sw_s_knight) {
+      res_ptr->emplace_back(knight, sw_s_knight);
+    }
+  }
+
+  Bitboard e_knight = east(knight);
+  if (e_knight) {
+    Bitboard ne_e_knight = northeast(e_knight);
+    bool friendly_piece_ne_e_knight = ne_e_knight & friends;
+    if (!friendly_piece_ne_e_knight && ne_e_knight) {
+      res_ptr->emplace_back(knight, ne_e_knight);
+    }
+    Bitboard se_e_knight = southeast(e_knight);
+    bool friendly_piece_se_e_knight = se_e_knight & friends;
+    if (!friendly_piece_se_e_knight && se_e_knight) {
+      res_ptr->emplace_back(knight, se_e_knight);
+    }
+  }
+
+  Bitboard w_knight = west(knight);
+  if (w_knight) {
+    Bitboard nw_w_knight = northwest(w_knight);
+    bool friendly_piecw_nw_w_knight = nw_w_knight & friends;
+    if (!friendly_piecw_nw_w_knight && nw_w_knight) {
+      res_ptr->emplace_back(knight, nw_w_knight);
+    }
+    Bitboard sw_w_knight = southwest(w_knight);
+    bool friendly_piecw_sw_w_knight = sw_w_knight & friends;
+    if (!friendly_piecw_sw_w_knight && sw_w_knight) {
+      res_ptr->emplace_back(knight, sw_w_knight);
+    }
+  }
+}
+
 Bitboard str_to_square(const std::string_view algebraic_square) {
   const char file_char = algebraic_square[0];
   const char rank_char = algebraic_square[1];
