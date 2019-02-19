@@ -636,6 +636,60 @@ void Board::pseudolegal_pawn_moves(std::vector<Move>* res_ptr) const {
   pseudolegal_promotions(res_ptr);
 }
 
+void Board::pseudolegal_king_moves(std::vector<Move>* res_ptr) const {
+  bool whites_move = side_to_move_ == Color::white;
+  Bitboard king = whites_move ? white_king_ : black_king_;
+  Bitboard friends = whites_move ? white_pieces() : black_pieces();
+
+  Bitboard north_of_king = north(king);
+  bool friendly_piece_north_of_king = north_of_king & friends;
+  if (!friendly_piece_north_of_king && north_of_king) {
+    res_ptr->emplace_back(king, north_of_king);
+  }
+
+  Bitboard south_of_king = south(king);
+  bool friendly_piece_south_of_king = south_of_king & friends;
+  if (!friendly_piece_south_of_king && south_of_king) {
+    res_ptr->emplace_back(king, south_of_king);
+  }
+
+  Bitboard east_of_king = east(king);
+  bool friendly_piece_east_of_king = east_of_king & friends;
+  if (!friendly_piece_east_of_king && east_of_king) {
+    res_ptr->emplace_back(king, east_of_king);
+  }
+
+  Bitboard west_of_king = west(king);
+  bool friendly_piece_west_of_king = west_of_king & friends;
+  if (!friendly_piece_west_of_king && west_of_king) {
+    res_ptr->emplace_back(king, west_of_king);
+  }
+
+  Bitboard northeast_of_king = northeast(king);
+  bool friendly_piece_northeast_of_king = northeast_of_king & friends;
+  if (!friendly_piece_northeast_of_king && northeast_of_king) {
+    res_ptr->emplace_back(king, northeast_of_king);
+  }
+
+  Bitboard northwest_of_king = northwest(king);
+  bool friendly_piece_northwest_of_king = northwest_of_king & friends;
+  if (!friendly_piece_northwest_of_king && northwest_of_king) {
+    res_ptr->emplace_back(king, northwest_of_king);
+  }
+
+  Bitboard southeast_of_king = southeast(king);
+  bool friendly_piece_southeast_of_king = southeast_of_king & friends;
+  if (!friendly_piece_southeast_of_king && southeast_of_king) {
+    res_ptr->emplace_back(king, southeast_of_king);
+  }
+
+  Bitboard southwest_of_king = southwest(king);
+  bool friendly_piece_southwest_of_king = southwest_of_king & friends;
+  if (!friendly_piece_southwest_of_king && southwest_of_king) {
+    res_ptr->emplace_back(king, southwest_of_king);
+  }
+}
+
 Bitboard str_to_square(const std::string_view algebraic_square) {
   const char file_char = algebraic_square[0];
   const char rank_char = algebraic_square[1];
