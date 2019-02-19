@@ -988,3 +988,35 @@ TEST(PseudoLegalMoves, PawnsWhite) {
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
 }
+
+TEST(PseudoLegalMoves, PawnsBlack) {
+  Board board(
+      "1n1qkbnr/1p2pppp/r7/1Ppp3P/3PP3/2N2N2/pPP2PP1/1RBQKB1R b Kk - 6 12");
+
+  std::vector<Move> moves = {
+      Move(str_to_square("a2"), str_to_square("a1"), Piece::black_rook),
+      Move(str_to_square("a2"), str_to_square("a1"), Piece::black_knight),
+      Move(str_to_square("a2"), str_to_square("a1"), Piece::black_bishop),
+      Move(str_to_square("a2"), str_to_square("a1"), Piece::black_queen),
+      Move(str_to_square("a2"), str_to_square("b1"), Piece::black_rook),
+      Move(str_to_square("a2"), str_to_square("b1"), Piece::black_knight),
+      Move(str_to_square("a2"), str_to_square("b1"), Piece::black_bishop),
+      Move(str_to_square("a2"), str_to_square("b1"), Piece::black_queen),
+      Move(str_to_square("d5"), str_to_square("e4")),
+      Move(str_to_square("c5"), str_to_square("d4")),
+      Move(str_to_square("c5"), str_to_square("c4")),
+      Move(str_to_square("h7"), str_to_square("h6")),
+      Move(str_to_square("g7"), str_to_square("g6")),
+      Move(str_to_square("g7"), str_to_square("g5")),
+      Move(str_to_square("f7"), str_to_square("f6")),
+      Move(str_to_square("f7"), str_to_square("f5")),
+      Move(str_to_square("e7"), str_to_square("e6")),
+      Move(str_to_square("e7"), str_to_square("e5")),
+      Move(str_to_square("b7"), str_to_square("b6")),
+  };
+  std::vector<Move> test_moves;
+  board.pseudolegal_pawn_moves(&test_moves);
+  EXPECT_EQ(test_moves.size(), moves.size());
+  EXPECT_TRUE(
+      std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
+}
