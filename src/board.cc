@@ -752,6 +752,17 @@ void Board::pseudolegal_knight_moves(std::vector<Move>* res_ptr) const {
   }
 }
 
+std::vector<Move> Board::pseudolegal_moves() const {
+  std::vector<Move> res;
+  pseudolegal_bishop_moves(&res);
+  pseudolegal_rook_moves(&res);
+  pseudolegal_queen_moves(&res);
+  pseudolegal_pawn_moves(&res);
+  pseudolegal_king_moves(&res);
+  pseudolegal_knight_moves(&res);
+  return res;
+}
+
 Bitboard str_to_square(const std::string_view algebraic_square) {
   const char file_char = algebraic_square[0];
   const char rank_char = algebraic_square[1];

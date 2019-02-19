@@ -929,6 +929,125 @@ TEST(PseudoLegalMoves, KnightMovesBlack) {
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
 }
 
+TEST(PseudoLegalMoves, White) {
+  Board board("r2r1bn1/5ppk/7p/3PpN2/p6Q/1qP2P1P/1P1B2PK/R2R4 w - - 4 36");
+
+  std::vector<Move> moves = {// Bishop moves.
+                             Move(str_to_square("d2"), str_to_square("c1")),
+                             Move(str_to_square("d2"), str_to_square("e3")),
+                             Move(str_to_square("d2"), str_to_square("f4")),
+                             Move(str_to_square("d2"), str_to_square("g5")),
+                             Move(str_to_square("d2"), str_to_square("e1")),
+                             Move(str_to_square("d2"), str_to_square("h6")),
+                             // Rook moves.
+                             Move(str_to_square("a1"), str_to_square("a2")),
+                             Move(str_to_square("a1"), str_to_square("a3")),
+                             Move(str_to_square("a1"), str_to_square("b1")),
+                             Move(str_to_square("a1"), str_to_square("c1")),
+                             Move(str_to_square("a1"), str_to_square("a4")),
+                             Move(str_to_square("d1"), str_to_square("c1")),
+                             Move(str_to_square("d1"), str_to_square("b1")),
+                             Move(str_to_square("d1"), str_to_square("e1")),
+                             Move(str_to_square("d1"), str_to_square("f1")),
+                             Move(str_to_square("d1"), str_to_square("g1")),
+                             Move(str_to_square("d1"), str_to_square("h1")),
+                             // Queen moves.
+                             Move(str_to_square("h4"), str_to_square("g3")),
+                             Move(str_to_square("h4"), str_to_square("f2")),
+                             Move(str_to_square("h4"), str_to_square("e1")),
+                             Move(str_to_square("h4"), str_to_square("g4")),
+                             Move(str_to_square("h4"), str_to_square("f4")),
+                             Move(str_to_square("h4"), str_to_square("e4")),
+                             Move(str_to_square("h4"), str_to_square("d4")),
+                             Move(str_to_square("h4"), str_to_square("c4")),
+                             Move(str_to_square("h4"), str_to_square("b4")),
+                             Move(str_to_square("h4"), str_to_square("a4")),
+                             Move(str_to_square("h4"), str_to_square("g5")),
+                             Move(str_to_square("h4"), str_to_square("f6")),
+                             Move(str_to_square("h4"), str_to_square("e7")),
+                             Move(str_to_square("h4"), str_to_square("d8")),
+                             Move(str_to_square("h4"), str_to_square("h5")),
+                             Move(str_to_square("h4"), str_to_square("h6")),
+                             // King moves.
+                             Move(str_to_square("h2"), str_to_square("h1")),
+                             Move(str_to_square("h2"), str_to_square("g1")),
+                             Move(str_to_square("h2"), str_to_square("g3")),
+                             Move(str_to_square("f5"), str_to_square("e7")),
+                             // Knight moves.
+                             Move(str_to_square("f5"), str_to_square("g7")),
+                             Move(str_to_square("f5"), str_to_square("h6")),
+                             Move(str_to_square("f5"), str_to_square("g3")),
+                             Move(str_to_square("f5"), str_to_square("e3")),
+                             Move(str_to_square("f5"), str_to_square("d4")),
+                             Move(str_to_square("f5"), str_to_square("d6")),
+                             // Pawn moves.
+                             Move(str_to_square("c3"), str_to_square("c4")),
+                             Move(str_to_square("d5"), str_to_square("d6")),
+                             Move(str_to_square("f3"), str_to_square("f4")),
+                             Move(str_to_square("g2"), str_to_square("g3")),
+                             Move(str_to_square("g2"), str_to_square("g4"))};
+  auto test_moves = board.pseudolegal_moves();
+  EXPECT_EQ(test_moves.size(), moves.size());
+  EXPECT_TRUE(
+      std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
+}
+
+TEST(PseudoLegalMoves, Black) {
+  Board board("r2r1bn1/5ppk/7p/3PpN2/p6Q/1qP2P1P/1P1B2PK/R2R4 b - - 4 36");
+
+  std::vector<Move> moves = {// Bishop moves.
+                             Move(str_to_square("f8"), str_to_square("e7")),
+                             Move(str_to_square("f8"), str_to_square("d6")),
+                             Move(str_to_square("f8"), str_to_square("c5")),
+                             Move(str_to_square("f8"), str_to_square("b4")),
+                             Move(str_to_square("f8"), str_to_square("a3")),
+                             // Rook moves.
+                             Move(str_to_square("a8"), str_to_square("a7")),
+                             Move(str_to_square("a8"), str_to_square("a6")),
+                             Move(str_to_square("a8"), str_to_square("a5")),
+                             Move(str_to_square("a8"), str_to_square("b8")),
+                             Move(str_to_square("a8"), str_to_square("c8")),
+                             Move(str_to_square("d8"), str_to_square("c8")),
+                             Move(str_to_square("d8"), str_to_square("b8")),
+                             Move(str_to_square("d8"), str_to_square("e8")),
+                             Move(str_to_square("d8"), str_to_square("d7")),
+                             Move(str_to_square("d8"), str_to_square("d6")),
+                             Move(str_to_square("d8"), str_to_square("d5")),
+                             // Queen moves.
+                             Move(str_to_square("b3"), str_to_square("a2")),
+                             Move(str_to_square("b3"), str_to_square("a3")),
+                             Move(str_to_square("b3"), str_to_square("b2")),
+                             Move(str_to_square("b3"), str_to_square("c2")),
+                             Move(str_to_square("b3"), str_to_square("d1")),
+                             Move(str_to_square("b3"), str_to_square("c3")),
+                             Move(str_to_square("b3"), str_to_square("b4")),
+                             Move(str_to_square("b3"), str_to_square("b5")),
+                             Move(str_to_square("b3"), str_to_square("b6")),
+                             Move(str_to_square("b3"), str_to_square("b7")),
+                             Move(str_to_square("b3"), str_to_square("b8")),
+                             Move(str_to_square("b3"), str_to_square("c4")),
+                             Move(str_to_square("b3"), str_to_square("d5")),
+                             // King moves.
+                             Move(str_to_square("h7"), str_to_square("h8")),
+                             Move(str_to_square("h7"), str_to_square("g6")),
+                             // Knight moves.
+                             Move(str_to_square("g8"), str_to_square("e7")),
+                             Move(str_to_square("g8"), str_to_square("f6")),
+                             // Pawn moves.
+                             Move(str_to_square("a4"), str_to_square("a3")),
+                             Move(str_to_square("e5"), str_to_square("e4")),
+                             Move(str_to_square("f7"), str_to_square("f6")),
+                             Move(str_to_square("g7"), str_to_square("g6")),
+                             Move(str_to_square("g7"), str_to_square("g5")),
+                             Move(str_to_square("h6"), str_to_square("h5"))
+
+  };
+  auto test_moves = board.pseudolegal_moves();
+  EXPECT_EQ(test_moves.size(), moves.size());
+  EXPECT_TRUE(
+      std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
+}
+
 TEST(SquareToStr, Simple) {
   EXPECT_EQ(square_to_str(str_to_square("a1")), "a1");
   EXPECT_EQ(square_to_str(str_to_square("e4")), "e4");
