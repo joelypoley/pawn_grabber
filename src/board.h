@@ -154,7 +154,7 @@ class Board {
   // generating all legal moves.
   void pseudolegal_moves_in_direction(
       std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_squares,
-      std::vector<Move>* result);
+      std::vector<Move>* res_ptr);
 
  private:
   void zero_all_bitboards();
