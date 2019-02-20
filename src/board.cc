@@ -85,49 +85,49 @@ bool on_h_file(Bitboard square) { return file_idx(square) == 7; }
 bool on_first_rank(Bitboard square) { return rank_idx(square) == 0; }
 bool on_eigth_rank(Bitboard square) { return rank_idx(square) == 7; }
 
-Bitboard north(Bitboard square) {
+Bitboard north_of(Bitboard square) {
   ABSL_RAW_CHECK(is_square(square), "Is not square.");
   // TODO: Make sure right shifting off the end is not undefined behavior.
   return square << board_size;
 }
 
-Bitboard south(Bitboard square) {
+Bitboard south_of(Bitboard square) {
   ABSL_RAW_CHECK(is_square(square), "Is not square.");
   return square >> board_size;
 }
 
-Bitboard east(Bitboard square) {
+Bitboard east_of(Bitboard square) {
   ABSL_RAW_CHECK(is_square(square), "Is not square.");
   return on_h_file(square) ? 0 : square >> 1;
 }
 
-Bitboard west(Bitboard square) {
+Bitboard west_of(Bitboard square) {
   ABSL_RAW_CHECK(is_square(square), "Is not square.");
   return on_a_file(square) ? 0 : square << 1;
 }
 
-Bitboard northeast(Bitboard square) {
+Bitboard northeast_of(Bitboard square) {
   ABSL_RAW_CHECK(is_square(square), "Is not square.");
-  const Bitboard north_square = north(square);
-  return north_square ? east(north_square) : 0;
+  const Bitboard north_square = north_of(square);
+  return north_square ? east_of(north_square) : 0;
 }
 
-Bitboard northwest(Bitboard square) {
+Bitboard northwest_of(Bitboard square) {
   ABSL_RAW_CHECK(is_square(square), "Is not square.");
-  const Bitboard north_square = north(square);
-  return north_square ? west(north_square) : 0;
+  const Bitboard north_square = north_of(square);
+  return north_square ? west_of(north_square) : 0;
 }
 
-Bitboard southeast(Bitboard square) {
+Bitboard southeast_of(Bitboard square) {
   ABSL_RAW_CHECK(is_square(square), "Is not square.");
-  const Bitboard south_square = south(square);
-  return south_square ? east(south_square) : 0;
+  const Bitboard south_square = south_of(square);
+  return south_square ? east_of(south_square) : 0;
 }
 
-Bitboard southwest(Bitboard square) {
+Bitboard southwest_of(Bitboard square) {
   ABSL_RAW_CHECK(is_square(square), "Is not square.");
-  const Bitboard south_square = south(square);
-  return south_square ? west(south_square) : 0;
+  const Bitboard south_square = south_of(square);
+  return south_square ? west_of(south_square) : 0;
 }
 
 std::string Move::to_pretty_str() const {
@@ -418,7 +418,7 @@ std::string Board::square_to_unicode(Bitboard square) const {
   }
 }
 
-void Board::pseudolegal_moves_in_direction(
+void Board::pseudolegal_sliding_moves(
     std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_square,
     std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
@@ -442,34 +442,34 @@ void Board::pseudolegal_moves_in_direction(
 void Board::pseudolegal_bishop_moves(std::vector<Move>* res_ptr) const {
   Bitboard bishops = is_whites_move_ ? white_bishops_ : black_bishops_;
   for (Bitboard bishop : bitboard_split(bishops)) {
-    pseudolegal_moves_in_direction(northeast, bishop, res_ptr);
-    pseudolegal_moves_in_direction(northwest, bishop, res_ptr);
-    pseudolegal_moves_in_direction(southeast, bishop, res_ptr);
-    pseudolegal_moves_in_direction(southwest, bishop, res_ptr);
+    pseudolegal_sliding_moves(northeast_of, bishop, res_ptr);
+    pseudolegal_sliding_moves(northwest_of, bishop, res_ptr);
+    pseudolegal_sliding_moves(southeast_of, bishop, res_ptr);
+    pseudolegal_sliding_moves(southwest_of, bishop, res_ptr);
   }
 }
 
 void Board::pseudolegal_rook_moves(std::vector<Move>* res_ptr) const {
   Bitboard rooks = is_whites_move_ ? white_rooks_ : black_rooks_;
   for (Bitboard rook : bitboard_split(rooks)) {
-    pseudolegal_moves_in_direction(north, rook, res_ptr);
-    pseudolegal_moves_in_direction(south, rook, res_ptr);
-    pseudolegal_moves_in_direction(east, rook, res_ptr);
-    pseudolegal_moves_in_direction(west, rook, res_ptr);
+    pseudolegal_sliding_moves(north_of, rook, res_ptr);
+    pseudolegal_sliding_moves(south_of, rook, res_ptr);
+    pseudolegal_sliding_moves(east_of, rook, res_ptr);
+    pseudolegal_sliding_moves(west_of, rook, res_ptr);
   }
 }
 
 void Board::pseudolegal_queen_moves(std::vector<Move>* res_ptr) const {
   Bitboard queens = is_whites_move_ ? white_queens_ : black_queens_;
   for (Bitboard queen : bitboard_split(queens)) {
-    pseudolegal_moves_in_direction(north, queen, res_ptr);
-    pseudolegal_moves_in_direction(northeast, queen, res_ptr);
-    pseudolegal_moves_in_direction(northwest, queen, res_ptr);
-    pseudolegal_moves_in_direction(southeast, queen, res_ptr);
-    pseudolegal_moves_in_direction(southwest, queen, res_ptr);
-    pseudolegal_moves_in_direction(south, queen, res_ptr);
-    pseudolegal_moves_in_direction(east, queen, res_ptr);
-    pseudolegal_moves_in_direction(west, queen, res_ptr);
+    pseudolegal_sliding_moves(north_of, queen, res_ptr);
+    pseudolegal_sliding_moves(northeast_of, queen, res_ptr);
+    pseudolegal_sliding_moves(northwest_of, queen, res_ptr);
+    pseudolegal_sliding_moves(southeast_of, queen, res_ptr);
+    pseudolegal_sliding_moves(southwest_of, queen, res_ptr);
+    pseudolegal_sliding_moves(south_of, queen, res_ptr);
+    pseudolegal_sliding_moves(east_of, queen, res_ptr);
+    pseudolegal_sliding_moves(west_of, queen, res_ptr);
   }
 }
 
@@ -479,7 +479,7 @@ void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) const {
     const Bitboard white_pawns_excluding_seventh =
         white_pawns_ & (~seventh_rank_mask);
     for (Bitboard single_pawn : bitboard_split(white_pawns_excluding_seventh)) {
-      const Bitboard north_of_pawn = north(single_pawn);
+      const Bitboard north_of_pawn = north_of(single_pawn);
       const bool blocked = all_pieces() & north_of_pawn;
       if (!blocked) {
         res.emplace_back(single_pawn, north_of_pawn);
@@ -489,7 +489,7 @@ void Board::pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) const {
     const Bitboard black_pawns_excluding_second =
         black_pawns_ & (~second_rank_mask);
     for (Bitboard single_pawn : bitboard_split(black_pawns_excluding_second)) {
-      const Bitboard south_of_pawn = south(single_pawn);
+      const Bitboard south_of_pawn = south_of(single_pawn);
       const bool blocked = all_pieces() & south_of_pawn;
       if (!blocked) {
         res.emplace_back(single_pawn, south_of_pawn);
@@ -503,8 +503,8 @@ void Board::pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr) const {
   if (is_whites_move_) {
     const Bitboard white_pawns_on_second = white_pawns_ & second_rank_mask;
     for (Bitboard single_pawn : bitboard_split(white_pawns_on_second)) {
-      const Bitboard north_of_pawn = north(single_pawn);
-      const Bitboard two_north_of_pawn = north(north_of_pawn);
+      const Bitboard north_of_pawn = north_of(single_pawn);
+      const Bitboard two_north_of_pawn = north_of(north_of_pawn);
       const bool blocked =
           (all_pieces() & north_of_pawn) || (all_pieces() & two_north_of_pawn);
       if (!blocked) {
@@ -514,8 +514,8 @@ void Board::pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr) const {
   } else {
     const Bitboard black_pawns_on_seventh = black_pawns_ & seventh_rank_mask;
     for (Bitboard single_pawn : bitboard_split(black_pawns_on_seventh)) {
-      const Bitboard south_of_pawn = south(single_pawn);
-      const Bitboard two_south_of_pawn = south(south_of_pawn);
+      const Bitboard south_of_pawn = south_of(single_pawn);
+      const Bitboard two_south_of_pawn = south_of(south_of_pawn);
       const bool blocked =
           (all_pieces() & south_of_pawn) || (all_pieces() & two_south_of_pawn);
       if (!blocked) {
@@ -529,8 +529,10 @@ void Board::pseudolegal_en_passant_moves(std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (en_passant_square_) {
     if (is_whites_move_) {
-      Bitboard southeast_of_ep_square = southeast(en_passant_square_.value());
-      Bitboard southwest_of_ep_square = southwest(en_passant_square_.value());
+      Bitboard southeast_of_ep_square =
+          southeast_of(en_passant_square_.value());
+      Bitboard southwest_of_ep_square =
+          southwest_of(en_passant_square_.value());
       if (southwest_of_ep_square & white_pieces()) {
         res.emplace_back(southwest_of_ep_square, en_passant_square_.value());
       }
@@ -538,8 +540,10 @@ void Board::pseudolegal_en_passant_moves(std::vector<Move>* res_ptr) const {
         res.emplace_back(southeast_of_ep_square, en_passant_square_.value());
       }
     } else {
-      Bitboard northeast_of_ep_square = northeast(en_passant_square_.value());
-      Bitboard northwest_of_ep_square = northwest(en_passant_square_.value());
+      Bitboard northeast_of_ep_square =
+          northeast_of(en_passant_square_.value());
+      Bitboard northwest_of_ep_square =
+          northwest_of(en_passant_square_.value());
       if (northwest_of_ep_square & black_pieces()) {
         res.emplace_back(northwest_of_ep_square, en_passant_square_.value());
       }
@@ -555,7 +559,7 @@ void Board::pseudolegal_promotions(std::vector<Move>* res_ptr) const {
   if (is_whites_move_) {
     const Bitboard white_pawns_on_seventh = white_pawns_ & seventh_rank_mask;
     for (Bitboard single_pawn : bitboard_split(white_pawns_on_seventh)) {
-      const Bitboard north_of_pawn = north(single_pawn);
+      const Bitboard north_of_pawn = north_of(single_pawn);
       const bool blocked = all_pieces() & north_of_pawn;
       if (!blocked) {
         res.emplace_back(single_pawn, north_of_pawn, Piece::white_rook);
@@ -564,7 +568,7 @@ void Board::pseudolegal_promotions(std::vector<Move>* res_ptr) const {
         res.emplace_back(single_pawn, north_of_pawn, Piece::white_queen);
       }
 
-      const Bitboard northeast_of_pawn = northeast(single_pawn);
+      const Bitboard northeast_of_pawn = northeast_of(single_pawn);
       const bool black_piece_northeast = black_pieces() & northeast_of_pawn;
       if (black_piece_northeast) {
         res.emplace_back(single_pawn, northeast_of_pawn, Piece::white_rook);
@@ -573,7 +577,7 @@ void Board::pseudolegal_promotions(std::vector<Move>* res_ptr) const {
         res.emplace_back(single_pawn, northeast_of_pawn, Piece::white_queen);
       }
 
-      const Bitboard northwest_of_pawn = northwest(single_pawn);
+      const Bitboard northwest_of_pawn = northwest_of(single_pawn);
       const bool black_piece_northwest = black_pieces() & northwest_of_pawn;
       if (black_piece_northwest) {
         res.emplace_back(single_pawn, northwest_of_pawn, Piece::white_rook);
@@ -585,7 +589,7 @@ void Board::pseudolegal_promotions(std::vector<Move>* res_ptr) const {
   } else {
     const Bitboard black_pawns_on_second = black_pawns_ & second_rank_mask;
     for (Bitboard single_pawn : bitboard_split(black_pawns_on_second)) {
-      const Bitboard south_of_pawn = south(single_pawn);
+      const Bitboard south_of_pawn = south_of(single_pawn);
       const bool blocked = all_pieces() & south_of_pawn;
       if (!blocked) {
         res.emplace_back(single_pawn, south_of_pawn, Piece::black_rook);
@@ -594,7 +598,7 @@ void Board::pseudolegal_promotions(std::vector<Move>* res_ptr) const {
         res.emplace_back(single_pawn, south_of_pawn, Piece::black_queen);
       }
 
-      const Bitboard southeast_of_pawn = southeast(single_pawn);
+      const Bitboard southeast_of_pawn = southeast_of(single_pawn);
       const bool white_piece_southeast = white_pieces() & southeast_of_pawn;
       if (white_piece_southeast) {
         res.emplace_back(single_pawn, southeast_of_pawn, Piece::black_rook);
@@ -603,7 +607,7 @@ void Board::pseudolegal_promotions(std::vector<Move>* res_ptr) const {
         res.emplace_back(single_pawn, southeast_of_pawn, Piece::black_queen);
       }
 
-      const Bitboard southwest_of_pawn = southwest(single_pawn);
+      const Bitboard southwest_of_pawn = southwest_of(single_pawn);
       const bool white_piece_southwest = white_pieces() & southwest_of_pawn;
       if (white_piece_southwest) {
         res.emplace_back(single_pawn, southwest_of_pawn, Piece::black_rook);
@@ -621,13 +625,13 @@ void Board::pseudolegal_pawn_captures(std::vector<Move>* res_ptr) const {
     const Bitboard white_pawns_excluding_seventh =
         white_pawns_ & (~seventh_rank_mask);
     for (Bitboard single_pawn : bitboard_split(white_pawns_excluding_seventh)) {
-      const Bitboard northeast_of_pawn = northeast(single_pawn);
+      const Bitboard northeast_of_pawn = northeast_of(single_pawn);
       const bool can_capture_northeast = black_pieces() & northeast_of_pawn;
       if (can_capture_northeast) {
         res.emplace_back(single_pawn, northeast_of_pawn);
       }
 
-      const Bitboard northwest_of_pawn = northwest(single_pawn);
+      const Bitboard northwest_of_pawn = northwest_of(single_pawn);
       const bool can_capture_northwest = black_pieces() & northwest_of_pawn;
       if (can_capture_northwest) {
         res.emplace_back(single_pawn, northwest_of_pawn);
@@ -637,13 +641,13 @@ void Board::pseudolegal_pawn_captures(std::vector<Move>* res_ptr) const {
     const Bitboard black_pawns_excluding_seventh =
         black_pawns_ & (~second_rank_mask);
     for (Bitboard single_pawn : bitboard_split(black_pawns_excluding_seventh)) {
-      const Bitboard southeast_of_pawn = southeast(single_pawn);
+      const Bitboard southeast_of_pawn = southeast_of(single_pawn);
       const bool can_capture_southeast = white_pieces() & southeast_of_pawn;
       if (can_capture_southeast) {
         res.emplace_back(single_pawn, southeast_of_pawn);
       }
 
-      const Bitboard southwest_of_pawn = southwest(single_pawn);
+      const Bitboard southwest_of_pawn = southwest_of(single_pawn);
       const bool can_capture_southwest = white_pieces() & southwest_of_pawn;
       if (can_capture_southwest) {
         res.emplace_back(single_pawn, southwest_of_pawn);
@@ -664,49 +668,49 @@ void Board::pseudolegal_king_moves(std::vector<Move>* res_ptr) const {
   Bitboard king = is_whites_move_ ? white_king_ : black_king_;
   Bitboard friends = is_whites_move_ ? white_pieces() : black_pieces();
 
-  Bitboard north_of_king = north(king);
+  Bitboard north_of_king = north_of(king);
   bool friendly_piece_north_of_king = north_of_king & friends;
   if (!friendly_piece_north_of_king && north_of_king) {
     res_ptr->emplace_back(king, north_of_king);
   }
 
-  Bitboard south_of_king = south(king);
+  Bitboard south_of_king = south_of(king);
   bool friendly_piece_south_of_king = south_of_king & friends;
   if (!friendly_piece_south_of_king && south_of_king) {
     res_ptr->emplace_back(king, south_of_king);
   }
 
-  Bitboard east_of_king = east(king);
+  Bitboard east_of_king = east_of(king);
   bool friendly_piece_east_of_king = east_of_king & friends;
   if (!friendly_piece_east_of_king && east_of_king) {
     res_ptr->emplace_back(king, east_of_king);
   }
 
-  Bitboard west_of_king = west(king);
+  Bitboard west_of_king = west_of(king);
   bool friendly_piece_west_of_king = west_of_king & friends;
   if (!friendly_piece_west_of_king && west_of_king) {
     res_ptr->emplace_back(king, west_of_king);
   }
 
-  Bitboard northeast_of_king = northeast(king);
+  Bitboard northeast_of_king = northeast_of(king);
   bool friendly_piece_northeast_of_king = northeast_of_king & friends;
   if (!friendly_piece_northeast_of_king && northeast_of_king) {
     res_ptr->emplace_back(king, northeast_of_king);
   }
 
-  Bitboard northwest_of_king = northwest(king);
+  Bitboard northwest_of_king = northwest_of(king);
   bool friendly_piece_northwest_of_king = northwest_of_king & friends;
   if (!friendly_piece_northwest_of_king && northwest_of_king) {
     res_ptr->emplace_back(king, northwest_of_king);
   }
 
-  Bitboard southeast_of_king = southeast(king);
+  Bitboard southeast_of_king = southeast_of(king);
   bool friendly_piece_southeast_of_king = southeast_of_king & friends;
   if (!friendly_piece_southeast_of_king && southeast_of_king) {
     res_ptr->emplace_back(king, southeast_of_king);
   }
 
-  Bitboard southwest_of_king = southwest(king);
+  Bitboard southwest_of_king = southwest_of(king);
   bool friendly_piece_southwest_of_king = southwest_of_king & friends;
   if (!friendly_piece_southwest_of_king && southwest_of_king) {
     res_ptr->emplace_back(king, southwest_of_king);
@@ -718,56 +722,56 @@ void Board::pseudolegal_knight_moves(std::vector<Move>* res_ptr) const {
   Bitboard friends = is_whites_move_ ? white_pieces() : black_pieces();
 
   for (Bitboard knight : bitboard_split(knights)) {
-    Bitboard n_knight = north(knight);
+    Bitboard n_knight = north_of(knight);
     if (n_knight) {
-      Bitboard ne_n_knight = northeast(n_knight);
+      Bitboard ne_n_knight = northeast_of(n_knight);
       bool friendly_piece_ne_n_knight = ne_n_knight & friends;
       if (!friendly_piece_ne_n_knight && ne_n_knight) {
         res_ptr->emplace_back(knight, ne_n_knight);
       }
-      Bitboard nw_n_knight = northwest(n_knight);
+      Bitboard nw_n_knight = northwest_of(n_knight);
       bool friendly_piece_nw_n_knight = nw_n_knight & friends;
       if (!friendly_piece_nw_n_knight && nw_n_knight) {
         res_ptr->emplace_back(knight, nw_n_knight);
       }
     }
 
-    Bitboard s_knight = south(knight);
+    Bitboard s_knight = south_of(knight);
     if (s_knight) {
-      Bitboard se_s_knight = southeast(s_knight);
+      Bitboard se_s_knight = southeast_of(s_knight);
       bool friendly_piece_se_s_knight = se_s_knight & friends;
       if (!friendly_piece_se_s_knight && se_s_knight) {
         res_ptr->emplace_back(knight, se_s_knight);
       }
-      Bitboard sw_s_knight = southwest(s_knight);
+      Bitboard sw_s_knight = southwest_of(s_knight);
       bool friendly_piece_sw_s_knight = sw_s_knight & friends;
       if (!friendly_piece_sw_s_knight && sw_s_knight) {
         res_ptr->emplace_back(knight, sw_s_knight);
       }
     }
 
-    Bitboard e_knight = east(knight);
+    Bitboard e_knight = east_of(knight);
     if (e_knight) {
-      Bitboard ne_e_knight = northeast(e_knight);
+      Bitboard ne_e_knight = northeast_of(e_knight);
       bool friendly_piece_ne_e_knight = ne_e_knight & friends;
       if (!friendly_piece_ne_e_knight && ne_e_knight) {
         res_ptr->emplace_back(knight, ne_e_knight);
       }
-      Bitboard se_e_knight = southeast(e_knight);
+      Bitboard se_e_knight = southeast_of(e_knight);
       bool friendly_piece_se_e_knight = se_e_knight & friends;
       if (!friendly_piece_se_e_knight && se_e_knight) {
         res_ptr->emplace_back(knight, se_e_knight);
       }
     }
 
-    Bitboard w_knight = west(knight);
+    Bitboard w_knight = west_of(knight);
     if (w_knight) {
-      Bitboard nw_w_knight = northwest(w_knight);
+      Bitboard nw_w_knight = northwest_of(w_knight);
       bool friendly_piecw_nw_w_knight = nw_w_knight & friends;
       if (!friendly_piecw_nw_w_knight && nw_w_knight) {
         res_ptr->emplace_back(knight, nw_w_knight);
       }
-      Bitboard sw_w_knight = southwest(w_knight);
+      Bitboard sw_w_knight = southwest_of(w_knight);
       bool friendly_piecw_sw_w_knight = sw_w_knight & friends;
       if (!friendly_piecw_sw_w_knight && sw_w_knight) {
         res_ptr->emplace_back(knight, sw_w_knight);

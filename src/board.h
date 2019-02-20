@@ -71,14 +71,26 @@ bool on_a_file(Bitboard square);
 bool on_h_file(Bitboard square);
 bool on_first_rank(Bitboard square);
 bool on_eigth_rank(Bitboard square);
-Bitboard north(Bitboard square);
-Bitboard south(Bitboard square);
-Bitboard east(Bitboard square);
-Bitboard west(Bitboard square);
-Bitboard northeast(Bitboard square);
-Bitboard northwest(Bitboard square);
-Bitboard southeast(Bitboard square);
-Bitboard southwest(Bitboard square);
+
+enum class Compass {
+  north,
+  south,
+  east,
+  west,
+  northeast,
+  northwest,
+  southeast,
+  southwest
+};
+
+Bitboard north_of(Bitboard square);
+Bitboard south_of(Bitboard square);
+Bitboard east_of(Bitboard square);
+Bitboard west_of(Bitboard square);
+Bitboard northeast_of(Bitboard square);
+Bitboard northwest_of(Bitboard square);
+Bitboard southeast_of(Bitboard square);
+Bitboard southwest_of(Bitboard square);
 
 enum class Color { white, black };
 
@@ -157,9 +169,9 @@ class Board {
   // The pseudo prefix refers to the fact that these functions generate
   // pesudolegal moves. We must also check if the king is in check before
   // generating all legal moves.
-  void pseudolegal_moves_in_direction(
-      std::function<Bitboard(Bitboard)> direction_fn, Bitboard src_squares,
-      std::vector<Move>* res_ptr) const;
+  void pseudolegal_sliding_moves(std::function<Bitboard(Bitboard)> direction_fn,
+                                 Bitboard src_squares,
+                                 std::vector<Move>* res_ptr) const;
   void pseudolegal_bishop_moves(std::vector<Move>* res_ptr) const;
   void pseudolegal_rook_moves(std::vector<Move>* res_ptr) const;
   void pseudolegal_queen_moves(std::vector<Move>* res_ptr) const;

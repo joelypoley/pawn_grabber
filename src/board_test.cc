@@ -57,62 +57,62 @@ TEST(SquareUtils, OnHFile) {
 
 TEST(SquareDirections, E4) {
   Bitboard e4 = str_to_square("e4");
-  EXPECT_EQ(str_to_square("e5"), north(e4));
-  EXPECT_EQ(str_to_square("f5"), northeast(e4));
-  EXPECT_EQ(str_to_square("d5"), northwest(e4));
-  EXPECT_EQ(str_to_square("d4"), west(e4));
-  EXPECT_EQ(str_to_square("f4"), east(e4));
-  EXPECT_EQ(str_to_square("e3"), south(e4));
-  EXPECT_EQ(str_to_square("d3"), southwest(e4));
-  EXPECT_EQ(str_to_square("f3"), southeast(e4));
+  EXPECT_EQ(str_to_square("e5"), north_of(e4));
+  EXPECT_EQ(str_to_square("f5"), northeast_of(e4));
+  EXPECT_EQ(str_to_square("d5"), northwest_of(e4));
+  EXPECT_EQ(str_to_square("d4"), west_of(e4));
+  EXPECT_EQ(str_to_square("f4"), east_of(e4));
+  EXPECT_EQ(str_to_square("e3"), south_of(e4));
+  EXPECT_EQ(str_to_square("d3"), southwest_of(e4));
+  EXPECT_EQ(str_to_square("f3"), southeast_of(e4));
 }
 
 TEST(SquareDirections, A8) {
   Bitboard a8 = str_to_square("a8");
-  EXPECT_EQ(0, north(a8));
-  EXPECT_EQ(0, northeast(a8));
-  EXPECT_EQ(0, northwest(a8));
-  EXPECT_EQ(0, west(a8));
-  EXPECT_EQ(str_to_square("b8"), east(a8));
-  EXPECT_EQ(str_to_square("a7"), south(a8));
-  EXPECT_EQ(0, southwest(a8));
-  EXPECT_EQ(str_to_square("b7"), southeast(a8));
+  EXPECT_EQ(0, north_of(a8));
+  EXPECT_EQ(0, northeast_of(a8));
+  EXPECT_EQ(0, northwest_of(a8));
+  EXPECT_EQ(0, west_of(a8));
+  EXPECT_EQ(str_to_square("b8"), east_of(a8));
+  EXPECT_EQ(str_to_square("a7"), south_of(a8));
+  EXPECT_EQ(0, southwest_of(a8));
+  EXPECT_EQ(str_to_square("b7"), southeast_of(a8));
 }
 
 TEST(SquareDirections, A1) {
   Bitboard a1 = str_to_square("a1");
-  EXPECT_EQ(str_to_square("a2"), north(a1));
-  EXPECT_EQ(str_to_square("b2"), northeast(a1));
-  EXPECT_EQ(0, northwest(a1));
-  EXPECT_EQ(0, west(a1));
-  EXPECT_EQ(str_to_square("b1"), east(a1));
-  EXPECT_EQ(0, south(a1));
-  EXPECT_EQ(0, southwest(a1));
-  EXPECT_EQ(0, southeast(a1));
+  EXPECT_EQ(str_to_square("a2"), north_of(a1));
+  EXPECT_EQ(str_to_square("b2"), northeast_of(a1));
+  EXPECT_EQ(0, northwest_of(a1));
+  EXPECT_EQ(0, west_of(a1));
+  EXPECT_EQ(str_to_square("b1"), east_of(a1));
+  EXPECT_EQ(0, south_of(a1));
+  EXPECT_EQ(0, southwest_of(a1));
+  EXPECT_EQ(0, southeast_of(a1));
 }
 
 TEST(SquareDirections, H1) {
   Bitboard h1 = str_to_square("h1");
-  EXPECT_EQ(str_to_square("h2"), north(h1));
-  EXPECT_EQ(0, northeast(h1));
-  EXPECT_EQ(str_to_square("g2"), northwest(h1));
-  EXPECT_EQ(str_to_square("g1"), west(h1));
-  EXPECT_EQ(0, east(h1));
-  EXPECT_EQ(0, south(h1));
-  EXPECT_EQ(0, southwest(h1));
-  EXPECT_EQ(0, southeast(h1));
+  EXPECT_EQ(str_to_square("h2"), north_of(h1));
+  EXPECT_EQ(0, northeast_of(h1));
+  EXPECT_EQ(str_to_square("g2"), northwest_of(h1));
+  EXPECT_EQ(str_to_square("g1"), west_of(h1));
+  EXPECT_EQ(0, east_of(h1));
+  EXPECT_EQ(0, south_of(h1));
+  EXPECT_EQ(0, southwest_of(h1));
+  EXPECT_EQ(0, southeast_of(h1));
 }
 
 TEST(SquareDirections, H8) {
   Bitboard h8 = str_to_square("h8");
-  EXPECT_EQ(0, north(h8));
-  EXPECT_EQ(0, northeast(h8));
-  EXPECT_EQ(0, northwest(h8));
-  EXPECT_EQ(str_to_square("g8"), west(h8));
-  EXPECT_EQ(0, east(h8));
-  EXPECT_EQ(str_to_square("h7"), south(h8));
-  EXPECT_EQ(str_to_square("g7"), southwest(h8));
-  EXPECT_EQ(0, southeast(h8));
+  EXPECT_EQ(0, north_of(h8));
+  EXPECT_EQ(0, northeast_of(h8));
+  EXPECT_EQ(0, northwest_of(h8));
+  EXPECT_EQ(str_to_square("g8"), west_of(h8));
+  EXPECT_EQ(0, east_of(h8));
+  EXPECT_EQ(str_to_square("h7"), south_of(h8));
+  EXPECT_EQ(str_to_square("g7"), southwest_of(h8));
+  EXPECT_EQ(0, southeast_of(h8));
 }
 
 TEST(BoardConstructor, StartPosition) {
@@ -518,15 +518,15 @@ TEST(PseudoLegalMoves, A1Rook) {
   const Bitboard a1 = str_to_square("a1");
 
   std::vector<Move> test_north_moves;
-  board.pseudolegal_moves_in_direction(north, a1, &test_north_moves);
+  board.pseudolegal_sliding_moves(north_of, a1, &test_north_moves);
   EXPECT_TRUE(test_north_moves.empty());
 
   std::vector<Move> test_west_moves;
-  board.pseudolegal_moves_in_direction(west, a1, &test_west_moves);
+  board.pseudolegal_sliding_moves(west_of, a1, &test_west_moves);
   EXPECT_TRUE(test_west_moves.empty());
 
   std::vector<Move> test_south_moves;
-  board.pseudolegal_moves_in_direction(south, a1, &test_south_moves);
+  board.pseudolegal_sliding_moves(south_of, a1, &test_south_moves);
   EXPECT_TRUE(test_south_moves.empty());
 
   // TODO: Change to computed_east_moves and east_moves.
@@ -534,7 +534,7 @@ TEST(PseudoLegalMoves, A1Rook) {
       Move(a1, str_to_square("b1")), Move(a1, str_to_square("c1")),
       Move(a1, str_to_square("d1")), Move(a1, str_to_square("e1"))};
   std::vector<Move> test_east_moves;
-  board.pseudolegal_moves_in_direction(east, a1, &test_east_moves);
+  board.pseudolegal_sliding_moves(east_of, a1, &test_east_moves);
   EXPECT_EQ(test_east_moves, east_moves);
 }
 
@@ -543,23 +543,23 @@ TEST(PseudoLegalMoves, F1Rook) {
   const Bitboard f1 = str_to_square("f1");
 
   std::vector<Move> test_north_moves;
-  board.pseudolegal_moves_in_direction(north, f1, &test_north_moves);
+  board.pseudolegal_sliding_moves(north_of, f1, &test_north_moves);
   EXPECT_TRUE(test_north_moves.empty());
 
   std::vector<Move> test_south_moves;
-  board.pseudolegal_moves_in_direction(south, f1, &test_south_moves);
+  board.pseudolegal_sliding_moves(south_of, f1, &test_south_moves);
   EXPECT_TRUE(test_south_moves.empty());
 
   std::vector<Move> east_moves = {{f1, str_to_square("g1")}};
   std::vector<Move> test_east_moves;
-  board.pseudolegal_moves_in_direction(east, f1, &test_east_moves);
+  board.pseudolegal_sliding_moves(east_of, f1, &test_east_moves);
   EXPECT_EQ(test_east_moves, east_moves);
 
   std::vector<Move> west_moves = {
       Move(f1, str_to_square("e1")), Move(f1, str_to_square("d1")),
       Move(f1, str_to_square("c1")), Move(f1, str_to_square("b1"))};
   std::vector<Move> test_west_moves;
-  board.pseudolegal_moves_in_direction(west, f1, &test_west_moves);
+  board.pseudolegal_sliding_moves(west_of, f1, &test_west_moves);
   EXPECT_EQ(test_west_moves, west_moves);
 }
 
@@ -568,39 +568,39 @@ TEST(PseudoLegalMoves, B3Queen) {
   const Bitboard b3 = str_to_square("b3");
 
   std::vector<Move> test_east_moves;
-  board.pseudolegal_moves_in_direction(east, b3, &test_east_moves);
+  board.pseudolegal_sliding_moves(east_of, b3, &test_east_moves);
   EXPECT_TRUE(test_east_moves.empty());
 
   std::vector<Move> test_southwest_moves;
-  board.pseudolegal_moves_in_direction(southwest, b3, &test_southwest_moves);
+  board.pseudolegal_sliding_moves(southwest_of, b3, &test_southwest_moves);
   EXPECT_TRUE(test_southwest_moves.empty());
 
   std::vector<Move> test_south_moves;
-  board.pseudolegal_moves_in_direction(south, b3, &test_south_moves);
+  board.pseudolegal_sliding_moves(south_of, b3, &test_south_moves);
   EXPECT_TRUE(test_south_moves.empty());
 
   std::vector<Move> north_moves = {
       Move(b3, str_to_square("b4")), Move(b3, str_to_square("b5")),
       Move(b3, str_to_square("b6")), Move(b3, str_to_square("b7"))};
   std::vector<Move> test_north_moves;
-  board.pseudolegal_moves_in_direction(north, b3, &test_north_moves);
+  board.pseudolegal_sliding_moves(north_of, b3, &test_north_moves);
   EXPECT_EQ(test_north_moves, north_moves);
 
   std::vector<Move> northwest_moves = {Move(b3, str_to_square("a4"))};
   std::vector<Move> test_northwest_moves;
-  board.pseudolegal_moves_in_direction(northwest, b3, &test_northwest_moves);
+  board.pseudolegal_sliding_moves(northwest_of, b3, &test_northwest_moves);
   EXPECT_EQ(test_northwest_moves, northwest_moves);
 
   std::vector<Move> northeast_moves = {
       Move(b3, str_to_square("c4")), Move(b3, str_to_square("d5")),
       Move(b3, str_to_square("e6")), Move(b3, str_to_square("f7"))};
   std::vector<Move> test_northeast_moves;
-  board.pseudolegal_moves_in_direction(northeast, b3, &test_northeast_moves);
+  board.pseudolegal_sliding_moves(northeast_of, b3, &test_northeast_moves);
   EXPECT_EQ(test_northeast_moves, northeast_moves);
 
   std::vector<Move> west_moves = {Move(b3, str_to_square("a3"))};
   std::vector<Move> test_west_moves;
-  board.pseudolegal_moves_in_direction(west, b3, &test_west_moves);
+  board.pseudolegal_sliding_moves(west_of, b3, &test_west_moves);
   EXPECT_EQ(test_west_moves, west_moves);
 
   std::vector<Move> southeast_moves = {
@@ -608,7 +608,7 @@ TEST(PseudoLegalMoves, B3Queen) {
       Move(b3, str_to_square("d1")),
   };
   std::vector<Move> test_southeast_moves;
-  board.pseudolegal_moves_in_direction(southeast, b3, &test_southeast_moves);
+  board.pseudolegal_sliding_moves(southeast_of, b3, &test_southeast_moves);
   EXPECT_EQ(test_southeast_moves, southeast_moves);
 }
 
@@ -617,22 +617,22 @@ TEST(PseudoLegalMoves, A8Rook) {
   const Bitboard a8 = str_to_square("a8");
 
   std::vector<Move> test_north_moves;
-  board.pseudolegal_moves_in_direction(north, a8, &test_north_moves);
+  board.pseudolegal_sliding_moves(north_of, a8, &test_north_moves);
   EXPECT_TRUE(test_north_moves.empty());
 
   std::vector<Move> test_west_moves;
-  board.pseudolegal_moves_in_direction(west, a8, &test_west_moves);
+  board.pseudolegal_sliding_moves(west_of, a8, &test_west_moves);
   EXPECT_TRUE(test_west_moves.empty());
 
   std::vector<Move> test_south_moves;
-  board.pseudolegal_moves_in_direction(south, a8, &test_south_moves);
+  board.pseudolegal_sliding_moves(south_of, a8, &test_south_moves);
   EXPECT_TRUE(test_south_moves.empty());
 
   std::vector<Move> east_moves = {
       Move(a8, str_to_square("b8")), Move(a8, str_to_square("c8")),
       Move(a8, str_to_square("d8")), Move(a8, str_to_square("e8"))};
   std::vector<Move> test_east_moves;
-  board.pseudolegal_moves_in_direction(east, a8, &test_east_moves);
+  board.pseudolegal_sliding_moves(east_of, a8, &test_east_moves);
   EXPECT_EQ(test_east_moves, east_moves);
 }
 
@@ -641,22 +641,22 @@ TEST(PseudoLegalMoves, F8Rook) {
   const Bitboard f8 = str_to_square("f8");
 
   std::vector<Move> test_north_moves;
-  board.pseudolegal_moves_in_direction(north, f8, &test_north_moves);
+  board.pseudolegal_sliding_moves(north_of, f8, &test_north_moves);
   EXPECT_TRUE(test_north_moves.empty());
 
   std::vector<Move> test_east_moves;
-  board.pseudolegal_moves_in_direction(east, f8, &test_east_moves);
+  board.pseudolegal_sliding_moves(east_of, f8, &test_east_moves);
   EXPECT_TRUE(test_east_moves.empty());
 
   std::vector<Move> test_south_moves;
-  board.pseudolegal_moves_in_direction(south, f8, &test_south_moves);
+  board.pseudolegal_sliding_moves(south_of, f8, &test_south_moves);
   EXPECT_TRUE(test_south_moves.empty());
 
   std::vector<Move> west_moves = {
       Move(f8, str_to_square("e8")), Move(f8, str_to_square("d8")),
       Move(f8, str_to_square("c8")), Move(f8, str_to_square("b8"))};
   std::vector<Move> test_west_moves;
-  board.pseudolegal_moves_in_direction(west, f8, &test_west_moves);
+  board.pseudolegal_sliding_moves(west_of, f8, &test_west_moves);
   EXPECT_EQ(test_west_moves, west_moves);
 }
 
@@ -665,22 +665,22 @@ TEST(PseudoLegalMoves, G6Bishop) {
   const Bitboard g6 = str_to_square("g6");
 
   std::vector<Move> test_northwest_moves;
-  board.pseudolegal_moves_in_direction(northwest, g6, &test_northwest_moves);
+  board.pseudolegal_sliding_moves(northwest_of, g6, &test_northwest_moves);
   EXPECT_TRUE(test_northwest_moves.empty());
 
   std::vector<Move> northeast_moves = {Move(g6, str_to_square("h7"))};
   std::vector<Move> test_northeast_moves;
-  board.pseudolegal_moves_in_direction(northeast, g6, &test_northeast_moves);
+  board.pseudolegal_sliding_moves(northeast_of, g6, &test_northeast_moves);
   EXPECT_EQ(test_northeast_moves, northeast_moves);
 
   std::vector<Move> southwest_moves = {Move(g6, str_to_square("f5"))};
   std::vector<Move> test_southwest_moves;
-  board.pseudolegal_moves_in_direction(southwest, g6, &test_southwest_moves);
+  board.pseudolegal_sliding_moves(southwest_of, g6, &test_southwest_moves);
   EXPECT_EQ(test_southwest_moves, southwest_moves);
 
   std::vector<Move> southeast_moves = {Move(g6, str_to_square("h5"))};
   std::vector<Move> test_southeast_moves;
-  board.pseudolegal_moves_in_direction(southeast, g6, &test_southeast_moves);
+  board.pseudolegal_sliding_moves(southeast_of, g6, &test_southeast_moves);
   EXPECT_EQ(test_southeast_moves, southeast_moves);
 }
 
@@ -690,28 +690,28 @@ TEST(PseudoLegalMoves, H4Queen) {
 
   std::vector<Move> north_moves = {Move(h4, str_to_square("h5"))};
   std::vector<Move> test_north_moves;
-  board.pseudolegal_moves_in_direction(north, h4, &test_north_moves);
+  board.pseudolegal_sliding_moves(north_of, h4, &test_north_moves);
   EXPECT_EQ(test_north_moves, north_moves);
 
   std::vector<Move> south_moves = {Move(h4, str_to_square("h3"))};
   std::vector<Move> test_south_moves;
-  board.pseudolegal_moves_in_direction(south, h4, &test_south_moves);
+  board.pseudolegal_sliding_moves(south_of, h4, &test_south_moves);
   EXPECT_EQ(test_south_moves, south_moves);
 
   std::vector<Move> test_west_moves;
-  board.pseudolegal_moves_in_direction(west, h4, &test_west_moves);
+  board.pseudolegal_sliding_moves(west_of, h4, &test_west_moves);
   EXPECT_TRUE(test_west_moves.empty());
 
   std::vector<Move> test_east_moves;
-  board.pseudolegal_moves_in_direction(east, h4, &test_east_moves);
+  board.pseudolegal_sliding_moves(east_of, h4, &test_east_moves);
   EXPECT_TRUE(test_east_moves.empty());
 
   std::vector<Move> test_northeast_moves;
-  board.pseudolegal_moves_in_direction(northeast, h4, &test_northeast_moves);
+  board.pseudolegal_sliding_moves(northeast_of, h4, &test_northeast_moves);
   EXPECT_TRUE(test_northeast_moves.empty());
 
   std::vector<Move> test_southeast_moves;
-  board.pseudolegal_moves_in_direction(southeast, h4, &test_southeast_moves);
+  board.pseudolegal_sliding_moves(southeast_of, h4, &test_southeast_moves);
   EXPECT_TRUE(test_southeast_moves.empty());
 
   std::vector<Move> northwest_moves = {
@@ -721,7 +721,7 @@ TEST(PseudoLegalMoves, H4Queen) {
       Move(h4, str_to_square("d8")),
   };
   std::vector<Move> test_northwest_moves;
-  board.pseudolegal_moves_in_direction(northwest, h4, &test_northwest_moves);
+  board.pseudolegal_sliding_moves(northwest_of, h4, &test_northwest_moves);
   EXPECT_EQ(test_northwest_moves, northwest_moves);
 
   std::vector<Move> southwest_moves = {
@@ -729,7 +729,7 @@ TEST(PseudoLegalMoves, H4Queen) {
       Move(h4, str_to_square("f2")),
   };
   std::vector<Move> test_southwest_moves;
-  board.pseudolegal_moves_in_direction(southwest, h4, &test_southwest_moves);
+  board.pseudolegal_sliding_moves(southwest_of, h4, &test_southwest_moves);
   EXPECT_EQ(test_southwest_moves, southwest_moves);
 }
 
