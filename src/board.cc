@@ -442,7 +442,7 @@ void Board::pseudolegal_sliding_moves(Direction direction, Color side,
 
 void Board::pseudolegal_bishop_moves(Color side,
                                      std::vector<Move>* res_ptr) const {
-  Bitboard bishops = is_whites_move_ ? white_bishops_ : black_bishops_;
+  Bitboard bishops = side == Color::white ? white_bishops_ : black_bishops_;
   for (Bitboard bishop : bitboard_split(bishops)) {
     pseudolegal_sliding_moves(Direction::northeast, side, bishop, res_ptr);
     pseudolegal_sliding_moves(Direction::northwest, side, bishop, res_ptr);
@@ -805,10 +805,15 @@ std::vector<Move> Board::pseudolegal_moves(Color side) const {
 
 Bitboard Board::all_dst_squares(Color side) const {
   std::vector<Move> moves = pseudolegal_moves(side);
-  Bitboard res = absl::c_accumulate(
-      moves, uint64_t(0),
-      [](Bitboard acc, Move move) { return acc | move.dst_square; });
-  return res;
+  return absl::c_accumulate(moves, uint64_t(0), [](Bitboard acc, Move move) {
+    return acc | move.dst_square;
+  });
+}
+
+bool Board::is_king_attacked(Color side) const {
+  Bitboard king = side == Color::white ? white_king_ : black_king_;
+  Bitboard attack_squares = all_dst_squares(flip_color(side));
+  return king & attack_squares;
 }
 
 Bitboard str_to_square(const std::string_view algebraic_square) {
@@ -877,4 +882,8 @@ std::function<Bitboard(Bitboard)> direction_to_function(Direction direction) {
     case Direction::southwest:
       return southwest_of;
   }
+}
+
+Color flip_color(Color color) {
+  return color == Color::white ? Color::black : Color::white;
 }

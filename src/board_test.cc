@@ -1380,3 +1380,21 @@ TEST(PseudoLegalMoves, PawnsBlack) {
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
 }
+
+TEST(IsKingAttacked, Simple) {
+  Board board_1 =
+      Board("rnb1kbnr/pppp1ppp/4p3/8/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 0 1");
+  EXPECT_TRUE(board_1.is_king_attacked(Color::white));
+  EXPECT_FALSE(board_1.is_king_attacked(Color::black));
+  Board board_2 = Board("8/6bp/p1k1p3/8/N2Pp3/2P1P3/6R1/3r3K w - - 1 36");
+  EXPECT_TRUE(board_2.is_king_attacked(Color::white));
+  EXPECT_FALSE(board_2.is_king_attacked(Color::black));
+  Board board_3 =
+      Board("rn2k2r/1pN1bppp/4pn2/3p3q/1P6/P1B1P3/2P2PPP/R2Q1RK1 b kq - 3 15");
+  EXPECT_FALSE(board_3.is_king_attacked(Color::white));
+  EXPECT_TRUE(board_3.is_king_attacked(Color::black));
+  Board board_4(
+      "1n1qkbnr/1p2pppp/r7/1Ppp3P/3PP3/2N2N2/pPP2PP1/1RBQKB1R b Kk - 6 12");
+  EXPECT_FALSE(board_4.is_king_attacked(Color::white));
+  EXPECT_FALSE(board_4.is_king_attacked(Color::black));
+}

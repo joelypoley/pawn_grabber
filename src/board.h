@@ -192,7 +192,8 @@ class Board {
 
   std::vector<Move> pseudolegal_moves(Color side) const;
 
-  Bitboard all_dst_squares(Color color) const;
+  Bitboard all_dst_squares(Color side) const;
+  bool is_king_attacked(Color side) const;
 
  private:
   void zero_all_bitboards();
@@ -211,5 +212,6 @@ std::string square_to_str(Bitboard sq);
 Bitboard coordinates_to_square(int file, int rank);
 std::vector<Bitboard> bitboard_split(Bitboard bb);
 std::function<Bitboard(Bitboard)> direction_to_function(Direction direction);
+Color flip_color(Color color);
 
 #endif
