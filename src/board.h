@@ -72,7 +72,7 @@ bool on_h_file(Bitboard square);
 bool on_first_rank(Bitboard square);
 bool on_eigth_rank(Bitboard square);
 
-enum class Compass {
+enum class Direction {
   north,
   south,
   east,
@@ -169,25 +169,28 @@ class Board {
   // The pseudo prefix refers to the fact that these functions generate
   // pesudolegal moves. We must also check if the king is in check before
   // generating all legal moves.
-  void pseudolegal_sliding_moves(std::function<Bitboard(Bitboard)> direction_fn,
-                                 Bitboard src_squares,
+  void pseudolegal_sliding_moves(Direction direction, Color side,
+                                 Bitboard src_square,
                                  std::vector<Move>* res_ptr) const;
-  void pseudolegal_bishop_moves(std::vector<Move>* res_ptr) const;
-  void pseudolegal_rook_moves(std::vector<Move>* res_ptr) const;
-  void pseudolegal_queen_moves(std::vector<Move>* res_ptr) const;
+  void pseudolegal_bishop_moves(Color side, std::vector<Move>* res_ptr) const;
+  void pseudolegal_rook_moves(Color side, std::vector<Move>* res_ptr) const;
+  void pseudolegal_queen_moves(Color side, std::vector<Move>* res_ptr) const;
   // "Simple" in this context means no two-step moves, no promotions, no en
   // passant.
-  void pseudolegal_simple_pawn_moves(std::vector<Move>* res_ptr) const;
-  void pseudolegal_two_step_pawn_moves(std::vector<Move>* res_ptr) const;
-  void pseudolegal_en_passant_moves(std::vector<Move>* res_ptr) const;
-  void pseudolegal_promotions(std::vector<Move>* res_ptr) const;
-  void pseudolegal_pawn_captures(std::vector<Move>* res_ptr) const;
-  void pseudolegal_pawn_moves(std::vector<Move>* res_ptr) const;
+  void pseudolegal_simple_pawn_moves(Color side,
+                                     std::vector<Move>* res_ptr) const;
+  void pseudolegal_two_step_pawn_moves(Color side,
+                                       std::vector<Move>* res_ptr) const;
+  void pseudolegal_en_passant_moves(Color side,
+                                    std::vector<Move>* res_ptr) const;
+  void pseudolegal_promotions(Color side, std::vector<Move>* res_ptr) const;
+  void pseudolegal_pawn_captures(Color side, std::vector<Move>* res_ptr) const;
+  void pseudolegal_pawn_moves(Color side, std::vector<Move>* res_ptr) const;
 
-  void pseudolegal_king_moves(std::vector<Move>* res_ptr) const;
-  void pseudolegal_knight_moves(std::vector<Move>* res_ptr) const;
+  void pseudolegal_king_moves(Color side, std::vector<Move>* res_ptr) const;
+  void pseudolegal_knight_moves(Color side, std::vector<Move>* res_ptr) const;
 
-  std::vector<Move> pseudolegal_moves() const;
+  std::vector<Move> pseudolegal_moves(Color side) const;
 
   Bitboard all_dst_squares(Color color) const;
 
@@ -207,5 +210,6 @@ Bitboard str_to_square(const std::string_view alegbraic_square);
 std::string square_to_str(Bitboard sq);
 Bitboard coordinates_to_square(int file, int rank);
 std::vector<Bitboard> bitboard_split(Bitboard bb);
+std::function<Bitboard(Bitboard)> direction_to_function(Direction direction);
 
 #endif

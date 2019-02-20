@@ -518,15 +518,18 @@ TEST(PseudoLegalMoves, A1Rook) {
   const Bitboard a1 = str_to_square("a1");
 
   std::vector<Move> test_north_moves;
-  board.pseudolegal_sliding_moves(north_of, a1, &test_north_moves);
+  board.pseudolegal_sliding_moves(Direction::north, Color::white, a1,
+                                  &test_north_moves);
   EXPECT_TRUE(test_north_moves.empty());
 
   std::vector<Move> test_west_moves;
-  board.pseudolegal_sliding_moves(west_of, a1, &test_west_moves);
+  board.pseudolegal_sliding_moves(Direction::west, Color::white, a1,
+                                  &test_west_moves);
   EXPECT_TRUE(test_west_moves.empty());
 
   std::vector<Move> test_south_moves;
-  board.pseudolegal_sliding_moves(south_of, a1, &test_south_moves);
+  board.pseudolegal_sliding_moves(Direction::south, Color::white, a1,
+                                  &test_south_moves);
   EXPECT_TRUE(test_south_moves.empty());
 
   // TODO: Change to computed_east_moves and east_moves.
@@ -534,7 +537,8 @@ TEST(PseudoLegalMoves, A1Rook) {
       Move(a1, str_to_square("b1")), Move(a1, str_to_square("c1")),
       Move(a1, str_to_square("d1")), Move(a1, str_to_square("e1"))};
   std::vector<Move> test_east_moves;
-  board.pseudolegal_sliding_moves(east_of, a1, &test_east_moves);
+  board.pseudolegal_sliding_moves(Direction::east, Color::white, a1,
+                                  &test_east_moves);
   EXPECT_EQ(test_east_moves, east_moves);
 }
 
@@ -543,23 +547,27 @@ TEST(PseudoLegalMoves, F1Rook) {
   const Bitboard f1 = str_to_square("f1");
 
   std::vector<Move> test_north_moves;
-  board.pseudolegal_sliding_moves(north_of, f1, &test_north_moves);
+  board.pseudolegal_sliding_moves(Direction::north, Color::white, f1,
+                                  &test_north_moves);
   EXPECT_TRUE(test_north_moves.empty());
 
   std::vector<Move> test_south_moves;
-  board.pseudolegal_sliding_moves(south_of, f1, &test_south_moves);
+  board.pseudolegal_sliding_moves(Direction::south, Color::white, f1,
+                                  &test_south_moves);
   EXPECT_TRUE(test_south_moves.empty());
 
   std::vector<Move> east_moves = {{f1, str_to_square("g1")}};
   std::vector<Move> test_east_moves;
-  board.pseudolegal_sliding_moves(east_of, f1, &test_east_moves);
+  board.pseudolegal_sliding_moves(Direction::east, Color::white, f1,
+                                  &test_east_moves);
   EXPECT_EQ(test_east_moves, east_moves);
 
   std::vector<Move> west_moves = {
       Move(f1, str_to_square("e1")), Move(f1, str_to_square("d1")),
       Move(f1, str_to_square("c1")), Move(f1, str_to_square("b1"))};
   std::vector<Move> test_west_moves;
-  board.pseudolegal_sliding_moves(west_of, f1, &test_west_moves);
+  board.pseudolegal_sliding_moves(Direction::west, Color::white, f1,
+                                  &test_west_moves);
   EXPECT_EQ(test_west_moves, west_moves);
 }
 
@@ -568,39 +576,46 @@ TEST(PseudoLegalMoves, B3Queen) {
   const Bitboard b3 = str_to_square("b3");
 
   std::vector<Move> test_east_moves;
-  board.pseudolegal_sliding_moves(east_of, b3, &test_east_moves);
+  board.pseudolegal_sliding_moves(Direction::east, Color::white, b3,
+                                  &test_east_moves);
   EXPECT_TRUE(test_east_moves.empty());
 
   std::vector<Move> test_southwest_moves;
-  board.pseudolegal_sliding_moves(southwest_of, b3, &test_southwest_moves);
+  board.pseudolegal_sliding_moves(Direction::southwest, Color::white, b3,
+                                  &test_southwest_moves);
   EXPECT_TRUE(test_southwest_moves.empty());
 
   std::vector<Move> test_south_moves;
-  board.pseudolegal_sliding_moves(south_of, b3, &test_south_moves);
+  board.pseudolegal_sliding_moves(Direction::south, Color::white, b3,
+                                  &test_south_moves);
   EXPECT_TRUE(test_south_moves.empty());
 
   std::vector<Move> north_moves = {
       Move(b3, str_to_square("b4")), Move(b3, str_to_square("b5")),
       Move(b3, str_to_square("b6")), Move(b3, str_to_square("b7"))};
   std::vector<Move> test_north_moves;
-  board.pseudolegal_sliding_moves(north_of, b3, &test_north_moves);
+  board.pseudolegal_sliding_moves(Direction::north, Color::white, b3,
+                                  &test_north_moves);
   EXPECT_EQ(test_north_moves, north_moves);
 
   std::vector<Move> northwest_moves = {Move(b3, str_to_square("a4"))};
   std::vector<Move> test_northwest_moves;
-  board.pseudolegal_sliding_moves(northwest_of, b3, &test_northwest_moves);
+  board.pseudolegal_sliding_moves(Direction::northwest, Color::white, b3,
+                                  &test_northwest_moves);
   EXPECT_EQ(test_northwest_moves, northwest_moves);
 
   std::vector<Move> northeast_moves = {
       Move(b3, str_to_square("c4")), Move(b3, str_to_square("d5")),
       Move(b3, str_to_square("e6")), Move(b3, str_to_square("f7"))};
   std::vector<Move> test_northeast_moves;
-  board.pseudolegal_sliding_moves(northeast_of, b3, &test_northeast_moves);
+  board.pseudolegal_sliding_moves(Direction::northeast, Color::white, b3,
+                                  &test_northeast_moves);
   EXPECT_EQ(test_northeast_moves, northeast_moves);
 
   std::vector<Move> west_moves = {Move(b3, str_to_square("a3"))};
   std::vector<Move> test_west_moves;
-  board.pseudolegal_sliding_moves(west_of, b3, &test_west_moves);
+  board.pseudolegal_sliding_moves(Direction::west, Color::white, b3,
+                                  &test_west_moves);
   EXPECT_EQ(test_west_moves, west_moves);
 
   std::vector<Move> southeast_moves = {
@@ -608,7 +623,8 @@ TEST(PseudoLegalMoves, B3Queen) {
       Move(b3, str_to_square("d1")),
   };
   std::vector<Move> test_southeast_moves;
-  board.pseudolegal_sliding_moves(southeast_of, b3, &test_southeast_moves);
+  board.pseudolegal_sliding_moves(Direction::southeast, Color::white, b3,
+                                  &test_southeast_moves);
   EXPECT_EQ(test_southeast_moves, southeast_moves);
 }
 
@@ -617,22 +633,26 @@ TEST(PseudoLegalMoves, A8Rook) {
   const Bitboard a8 = str_to_square("a8");
 
   std::vector<Move> test_north_moves;
-  board.pseudolegal_sliding_moves(north_of, a8, &test_north_moves);
+  board.pseudolegal_sliding_moves(Direction::north, Color::black, a8,
+                                  &test_north_moves);
   EXPECT_TRUE(test_north_moves.empty());
 
   std::vector<Move> test_west_moves;
-  board.pseudolegal_sliding_moves(west_of, a8, &test_west_moves);
+  board.pseudolegal_sliding_moves(Direction::west, Color::black, a8,
+                                  &test_west_moves);
   EXPECT_TRUE(test_west_moves.empty());
 
   std::vector<Move> test_south_moves;
-  board.pseudolegal_sliding_moves(south_of, a8, &test_south_moves);
+  board.pseudolegal_sliding_moves(Direction::south, Color::black, a8,
+                                  &test_south_moves);
   EXPECT_TRUE(test_south_moves.empty());
 
   std::vector<Move> east_moves = {
       Move(a8, str_to_square("b8")), Move(a8, str_to_square("c8")),
       Move(a8, str_to_square("d8")), Move(a8, str_to_square("e8"))};
   std::vector<Move> test_east_moves;
-  board.pseudolegal_sliding_moves(east_of, a8, &test_east_moves);
+  board.pseudolegal_sliding_moves(Direction::east, Color::black, a8,
+                                  &test_east_moves);
   EXPECT_EQ(test_east_moves, east_moves);
 }
 
@@ -641,22 +661,26 @@ TEST(PseudoLegalMoves, F8Rook) {
   const Bitboard f8 = str_to_square("f8");
 
   std::vector<Move> test_north_moves;
-  board.pseudolegal_sliding_moves(north_of, f8, &test_north_moves);
+  board.pseudolegal_sliding_moves(Direction::north, Color::black, f8,
+                                  &test_north_moves);
   EXPECT_TRUE(test_north_moves.empty());
 
   std::vector<Move> test_east_moves;
-  board.pseudolegal_sliding_moves(east_of, f8, &test_east_moves);
+  board.pseudolegal_sliding_moves(Direction::east, Color::black, f8,
+                                  &test_east_moves);
   EXPECT_TRUE(test_east_moves.empty());
 
   std::vector<Move> test_south_moves;
-  board.pseudolegal_sliding_moves(south_of, f8, &test_south_moves);
+  board.pseudolegal_sliding_moves(Direction::south, Color::black, f8,
+                                  &test_south_moves);
   EXPECT_TRUE(test_south_moves.empty());
 
   std::vector<Move> west_moves = {
       Move(f8, str_to_square("e8")), Move(f8, str_to_square("d8")),
       Move(f8, str_to_square("c8")), Move(f8, str_to_square("b8"))};
   std::vector<Move> test_west_moves;
-  board.pseudolegal_sliding_moves(west_of, f8, &test_west_moves);
+  board.pseudolegal_sliding_moves(Direction::west, Color::black, f8,
+                                  &test_west_moves);
   EXPECT_EQ(test_west_moves, west_moves);
 }
 
@@ -665,22 +689,26 @@ TEST(PseudoLegalMoves, G6Bishop) {
   const Bitboard g6 = str_to_square("g6");
 
   std::vector<Move> test_northwest_moves;
-  board.pseudolegal_sliding_moves(northwest_of, g6, &test_northwest_moves);
+  board.pseudolegal_sliding_moves(Direction::northwest, Color::black, g6,
+                                  &test_northwest_moves);
   EXPECT_TRUE(test_northwest_moves.empty());
 
   std::vector<Move> northeast_moves = {Move(g6, str_to_square("h7"))};
   std::vector<Move> test_northeast_moves;
-  board.pseudolegal_sliding_moves(northeast_of, g6, &test_northeast_moves);
+  board.pseudolegal_sliding_moves(Direction::northeast, Color::black, g6,
+                                  &test_northeast_moves);
   EXPECT_EQ(test_northeast_moves, northeast_moves);
 
   std::vector<Move> southwest_moves = {Move(g6, str_to_square("f5"))};
   std::vector<Move> test_southwest_moves;
-  board.pseudolegal_sliding_moves(southwest_of, g6, &test_southwest_moves);
+  board.pseudolegal_sliding_moves(Direction::southwest, Color::black, g6,
+                                  &test_southwest_moves);
   EXPECT_EQ(test_southwest_moves, southwest_moves);
 
   std::vector<Move> southeast_moves = {Move(g6, str_to_square("h5"))};
   std::vector<Move> test_southeast_moves;
-  board.pseudolegal_sliding_moves(southeast_of, g6, &test_southeast_moves);
+  board.pseudolegal_sliding_moves(Direction::southeast, Color::black, g6,
+                                  &test_southeast_moves);
   EXPECT_EQ(test_southeast_moves, southeast_moves);
 }
 
@@ -690,28 +718,34 @@ TEST(PseudoLegalMoves, H4Queen) {
 
   std::vector<Move> north_moves = {Move(h4, str_to_square("h5"))};
   std::vector<Move> test_north_moves;
-  board.pseudolegal_sliding_moves(north_of, h4, &test_north_moves);
+  board.pseudolegal_sliding_moves(Direction::north, Color::black, h4,
+                                  &test_north_moves);
   EXPECT_EQ(test_north_moves, north_moves);
 
   std::vector<Move> south_moves = {Move(h4, str_to_square("h3"))};
   std::vector<Move> test_south_moves;
-  board.pseudolegal_sliding_moves(south_of, h4, &test_south_moves);
+  board.pseudolegal_sliding_moves(Direction::south, Color::black, h4,
+                                  &test_south_moves);
   EXPECT_EQ(test_south_moves, south_moves);
 
   std::vector<Move> test_west_moves;
-  board.pseudolegal_sliding_moves(west_of, h4, &test_west_moves);
+  board.pseudolegal_sliding_moves(Direction::west, Color::black, h4,
+                                  &test_west_moves);
   EXPECT_TRUE(test_west_moves.empty());
 
   std::vector<Move> test_east_moves;
-  board.pseudolegal_sliding_moves(east_of, h4, &test_east_moves);
+  board.pseudolegal_sliding_moves(Direction::east, Color::black, h4,
+                                  &test_east_moves);
   EXPECT_TRUE(test_east_moves.empty());
 
   std::vector<Move> test_northeast_moves;
-  board.pseudolegal_sliding_moves(northeast_of, h4, &test_northeast_moves);
+  board.pseudolegal_sliding_moves(Direction::northeast, Color::black, h4,
+                                  &test_northeast_moves);
   EXPECT_TRUE(test_northeast_moves.empty());
 
   std::vector<Move> test_southeast_moves;
-  board.pseudolegal_sliding_moves(southeast_of, h4, &test_southeast_moves);
+  board.pseudolegal_sliding_moves(Direction::southeast, Color::black, h4,
+                                  &test_southeast_moves);
   EXPECT_TRUE(test_southeast_moves.empty());
 
   std::vector<Move> northwest_moves = {
@@ -721,7 +755,8 @@ TEST(PseudoLegalMoves, H4Queen) {
       Move(h4, str_to_square("d8")),
   };
   std::vector<Move> test_northwest_moves;
-  board.pseudolegal_sliding_moves(northwest_of, h4, &test_northwest_moves);
+  board.pseudolegal_sliding_moves(Direction::northwest, Color::black, h4,
+                                  &test_northwest_moves);
   EXPECT_EQ(test_northwest_moves, northwest_moves);
 
   std::vector<Move> southwest_moves = {
@@ -729,7 +764,8 @@ TEST(PseudoLegalMoves, H4Queen) {
       Move(h4, str_to_square("f2")),
   };
   std::vector<Move> test_southwest_moves;
-  board.pseudolegal_sliding_moves(southwest_of, h4, &test_southwest_moves);
+  board.pseudolegal_sliding_moves(Direction::southwest, Color::black, h4,
+                                  &test_southwest_moves);
   EXPECT_EQ(test_southwest_moves, southwest_moves);
 }
 
@@ -745,7 +781,7 @@ TEST(PseudoLegalMoves, BishopMovesWhite) {
 
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_bishop_moves(&test_moves);
+  board.pseudolegal_bishop_moves(Color::white, &test_moves);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
@@ -760,7 +796,7 @@ TEST(PseudoLegalMoves, BishopMovesBlack) {
                              Move(str_to_square("f8"), str_to_square("b4")),
                              Move(str_to_square("f8"), str_to_square("a3"))};
   std::vector<Move> test_moves;
-  board.pseudolegal_bishop_moves(&test_moves);
+  board.pseudolegal_bishop_moves(Color::black, &test_moves);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
@@ -783,7 +819,7 @@ TEST(PseudoLegalMoves, RookMovesWhite) {
 
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_rook_moves(&test_moves);
+  board.pseudolegal_rook_moves(Color::white, &test_moves);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
@@ -806,7 +842,7 @@ TEST(PseudoLegalMoves, RookMovesBlack) {
       Move(str_to_square("d8"), str_to_square("d5")),
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_rook_moves(&test_moves);
+  board.pseudolegal_rook_moves(Color::black, &test_moves);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
@@ -834,7 +870,7 @@ TEST(PseudoLegalMoves, QueenMovesWhite) {
 
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_queen_moves(&test_moves);
+  board.pseudolegal_queen_moves(Color::white, &test_moves);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
@@ -859,7 +895,7 @@ TEST(PseudoLegalMoves, QueenMovesBlack) {
       Move(str_to_square("b3"), str_to_square("d5")),
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_queen_moves(&test_moves);
+  board.pseudolegal_queen_moves(Color::black, &test_moves);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
@@ -872,7 +908,7 @@ TEST(PseudoLegalMoves, KingMovesWhite) {
                              Move(str_to_square("h2"), str_to_square("g1")),
                              Move(str_to_square("h2"), str_to_square("g3"))};
   std::vector<Move> test_moves;
-  board.pseudolegal_king_moves(&test_moves);
+  board.pseudolegal_king_moves(Color::white, &test_moves);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()))
@@ -888,7 +924,7 @@ TEST(PseudoLegalMoves, KingMovesBlack) {
       Move(str_to_square("h7"), str_to_square("g6")),
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_king_moves(&test_moves);
+  board.pseudolegal_king_moves(Color::black, &test_moves);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
@@ -907,7 +943,7 @@ TEST(PseudoLegalMoves, KnightMovesWhite) {
       Move(str_to_square("f5"), str_to_square("d6")),
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_knight_moves(&test_moves);
+  board.pseudolegal_knight_moves(Color::white, &test_moves);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()))
@@ -923,7 +959,7 @@ TEST(PseudoLegalMoves, KnightMovesBlack) {
       Move(str_to_square("g8"), str_to_square("f6")),
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_knight_moves(&test_moves);
+  board.pseudolegal_knight_moves(Color::black, &test_moves);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
@@ -986,7 +1022,7 @@ TEST(PseudoLegalMoves, White) {
                              Move(str_to_square("f3"), str_to_square("f4")),
                              Move(str_to_square("g2"), str_to_square("g3")),
                              Move(str_to_square("g2"), str_to_square("g4"))};
-  auto test_moves = board.pseudolegal_moves();
+  auto test_moves = board.pseudolegal_moves(Color::white);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
@@ -1042,7 +1078,7 @@ TEST(PseudoLegalMoves, Black) {
                              Move(str_to_square("h6"), str_to_square("h5"))
 
   };
-  auto test_moves = board.pseudolegal_moves();
+  auto test_moves = board.pseudolegal_moves(Color::black);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
@@ -1076,7 +1112,7 @@ TEST(PseudoLegalMoves, SimplePawnMovesWhite) {
 
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_simple_pawn_moves(&test_moves);
+  board.pseudolegal_simple_pawn_moves(Color::white, &test_moves);
   EXPECT_EQ(test_moves, moves);
 }
 
@@ -1091,7 +1127,7 @@ TEST(PseudoLegalMoves, SimplePawnMovesBlack) {
 
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_simple_pawn_moves(&test_moves);
+  board.pseudolegal_simple_pawn_moves(Color::black, &test_moves);
   EXPECT_EQ(test_moves, moves);
 }
 
@@ -1101,7 +1137,7 @@ TEST(PseudoLegalMoves, TwoStepPawnMovesWhite) {
   std::vector<Move> moves = {Move(str_to_square("f2"), str_to_square("f4")),
                              Move(str_to_square("a2"), str_to_square("a4"))};
   std::vector<Move> test_moves;
-  board.pseudolegal_two_step_pawn_moves(&test_moves);
+  board.pseudolegal_two_step_pawn_moves(Color::white, &test_moves);
   EXPECT_EQ(test_moves, moves);
 }
 
@@ -1114,7 +1150,7 @@ TEST(PseudoLegalMoves, TwoStepPawnMovesBlack) {
 
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_two_step_pawn_moves(&test_moves);
+  board.pseudolegal_two_step_pawn_moves(Color::black, &test_moves);
   EXPECT_EQ(test_moves, moves);
 }
 
@@ -1122,7 +1158,7 @@ TEST(PseudoLegalMoves, NoEnPassantMovesWhite) {
   Board board("r4rk1/pp3pp1/2p3bp/8/3Pp1nq/1QN1P2P/PP1N1PP1/R4R1K w - - 1 18");
 
   std::vector<Move> test_moves;
-  board.pseudolegal_en_passant_moves(&test_moves);
+  board.pseudolegal_en_passant_moves(Color::white, &test_moves);
   EXPECT_TRUE(test_moves.empty());
 }
 
@@ -1131,7 +1167,7 @@ TEST(PseudoLegalMoves, OneEnPassantMoveWhite) {
 
   std::vector<Move> moves = {Move(str_to_square("e5"), str_to_square("d6"))};
   std::vector<Move> test_moves;
-  board.pseudolegal_en_passant_moves(&test_moves);
+  board.pseudolegal_en_passant_moves(Color::white, &test_moves);
   EXPECT_EQ(test_moves, moves);
 }
 
@@ -1141,7 +1177,7 @@ TEST(PseudoLegalMoves, TwoEnPassantMovesWhite) {
   std::vector<Move> moves = {Move(str_to_square("c5"), str_to_square("d6")),
                              Move(str_to_square("e5"), str_to_square("d6"))};
   std::vector<Move> test_moves;
-  board.pseudolegal_en_passant_moves(&test_moves);
+  board.pseudolegal_en_passant_moves(Color::white, &test_moves);
   EXPECT_EQ(test_moves, moves);
 }
 
@@ -1149,7 +1185,7 @@ TEST(PseudoLegalMoves, NoEnPassantMovesBlack) {
   Board board("r4rk1/pp3pp1/2p3bp/8/3Pp1nq/1QN1P2P/PP1N1PP1/R4R1K b - - 1 18");
 
   std::vector<Move> test_moves;
-  board.pseudolegal_en_passant_moves(&test_moves);
+  board.pseudolegal_en_passant_moves(Color::black, &test_moves);
   EXPECT_TRUE(test_moves.empty());
 }
 
@@ -1159,7 +1195,7 @@ TEST(PseudoLegalMoves, OneEnPassantMoveBlack) {
 
   std::vector<Move> moves = {Move(str_to_square("d4"), str_to_square("e3"))};
   std::vector<Move> test_moves;
-  board.pseudolegal_en_passant_moves(&test_moves);
+  board.pseudolegal_en_passant_moves(Color::black, &test_moves);
   EXPECT_EQ(test_moves, moves);
 }
 
@@ -1172,7 +1208,7 @@ TEST(PseudoLegalMoves, TwoEnPassantMovesBlack) {
 
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_en_passant_moves(&test_moves);
+  board.pseudolegal_en_passant_moves(Color::black, &test_moves);
   EXPECT_EQ(test_moves, moves);
 }
 
@@ -1210,7 +1246,7 @@ TEST(PseudoLegalMoves, PromotionsWhite) {
       Move(str_to_square("g7"), str_to_square("h8"), Piece::white_queen),
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_promotions(&test_moves);
+  board.pseudolegal_promotions(Color::white, &test_moves);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
@@ -1250,7 +1286,7 @@ TEST(PseudoLegalMoves, PromotionsBlack) {
       Move(str_to_square("g2"), str_to_square("h1"), Piece::black_queen),
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_promotions(&test_moves);
+  board.pseudolegal_promotions(Color::black, &test_moves);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
@@ -1270,7 +1306,7 @@ TEST(PseudoLegalMoves, PawnCapturesWhite) {
                              Move(str_to_square("c4"), str_to_square("d5")),
                              Move(str_to_square("c4"), str_to_square("b5"))};
   std::vector<Move> test_moves;
-  board.pseudolegal_pawn_captures(&test_moves);
+  board.pseudolegal_pawn_captures(Color::white, &test_moves);
   EXPECT_EQ(test_moves, moves);
 }
 
@@ -1286,7 +1322,7 @@ TEST(PseudoLegalMoves, PawnCapturesBlack) {
       Move(str_to_square("b5"), str_to_square("c4")),
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_pawn_captures(&test_moves);
+  board.pseudolegal_pawn_captures(Color::black, &test_moves);
   EXPECT_EQ(test_moves, moves);
 }
 
@@ -1307,7 +1343,7 @@ TEST(PseudoLegalMoves, PawnsWhite) {
       Move(str_to_square("b5"), str_to_square("a6")),
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_pawn_moves(&test_moves);
+  board.pseudolegal_pawn_moves(Color::white, &test_moves);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
@@ -1339,7 +1375,7 @@ TEST(PseudoLegalMoves, PawnsBlack) {
       Move(str_to_square("b7"), str_to_square("b6")),
   };
   std::vector<Move> test_moves;
-  board.pseudolegal_pawn_moves(&test_moves);
+  board.pseudolegal_pawn_moves(Color::black, &test_moves);
   EXPECT_EQ(test_moves.size(), moves.size());
   EXPECT_TRUE(
       std::is_permutation(test_moves.begin(), test_moves.end(), moves.begin()));
