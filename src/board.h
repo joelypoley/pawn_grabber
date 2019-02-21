@@ -36,6 +36,7 @@ enum class MoveType {
   castle_kingside,
   castle_queenside,
   capture,
+  two_step_pawn,
   promotion_to_rook,
   promotion_to_bishop,
   promotion_to_knight,
@@ -187,18 +188,25 @@ class Board {
 
   void pseudolegal_king_moves(Color side, std::vector<Move>* res_ptr) const;
   void pseudolegal_knight_moves(Color side, std::vector<Move>* res_ptr) const;
-  // void castling_moves(Color side) const;
-  // bool can_castle_kingside_this_move() const;
-  // bool can_castle_queenside_this_move() const;
+  void castling_moves(std::vector<Move>* res_ptr) const;
+  bool is_castle_kingside_legal() const;
+  bool is_castle_queenside_legal() const;
+  Bitboard pawn_attack_squares(Color side) const;
 
   std::vector<Move> pseudolegal_moves(Color side) const;
-  // bool is_pseudolegal_move_legal(Move move) const;
-  // std::vector<Move> legal_moves() const;
-  // void do_move(Move move);
+  bool is_pseudolegal_move_legal(Move move) const;
+  std::vector<Move> legal_moves() const;
+  void remove_piece_on(Bitboard sq);
+  void do_en_passant_move(Move move);
+  void do_castle_move(Move move);
+  void do_promotion_move(Move move);
+  void do_capture_move(Move move);
+  void do_simple_move(Move move);
+  void do_move(Move move);
 
   Bitboard all_dst_squares(Color side) const;
   bool is_king_attacked(Color side) const;
-  // std::array<Bitboard*, 12> all_bitboards();
+  std::array<Bitboard*, 12> all_bitboards();
 
  private:
   void zero_all_bitboards();
@@ -212,28 +220,7 @@ class Board {
   std::string square_to_unicode(Bitboard square) const;
 };
 
-bool operator==(const Board& lhs, const Board& rhs) {
-  return std::tie(lhs.white_pawns_, lhs.white_rooks_, lhs.white_knights_,
-                  lhs.white_bishops_, lhs.white_queens_, lhs.white_king_,
-                  lhs.black_pawns_, lhs.black_rooks_, lhs.black_knights_,
-                  lhs.black_bishops_, lhs.black_queens_, lhs.black_king_,
-                  lhs.is_whites_move_, lhs.en_passant_square_,
-                  lhs.white_has_right_to_castle_kingside_,
-                  lhs.white_has_right_to_castle_queenside_,
-                  lhs.black_has_right_to_castle_kingside_,
-                  lhs.black_has_right_to_castle_queenside_,
-                  lhs.fifty_move_clock_, lhs.num_moves_) ==
-         std::tie(rhs.white_pawns_, rhs.white_rooks_, rhs.white_knights_,
-                  rhs.white_bishops_, rhs.white_queens_, rhs.white_king_,
-                  rhs.black_pawns_, rhs.black_rooks_, rhs.black_knights_,
-                  rhs.black_bishops_, rhs.black_queens_, rhs.black_king_,
-                  rhs.is_whites_move_, rhs.en_passant_square_,
-                  rhs.white_has_right_to_castle_kingside_,
-                  rhs.white_has_right_to_castle_queenside_,
-                  rhs.black_has_right_to_castle_kingside_,
-                  rhs.black_has_right_to_castle_queenside_,
-                  rhs.fifty_move_clock_, rhs.num_moves_);
-}
+bool operator==(const Board& lhs, const Board& rhs);
 
 struct Move {
   Bitboard src_square_;
@@ -259,12 +246,7 @@ struct Move {
   friend void PrintTo(const Move& move, std::ostream* os);
 };
 
-bool operator==(const Move& lhs, const Move& rhs) {
-  return std::tie(lhs.src_square_, lhs.dst_square_, lhs.piece_moving_,
-                  lhs.move_type_, lhs.board_state_) ==
-         std::tie(rhs.src_square_, rhs.dst_square_, rhs.piece_moving_,
-                  rhs.move_type_, rhs.board_state_);
-}
+bool operator==(const Move& lhs, const Move& rhs);
 
 Bitboard str_to_square(const std::string_view alegbraic_square);
 std::string square_to_str(Bitboard sq);
@@ -272,6 +254,20 @@ Bitboard coordinates_to_square(int file, int rank);
 std::vector<Bitboard> bitboard_split(Bitboard bb);
 std::function<Bitboard(Bitboard)> direction_to_function(Direction direction);
 Color flip_color(Color color);
-// int number_of_moves(Board board, int half_move_depth);
+std::string bb_to_pretty_str(Bitboard bb);
+
+struct PerftResult {
+  uint64_t nodes;
+  uint64_t captures;
+  uint64_t ep;
+  uint64_t castles;
+  std::string to_pretty_str();
+  PerftResult& operator+=(const PerftResult& other);
+};
+
+PerftResult number_of_moves(Board board, int half_move_depth, Move last_move);
+int number_of_moves(Board board, int half_move_depth);
+void number_of_moves(Board board, int half_move_depth, Move move, bool first,
+                     std::unordered_map<std::string, int>* um_ptr);
 
 #endif

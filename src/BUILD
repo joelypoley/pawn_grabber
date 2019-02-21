@@ -1,3 +1,9 @@
+cc_binary(
+name = "main",
+srcs = ["main.cc"],
+deps = [":board"]
+)
+
 cc_library(
     name = "board",
     srcs = ["board.cc"],
