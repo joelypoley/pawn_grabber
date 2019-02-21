@@ -1,6 +1,9 @@
 #include "src/board.h"
 
+#include <array>
 #include <cassert>
+#include <functional>
+#include <iostream>
 #include <optional>
 #include <string_view>
 #include <unordered_map>
@@ -20,24 +23,31 @@ const std::string& get_start_fen() {
   return start_fen;
 }
 
-const std::unordered_map<Piece, std::pair<char, std::string>>
-get_piece_to_char_and_unicode() {
-  const static auto& piece_to_char_and_unicode =
-      *new std::unordered_map<Piece, std::pair<char, std::string>>{
-          {Piece::white_pawn, {'P', "♙"}},    // U+2564
-          {Piece::white_rook, {'R', "♖"}},    // U+2656
-          {Piece::white_knight, {'N', "♘"}},  // U+2658
-          {Piece::white_bishop, {'B', "♗"}},  // U+2657
-          {Piece::white_queen, {'Q', "♕"}},   // U+2655
-          {Piece::white_king, {'K', "♔"}},    // U+2654
-          {Piece::black_pawn, {'p', "♟"}},    // U+265F
-          {Piece::black_rook, {'r', "♜"}},    // U+265C
-          {Piece::black_knight, {'n', "♞"}},  // U+265E
-          {Piece::black_bishop, {'b', "♝"}},  // U+265D
-          {Piece::black_queen, {'q', "♛"}},   // U+265B
-          {Piece::black_king, {'k', "♚"}},    // U+265A
+struct PieceColorHash {
+  std::size_t operator()(std::pair<Piece, Color> pc) const {
+    return (static_cast<int>(pc.first) << 1) | static_cast<int>(pc.second);
+  }
+};
+
+std::string get_unicode_symbol(Color color, Piece piece) {
+  const static auto& res_map =
+      *new std::unordered_map<std::pair<Piece, Color>, std::string,
+                              PieceColorHash>{
+          {{Piece::pawn, Color::white}, "♙"},    // U+2564
+          {{Piece::rook, Color::white}, "♖"},    // U+2656
+          {{Piece::knight, Color::white}, "♘"},  // U+2658
+          {{Piece::bishop, Color::white}, "♗"},  // U+2657
+          {{Piece::queen, Color::white}, "♕"},   // U+2655
+          {{Piece::king, Color::white}, "♔"},    // U+2654
+          {{Piece::pawn, Color::black}, "♟"},    // U+265F
+          {{Piece::rook, Color::black}, "♜"},    // U+265C
+          {{Piece::knight, Color::black}, "♞"},  // U+265E
+          {{Piece::bishop, Color::black}, "♝"},  // U+265D
+          {{Piece::queen, Color::black}, "♛"},   // U+265B
+          {{Piece::king, Color::black}, "♚"},    // U+265A
       };
-  return piece_to_char_and_unicode;
+  auto it = res_map.find(std::make_pair(piece, color));
+  return it->second;
 }
 
 const int board_size = 8;
@@ -50,6 +60,30 @@ const Bitboard second_rank_mask = str_to_square("a2") | str_to_square("b2") |
                                   str_to_square("c2") | str_to_square("d2") |
                                   str_to_square("e2") | str_to_square("f2") |
                                   str_to_square("g2") | str_to_square("h2");
+const Bitboard white_castle_kingside_mask =
+    str_to_square("e1") | str_to_square("f1") | str_to_square("g1");
+const Bitboard white_castle_queenside_mask =
+    str_to_square("e1") | str_to_square("d1") | str_to_square("c1");
+const Bitboard black_castle_kingside_mask =
+    str_to_square("e8") | str_to_square("f8") | str_to_square("g8");
+const Bitboard black_castle_queenside_mask =
+    str_to_square("e8") | str_to_square("d8") | str_to_square("c8");
+
+// Move castle_kingside(Color color) {
+//   if (color == Color::white) {
+//     return Move(str_to_square("e1"), str_to_square("g1"));
+//   } else {
+//     return Move(str_to_square("e8"), str_to_square("g8"));
+//   }
+// }
+
+// Move castle_queenside(Color color) {
+//   if (color == Color::white) {
+//     return Move(str_to_square("e1"), str_to_square("c1"));
+//   } else {
+//     return Move(str_to_square("e8"), str_to_square("c8"));
+//   }
+// }
 }  // namespace.
 
 // Check that the bitboard has exactly one bit set.
@@ -132,12 +166,25 @@ Bitboard southwest_of(Bitboard square) {
 
 std::string Move::to_pretty_str() const {
   std::string promotion_str;
-  if (promotion_piece) {
-    const auto& piece_map = get_piece_to_char_and_unicode();
-    promotion_str.push_back(
-        piece_map.find(promotion_piece.value())->second.first);
+  Color side_to_move =
+      board_state_.is_whites_move_ ? Color::white : Color::black;
+  switch (move_type_) {
+    case MoveType::promotion_to_rook:
+      promotion_str.append(get_unicode_symbol(side_to_move, Piece::rook));
+      break;
+    case MoveType::promotion_to_knight:
+      promotion_str.append(get_unicode_symbol(side_to_move, Piece::knight));
+      break;
+    case MoveType::promotion_to_bishop:
+      promotion_str.append(get_unicode_symbol(side_to_move, Piece::bishop));
+      break;
+    case MoveType::promotion_to_queen:
+      promotion_str.append(get_unicode_symbol(side_to_move, Piece::queen));
+      break;
+    default:
+      break;
   }
-  return absl::StrCat(square_to_str(src_square), square_to_str(dst_square),
+  return absl::StrCat(square_to_str(src_square_), square_to_str(dst_square_),
                       promotion_str);
 }
 
@@ -419,61 +466,77 @@ std::string Board::square_to_unicode(Bitboard square) const {
 }
 
 void Board::pseudolegal_sliding_moves(Direction direction, Color side,
-                                      Bitboard src_square,
+                                      Bitboard src_square, Piece piece_moving,
                                       std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
-  Bitboard friends = side == Color::white ? white_pieces() : black_pieces();
-  Bitboard enemies = side == Color::white ? black_pieces() : white_pieces();
-  ABSL_RAW_CHECK(src_square & friends,
+  ABSL_RAW_CHECK(src_square & friends(side),
                  "src_square must have a piece with the correct color on it.");
 
   std::vector<Bitboard> dst_squares;
   auto direction_fn = direction_to_function(direction);
   Bitboard curr_square = direction_fn(src_square);
-  Bitboard all_pieces_mask = friends | enemies;
+  Bitboard all_pieces_mask = all_pieces();
   while (curr_square && !(curr_square & all_pieces_mask)) {
-    res.emplace_back(src_square, curr_square);
+    res.emplace_back(src_square, curr_square, piece_moving, MoveType::simple,
+                     *this);
     curr_square = direction_fn(curr_square);
   }
-  if (curr_square & enemies) {
-    res.emplace_back(src_square, curr_square);
+  if (curr_square & enemies(side)) {
+    res.emplace_back(src_square, curr_square, piece_moving, MoveType::capture,
+                     *this);
   }
 }
 
 void Board::pseudolegal_bishop_moves(Color side,
                                      std::vector<Move>* res_ptr) const {
   Bitboard bishops = side == Color::white ? white_bishops_ : black_bishops_;
-  for (Bitboard bishop : bitboard_split(bishops)) {
-    pseudolegal_sliding_moves(Direction::northeast, side, bishop, res_ptr);
-    pseudolegal_sliding_moves(Direction::northwest, side, bishop, res_ptr);
-    pseudolegal_sliding_moves(Direction::southeast, side, bishop, res_ptr);
-    pseudolegal_sliding_moves(Direction::southwest, side, bishop, res_ptr);
+  for (Bitboard bishop_sq : bitboard_split(bishops)) {
+    pseudolegal_sliding_moves(Direction::northeast, side, bishop_sq,
+                              Piece::bishop, res_ptr);
+    pseudolegal_sliding_moves(Direction::northwest, side, bishop_sq,
+                              Piece::bishop, res_ptr);
+    pseudolegal_sliding_moves(Direction::southeast, side, bishop_sq,
+                              Piece::bishop, res_ptr);
+    pseudolegal_sliding_moves(Direction::southwest, side, bishop_sq,
+                              Piece::bishop, res_ptr);
   }
 }
 
 void Board::pseudolegal_rook_moves(Color side,
                                    std::vector<Move>* res_ptr) const {
   Bitboard rooks = side == Color::white ? white_rooks_ : black_rooks_;
-  for (Bitboard rook : bitboard_split(rooks)) {
-    pseudolegal_sliding_moves(Direction::north, side, rook, res_ptr);
-    pseudolegal_sliding_moves(Direction::south, side, rook, res_ptr);
-    pseudolegal_sliding_moves(Direction::east, side, rook, res_ptr);
-    pseudolegal_sliding_moves(Direction::west, side, rook, res_ptr);
+  for (Bitboard rook_sq : bitboard_split(rooks)) {
+    pseudolegal_sliding_moves(Direction::north, side, rook_sq, Piece::rook,
+                              res_ptr);
+    pseudolegal_sliding_moves(Direction::south, side, rook_sq, Piece::rook,
+                              res_ptr);
+    pseudolegal_sliding_moves(Direction::east, side, rook_sq, Piece::rook,
+                              res_ptr);
+    pseudolegal_sliding_moves(Direction::west, side, rook_sq, Piece::rook,
+                              res_ptr);
   }
 }
 
 void Board::pseudolegal_queen_moves(Color side,
                                     std::vector<Move>* res_ptr) const {
   Bitboard queens = side == Color::white ? white_queens_ : black_queens_;
-  for (Bitboard queen : bitboard_split(queens)) {
-    pseudolegal_sliding_moves(Direction::north, side, queen, res_ptr);
-    pseudolegal_sliding_moves(Direction::northeast, side, queen, res_ptr);
-    pseudolegal_sliding_moves(Direction::northwest, side, queen, res_ptr);
-    pseudolegal_sliding_moves(Direction::southeast, side, queen, res_ptr);
-    pseudolegal_sliding_moves(Direction::southwest, side, queen, res_ptr);
-    pseudolegal_sliding_moves(Direction::south, side, queen, res_ptr);
-    pseudolegal_sliding_moves(Direction::east, side, queen, res_ptr);
-    pseudolegal_sliding_moves(Direction::west, side, queen, res_ptr);
+  for (Bitboard queen_sq : bitboard_split(queens)) {
+    pseudolegal_sliding_moves(Direction::north, side, queen_sq, Piece::queen,
+                              res_ptr);
+    pseudolegal_sliding_moves(Direction::northeast, side, queen_sq,
+                              Piece::queen, res_ptr);
+    pseudolegal_sliding_moves(Direction::northwest, side, queen_sq,
+                              Piece::queen, res_ptr);
+    pseudolegal_sliding_moves(Direction::southeast, side, queen_sq,
+                              Piece::queen, res_ptr);
+    pseudolegal_sliding_moves(Direction::southwest, side, queen_sq,
+                              Piece::queen, res_ptr);
+    pseudolegal_sliding_moves(Direction::south, side, queen_sq, Piece::queen,
+                              res_ptr);
+    pseudolegal_sliding_moves(Direction::east, side, queen_sq, Piece::queen,
+                              res_ptr);
+    pseudolegal_sliding_moves(Direction::west, side, queen_sq, Piece::queen,
+                              res_ptr);
   }
 }
 
@@ -487,7 +550,8 @@ void Board::pseudolegal_simple_pawn_moves(Color side,
       const Bitboard north_of_pawn = north_of(single_pawn);
       const bool blocked = all_pieces() & north_of_pawn;
       if (!blocked) {
-        res.emplace_back(single_pawn, north_of_pawn);
+        res.emplace_back(single_pawn, north_of_pawn, Piece::pawn,
+                         MoveType::simple, *this);
       }
     }
   } else {
@@ -497,7 +561,8 @@ void Board::pseudolegal_simple_pawn_moves(Color side,
       const Bitboard south_of_pawn = south_of(single_pawn);
       const bool blocked = all_pieces() & south_of_pawn;
       if (!blocked) {
-        res.emplace_back(single_pawn, south_of_pawn);
+        res.emplace_back(single_pawn, south_of_pawn, Piece::pawn,
+                         MoveType::simple, *this);
       }
     }
   }
@@ -514,7 +579,8 @@ void Board::pseudolegal_two_step_pawn_moves(Color side,
       const bool blocked =
           (all_pieces() & north_of_pawn) || (all_pieces() & two_north_of_pawn);
       if (!blocked) {
-        res.emplace_back(single_pawn, two_north_of_pawn);
+        res.emplace_back(single_pawn, two_north_of_pawn, Piece::pawn,
+                         MoveType::simple, *this);
       }
     }
   } else {
@@ -525,7 +591,8 @@ void Board::pseudolegal_two_step_pawn_moves(Color side,
       const bool blocked =
           (all_pieces() & south_of_pawn) || (all_pieces() & two_south_of_pawn);
       if (!blocked) {
-        res.emplace_back(single_pawn, two_south_of_pawn);
+        res.emplace_back(single_pawn, two_south_of_pawn, Piece::pawn,
+                         MoveType::simple, *this);
       }
     }
   }
@@ -541,10 +608,12 @@ void Board::pseudolegal_en_passant_moves(Color side,
       Bitboard southwest_of_ep_square =
           southwest_of(en_passant_square_.value());
       if (southwest_of_ep_square & white_pieces()) {
-        res.emplace_back(southwest_of_ep_square, en_passant_square_.value());
+        res.emplace_back(southwest_of_ep_square, en_passant_square_.value(),
+                         Piece::pawn, MoveType::en_passant, *this);
       }
       if (southeast_of_ep_square & white_pieces()) {
-        res.emplace_back(southeast_of_ep_square, en_passant_square_.value());
+        res.emplace_back(southeast_of_ep_square, en_passant_square_.value(),
+                         Piece::pawn, MoveType::en_passant, *this);
       }
     } else {
       Bitboard northeast_of_ep_square =
@@ -552,10 +621,12 @@ void Board::pseudolegal_en_passant_moves(Color side,
       Bitboard northwest_of_ep_square =
           northwest_of(en_passant_square_.value());
       if (northwest_of_ep_square & black_pieces()) {
-        res.emplace_back(northwest_of_ep_square, en_passant_square_.value());
+        res.emplace_back(northwest_of_ep_square, en_passant_square_.value(),
+                         Piece::pawn, MoveType::en_passant, *this);
       }
       if (northeast_of_ep_square & black_pieces()) {
-        res.emplace_back(northeast_of_ep_square, en_passant_square_.value());
+        res.emplace_back(northeast_of_ep_square, en_passant_square_.value(),
+                         Piece::pawn, MoveType::en_passant, *this);
       }
     }
   }
@@ -570,28 +641,40 @@ void Board::pseudolegal_promotions(Color side,
       const Bitboard north_of_pawn = north_of(single_pawn);
       const bool blocked = all_pieces() & north_of_pawn;
       if (!blocked) {
-        res.emplace_back(single_pawn, north_of_pawn, Piece::white_rook);
-        res.emplace_back(single_pawn, north_of_pawn, Piece::white_knight);
-        res.emplace_back(single_pawn, north_of_pawn, Piece::white_bishop);
-        res.emplace_back(single_pawn, north_of_pawn, Piece::white_queen);
+        res.emplace_back(single_pawn, north_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_rook, *this);
+        res.emplace_back(single_pawn, north_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_knight, *this);
+        res.emplace_back(single_pawn, north_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_bishop, *this);
+        res.emplace_back(single_pawn, north_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_queen, *this);
       }
 
       const Bitboard northeast_of_pawn = northeast_of(single_pawn);
       const bool black_piece_northeast = black_pieces() & northeast_of_pawn;
       if (black_piece_northeast) {
-        res.emplace_back(single_pawn, northeast_of_pawn, Piece::white_rook);
-        res.emplace_back(single_pawn, northeast_of_pawn, Piece::white_knight);
-        res.emplace_back(single_pawn, northeast_of_pawn, Piece::white_bishop);
-        res.emplace_back(single_pawn, northeast_of_pawn, Piece::white_queen);
+        res.emplace_back(single_pawn, northeast_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_rook, *this);
+        res.emplace_back(single_pawn, northeast_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_knight, *this);
+        res.emplace_back(single_pawn, northeast_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_bishop, *this);
+        res.emplace_back(single_pawn, northeast_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_queen, *this);
       }
 
       const Bitboard northwest_of_pawn = northwest_of(single_pawn);
       const bool black_piece_northwest = black_pieces() & northwest_of_pawn;
       if (black_piece_northwest) {
-        res.emplace_back(single_pawn, northwest_of_pawn, Piece::white_rook);
-        res.emplace_back(single_pawn, northwest_of_pawn, Piece::white_knight);
-        res.emplace_back(single_pawn, northwest_of_pawn, Piece::white_bishop);
-        res.emplace_back(single_pawn, northwest_of_pawn, Piece::white_queen);
+        res.emplace_back(single_pawn, northwest_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_rook, *this);
+        res.emplace_back(single_pawn, northwest_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_knight, *this);
+        res.emplace_back(single_pawn, northwest_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_bishop, *this);
+        res.emplace_back(single_pawn, northwest_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_queen, *this);
       }
     }
   } else {
@@ -600,28 +683,40 @@ void Board::pseudolegal_promotions(Color side,
       const Bitboard south_of_pawn = south_of(single_pawn);
       const bool blocked = all_pieces() & south_of_pawn;
       if (!blocked) {
-        res.emplace_back(single_pawn, south_of_pawn, Piece::black_rook);
-        res.emplace_back(single_pawn, south_of_pawn, Piece::black_knight);
-        res.emplace_back(single_pawn, south_of_pawn, Piece::black_bishop);
-        res.emplace_back(single_pawn, south_of_pawn, Piece::black_queen);
+        res.emplace_back(single_pawn, south_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_rook, *this);
+        res.emplace_back(single_pawn, south_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_knight, *this);
+        res.emplace_back(single_pawn, south_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_bishop, *this);
+        res.emplace_back(single_pawn, south_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_queen, *this);
       }
 
       const Bitboard southeast_of_pawn = southeast_of(single_pawn);
       const bool white_piece_southeast = white_pieces() & southeast_of_pawn;
       if (white_piece_southeast) {
-        res.emplace_back(single_pawn, southeast_of_pawn, Piece::black_rook);
-        res.emplace_back(single_pawn, southeast_of_pawn, Piece::black_knight);
-        res.emplace_back(single_pawn, southeast_of_pawn, Piece::black_bishop);
-        res.emplace_back(single_pawn, southeast_of_pawn, Piece::black_queen);
+        res.emplace_back(single_pawn, southeast_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_rook, *this);
+        res.emplace_back(single_pawn, southeast_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_knight, *this);
+        res.emplace_back(single_pawn, southeast_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_bishop, *this);
+        res.emplace_back(single_pawn, southeast_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_queen, *this);
       }
 
       const Bitboard southwest_of_pawn = southwest_of(single_pawn);
       const bool white_piece_southwest = white_pieces() & southwest_of_pawn;
       if (white_piece_southwest) {
-        res.emplace_back(single_pawn, southwest_of_pawn, Piece::black_rook);
-        res.emplace_back(single_pawn, southwest_of_pawn, Piece::black_knight);
-        res.emplace_back(single_pawn, southwest_of_pawn, Piece::black_bishop);
-        res.emplace_back(single_pawn, southwest_of_pawn, Piece::black_queen);
+        res.emplace_back(single_pawn, southwest_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_rook, *this);
+        res.emplace_back(single_pawn, southwest_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_knight, *this);
+        res.emplace_back(single_pawn, southwest_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_bishop, *this);
+        res.emplace_back(single_pawn, southwest_of_pawn, Piece::pawn,
+                         MoveType::promotion_to_queen, *this);
       }
     }
   }
@@ -637,13 +732,15 @@ void Board::pseudolegal_pawn_captures(Color side,
       const Bitboard northeast_of_pawn = northeast_of(single_pawn);
       const bool can_capture_northeast = black_pieces() & northeast_of_pawn;
       if (can_capture_northeast) {
-        res.emplace_back(single_pawn, northeast_of_pawn);
+        res.emplace_back(single_pawn, northeast_of_pawn, Piece::pawn,
+                         MoveType::capture, *this);
       }
 
       const Bitboard northwest_of_pawn = northwest_of(single_pawn);
       const bool can_capture_northwest = black_pieces() & northwest_of_pawn;
       if (can_capture_northwest) {
-        res.emplace_back(single_pawn, northwest_of_pawn);
+        res.emplace_back(single_pawn, northwest_of_pawn, Piece::pawn,
+                         MoveType::capture, *this);
       }
     }
   } else {
@@ -653,13 +750,15 @@ void Board::pseudolegal_pawn_captures(Color side,
       const Bitboard southeast_of_pawn = southeast_of(single_pawn);
       const bool can_capture_southeast = white_pieces() & southeast_of_pawn;
       if (can_capture_southeast) {
-        res.emplace_back(single_pawn, southeast_of_pawn);
+        res.emplace_back(single_pawn, southeast_of_pawn, Piece::pawn,
+                         MoveType::capture, *this);
       }
 
       const Bitboard southwest_of_pawn = southwest_of(single_pawn);
       const bool can_capture_southwest = white_pieces() & southwest_of_pawn;
       if (can_capture_southwest) {
-        res.emplace_back(single_pawn, southwest_of_pawn);
+        res.emplace_back(single_pawn, southwest_of_pawn, Piece::pawn,
+                         MoveType::capture, *this);
       }
     }
   }
@@ -676,121 +775,88 @@ void Board::pseudolegal_pawn_moves(Color side,
 
 void Board::pseudolegal_king_moves(Color side,
                                    std::vector<Move>* res_ptr) const {
-  Bitboard king = side == Color::white ? white_king_ : black_king_;
-  Bitboard friends = side == Color::white ? white_pieces() : black_pieces();
+  Bitboard king_sq = side == Color::white ? white_king_ : black_king_;
+  Bitboard friends_mask = friends(side);
 
-  Bitboard north_of_king = north_of(king);
-  bool friendly_piece_north_of_king = north_of_king & friends;
-  if (!friendly_piece_north_of_king && north_of_king) {
-    res_ptr->emplace_back(king, north_of_king);
-  }
-
-  Bitboard south_of_king = south_of(king);
-  bool friendly_piece_south_of_king = south_of_king & friends;
-  if (!friendly_piece_south_of_king && south_of_king) {
-    res_ptr->emplace_back(king, south_of_king);
-  }
-
-  Bitboard east_of_king = east_of(king);
-  bool friendly_piece_east_of_king = east_of_king & friends;
-  if (!friendly_piece_east_of_king && east_of_king) {
-    res_ptr->emplace_back(king, east_of_king);
-  }
-
-  Bitboard west_of_king = west_of(king);
-  bool friendly_piece_west_of_king = west_of_king & friends;
-  if (!friendly_piece_west_of_king && west_of_king) {
-    res_ptr->emplace_back(king, west_of_king);
-  }
-
-  Bitboard northeast_of_king = northeast_of(king);
-  bool friendly_piece_northeast_of_king = northeast_of_king & friends;
-  if (!friendly_piece_northeast_of_king && northeast_of_king) {
-    res_ptr->emplace_back(king, northeast_of_king);
-  }
-
-  Bitboard northwest_of_king = northwest_of(king);
-  bool friendly_piece_northwest_of_king = northwest_of_king & friends;
-  if (!friendly_piece_northwest_of_king && northwest_of_king) {
-    res_ptr->emplace_back(king, northwest_of_king);
-  }
-
-  Bitboard southeast_of_king = southeast_of(king);
-  bool friendly_piece_southeast_of_king = southeast_of_king & friends;
-  if (!friendly_piece_southeast_of_king && southeast_of_king) {
-    res_ptr->emplace_back(king, southeast_of_king);
-  }
-
-  Bitboard southwest_of_king = southwest_of(king);
-  bool friendly_piece_southwest_of_king = southwest_of_king & friends;
-  if (!friendly_piece_southwest_of_king && southwest_of_king) {
-    res_ptr->emplace_back(king, southwest_of_king);
+  for (Direction dir : all_directions) {
+    auto dir_fn = direction_to_function(dir);
+    Bitboard dst_square = dir_fn(king_sq);
+    const bool friendly_piece_on_dst_square = dst_square & friends_mask;
+    if (dst_square && !friendly_piece_on_dst_square) {
+      const bool enemy_piece_on_dst_square = dst_square & enemies(side);
+      MoveType move_type =
+          enemy_piece_on_dst_square ? MoveType::capture : MoveType::simple;
+      res_ptr->emplace_back(king_sq, dst_square, Piece::king, move_type, *this);
+    }
   }
 }
 
 void Board::pseudolegal_knight_moves(Color side,
                                      std::vector<Move>* res_ptr) const {
   Bitboard knights = side == Color::white ? white_knights_ : black_knights_;
-  Bitboard friends = side == Color::white ? white_pieces() : black_pieces();
+  Bitboard friends_mask = friends(side);
 
-  for (Bitboard knight : bitboard_split(knights)) {
-    Bitboard n_knight = north_of(knight);
-    if (n_knight) {
-      Bitboard ne_n_knight = northeast_of(n_knight);
-      bool friendly_piece_ne_n_knight = ne_n_knight & friends;
-      if (!friendly_piece_ne_n_knight && ne_n_knight) {
-        res_ptr->emplace_back(knight, ne_n_knight);
-      }
-      Bitboard nw_n_knight = northwest_of(n_knight);
-      bool friendly_piece_nw_n_knight = nw_n_knight & friends;
-      if (!friendly_piece_nw_n_knight && nw_n_knight) {
-        res_ptr->emplace_back(knight, nw_n_knight);
-      }
-    }
-
-    Bitboard s_knight = south_of(knight);
-    if (s_knight) {
-      Bitboard se_s_knight = southeast_of(s_knight);
-      bool friendly_piece_se_s_knight = se_s_knight & friends;
-      if (!friendly_piece_se_s_knight && se_s_knight) {
-        res_ptr->emplace_back(knight, se_s_knight);
-      }
-      Bitboard sw_s_knight = southwest_of(s_knight);
-      bool friendly_piece_sw_s_knight = sw_s_knight & friends;
-      if (!friendly_piece_sw_s_knight && sw_s_knight) {
-        res_ptr->emplace_back(knight, sw_s_knight);
-      }
-    }
-
-    Bitboard e_knight = east_of(knight);
-    if (e_knight) {
-      Bitboard ne_e_knight = northeast_of(e_knight);
-      bool friendly_piece_ne_e_knight = ne_e_knight & friends;
-      if (!friendly_piece_ne_e_knight && ne_e_knight) {
-        res_ptr->emplace_back(knight, ne_e_knight);
-      }
-      Bitboard se_e_knight = southeast_of(e_knight);
-      bool friendly_piece_se_e_knight = se_e_knight & friends;
-      if (!friendly_piece_se_e_knight && se_e_knight) {
-        res_ptr->emplace_back(knight, se_e_knight);
-      }
-    }
-
-    Bitboard w_knight = west_of(knight);
-    if (w_knight) {
-      Bitboard nw_w_knight = northwest_of(w_knight);
-      bool friendly_piecw_nw_w_knight = nw_w_knight & friends;
-      if (!friendly_piecw_nw_w_knight && nw_w_knight) {
-        res_ptr->emplace_back(knight, nw_w_knight);
-      }
-      Bitboard sw_w_knight = southwest_of(w_knight);
-      bool friendly_piecw_sw_w_knight = sw_w_knight & friends;
-      if (!friendly_piecw_sw_w_knight && sw_w_knight) {
-        res_ptr->emplace_back(knight, sw_w_knight);
+  for (Bitboard knight_sq : bitboard_split(knights)) {
+    for (auto dir1_dir2 : knight_move_directions) {
+      auto dir1_fn = direction_to_function(dir1_dir2.first);
+      auto dir2_fn = direction_to_function(dir1_dir2.second);
+      Bitboard first_step = dir1_fn(knight_sq);
+      if (first_step) {
+        Bitboard dst_square = dir2_fn(first_step);
+        const bool friendly_piece_on_dst_square = dst_square & friends_mask;
+        if (dst_square && !friendly_piece_on_dst_square) {
+          const bool enemy_piece_on_dst_square = dst_square & enemies(side);
+          MoveType move_type =
+              enemy_piece_on_dst_square ? MoveType::capture : MoveType::simple;
+          res_ptr->emplace_back(knight_sq, dst_square, Piece::knight, move_type,
+                                *this);
+        }
       }
     }
   }
 }
+
+// bool Board::can_castle_kingside_this_move() const {
+//   bool has_right_to_castle = is_whites_move_
+//                                  ? white_has_right_to_castle_kingside_
+//                                  : black_has_right_to_castle_kingside_;
+//   if (!has_right_to_castle) {
+//     return false;
+//   }
+
+//   Bitboard castle_squares =
+//       is_whites_move_ ? white_castle_kingside_mask :
+//       black_castle_kingside_mask;
+//   Bitboard friends = is_whites_move_ ? white_pieces() : black_pieces();
+//   Bitboard enemies = is_whites_move_ ? black_pieces() : white_pieces();
+//   Bitboard enemy_attack_squares = is_whites_move_
+//                                       ? all_dst_squares(Color::black)
+//                                       : all_dst_squares(Color::white);
+
+//   return !(castle_squares & friends & enemies & enemy_attack_squares);
+// }
+
+// bool Board::can_castle_queenside_this_move() const {
+//   bool has_right_to_castle = is_whites_move_
+//                                  ? white_has_right_to_castle_queenside_
+//                                  :
+//                                  black_has_right_to_castle_queenside_;
+//   if (!has_right_to_castle) {
+//     return false;
+//   }
+
+//   Bitboard castle_squares = is_whites_move_ ?
+//   white_castle_queenside_mask
+//                                             :
+//                                             black_castle_queenside_mask;
+//   Bitboard friends = is_whites_move_ ? white_pieces() : black_pieces();
+//   Bitboard enemies = is_whites_move_ ? black_pieces() : white_pieces();
+//   Bitboard enemy_attack_squares = is_whites_move_
+//                                       ? all_dst_squares(Color::black)
+//                                       : all_dst_squares(Color::white);
+
+//   return !(castle_squares & friends & enemies & enemy_attack_squares);
+// }
 
 std::vector<Move> Board::pseudolegal_moves(Color side) const {
   std::vector<Move> res;
@@ -803,10 +869,73 @@ std::vector<Move> Board::pseudolegal_moves(Color side) const {
   return res;
 }
 
+// bool Board::is_pseudolegal_move_legal(Move move) const {
+//   Board this_copy(*this);
+//   Color side_to_move = this_copy.is_whites_move_ ? Color::white :
+//   Color::black; this_copy.do_move(move); return
+//   !this_copy.is_king_attacked(side_to_move);
+// }
+
+// std::vector<Move> Board::legal_moves() const {
+//   Color side_to_move = is_whites_move_ ? Color::white : Color::black;
+//   std::vector<Move> res = pseudolegal_moves(side_to_move);
+//   Board this_copy(*this);
+//   auto last_it = std::remove_if(res.begin(), res.end(),
+//   [this_copy](Move move) {
+//     return !this_copy.is_pseudolegal_move_legal(move);
+//   });
+
+//   res.erase(last_it, res.end());
+//   if (can_castle_kingside_this_move()) {
+//     res.push_back(castle_kingside(side_to_move));
+//   }
+//   if (can_castle_queenside_this_move()) {
+//     res.push_back(castle_queenside(side_to_move));
+//   }
+//   return res;
+// }
+
+// void Board::do_ep_move(Move move) {
+
+// }
+
+// void Board::do_castle_move(Move move) {}
+
+// void Board::do_promotion_move(Move move) {}
+
+// void Board::do_capture_move(Move move) {}
+
+// void Board::do_simple_move(Move move) {}
+
+// void Board::do_move(Move move) {
+//   ABSL_RAW_CHECK(is_square(move.src_square) &&
+//   is_square(move.dst_square),
+//                  "Not a valid move.");
+
+//   if (move.is_castle_kingside_ || move.is_castle_queenside_) {
+//     do_castle_move(move);
+//   } else if (move.is_en_passant) {
+//     do_ep_move(move);
+//   } else if (move.promotion_piece.has_value()) {
+//     do_promotion_move(move);
+//   } else {
+//     do_simple_move(move);
+//   }
+
+//     for (Bitboard* bb_ptr : all_bitboards()) {
+//       if ((*bb_ptr) & move.src_square) {
+//         *bb_ptr ^= move.src_square;
+//         *bb_ptr |= move.dst_square;
+//         is_whites_move_ = !is_whites_move_;
+//       }
+//     }
+//   ABSL_RAW_CHECK(false, "This should never happen.");
+// }
+
 Bitboard Board::all_dst_squares(Color side) const {
   std::vector<Move> moves = pseudolegal_moves(side);
   return absl::c_accumulate(moves, uint64_t(0), [](Bitboard acc, Move move) {
-    return acc | move.dst_square;
+    return acc | move.dst_square_;
   });
 }
 
@@ -815,6 +944,14 @@ bool Board::is_king_attacked(Color side) const {
   Bitboard attack_squares = all_dst_squares(flip_color(side));
   return king & attack_squares;
 }
+
+// std::array<Bitboard*, 12> Board::all_bitboards() {
+//   return {&white_pawns_,   &white_rooks_,   &white_bishops_,
+//   &white_knights_,
+//           &white_queens_,  &white_king_,    &black_pawns_,
+//           &black_rooks_, &black_bishops_, &black_knights_,
+//           &black_queens_,  &black_king_};
+// }
 
 Bitboard str_to_square(const std::string_view algebraic_square) {
   const char file_char = algebraic_square[0];
@@ -840,6 +977,13 @@ Bitboard coordinates_to_square(int file, int rank) {
   return lsb_bitboard << (rank * board_size + board_size - file - 1);
 }
 
+Bitboard Board::friends(Color side) const {
+  return side == Color::white ? white_pieces() : black_pieces();
+}
+
+Bitboard Board::enemies(Color side) const {
+  return side == Color::white ? black_pieces() : white_pieces();
+}
 Bitboard Board::white_pieces() const {
   return white_pawns_ | white_knights_ | white_bishops_ | white_rooks_ |
          white_queens_ | white_king_;
@@ -887,3 +1031,23 @@ std::function<Bitboard(Bitboard)> direction_to_function(Direction direction) {
 Color flip_color(Color color) {
   return color == Color::white ? Color::black : Color::white;
 }
+
+// int number_of_moves(Board board, int half_move_depth) {
+//   if (half_move_depth == 0) {
+//     return 1;
+//   }
+//   std::vector<Move> moves = board.legal_moves();
+//   if (moves.size() == 0) {
+//     std::cout << "------------------------checkmate\n";
+//   }
+//   std::vector<Board> child_boards(moves.size(), board);
+//   for (int i = 0; i < moves.size(); ++i) {
+//     child_boards[i].do_move(moves[i]);
+//   }
+
+//   int res = 0;
+//   for (const Board& child : child_boards) {
+//     res += number_of_moves(child, half_move_depth - 1);
+//   }
+//   return res;
+// }
