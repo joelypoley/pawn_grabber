@@ -243,16 +243,16 @@ Bitboard Board::pawn_attack_squares(Color side) const {
 
 Bitboard Board::attack_squares(Color side) const {
   std::vector<Move> moves = pseudolegal_moves(side);
-  // Without pawns.
-  const Bitboard without_pawns = absl::c_accumulate(
+  const Bitboard without_pawns_attack_squares = absl::c_accumulate(
       moves, uint64_t(0),
       [](Bitboard acc, Move move) { return acc | move.dst_square_; });
-  return without_pawns | pawn_attack_squares(side);
+  return without_pawns_attack_squares | pawn_attack_squares(side);
 }
 
-void Board::pseudolegal_sliding_moves(Direction direction, Color side,
-                                      Bitboard src_square, Piece piece_moving,
-                                      std::vector<Move>* res_ptr) const {
+void Board::append_pseudolegal_sliding_moves(Direction direction, Color side,
+                                             Bitboard src_square,
+                                             Piece piece_moving,
+                                             std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   ABSL_RAW_CHECK(src_square & friends(side),
                  "src_square must have a piece with the correct color on it.");
@@ -272,61 +272,61 @@ void Board::pseudolegal_sliding_moves(Direction direction, Color side,
   }
 }
 
-void Board::pseudolegal_bishop_moves(Color side,
-                                     std::vector<Move>* res_ptr) const {
+void Board::append_pseudolegal_bishop_moves(Color side,
+                                            std::vector<Move>* res_ptr) const {
   Bitboard bishops = side == Color::white ? white_bishops_ : black_bishops_;
   for (Bitboard bishop_sq : bitboard_split(bishops)) {
-    pseudolegal_sliding_moves(Direction::northeast, side, bishop_sq,
-                              Piece::bishop, res_ptr);
-    pseudolegal_sliding_moves(Direction::northwest, side, bishop_sq,
-                              Piece::bishop, res_ptr);
-    pseudolegal_sliding_moves(Direction::southeast, side, bishop_sq,
-                              Piece::bishop, res_ptr);
-    pseudolegal_sliding_moves(Direction::southwest, side, bishop_sq,
-                              Piece::bishop, res_ptr);
+    append_pseudolegal_sliding_moves(Direction::northeast, side, bishop_sq,
+                                     Piece::bishop, res_ptr);
+    append_pseudolegal_sliding_moves(Direction::northwest, side, bishop_sq,
+                                     Piece::bishop, res_ptr);
+    append_pseudolegal_sliding_moves(Direction::southeast, side, bishop_sq,
+                                     Piece::bishop, res_ptr);
+    append_pseudolegal_sliding_moves(Direction::southwest, side, bishop_sq,
+                                     Piece::bishop, res_ptr);
   }
 }
 
-void Board::pseudolegal_rook_moves(Color side,
-                                   std::vector<Move>* res_ptr) const {
+void Board::append_pseudolegal_rook_moves(Color side,
+                                          std::vector<Move>* res_ptr) const {
   Bitboard rooks = side == Color::white ? white_rooks_ : black_rooks_;
   for (Bitboard rook_sq : bitboard_split(rooks)) {
-    pseudolegal_sliding_moves(Direction::north, side, rook_sq, Piece::rook,
-                              res_ptr);
-    pseudolegal_sliding_moves(Direction::south, side, rook_sq, Piece::rook,
-                              res_ptr);
-    pseudolegal_sliding_moves(Direction::east, side, rook_sq, Piece::rook,
-                              res_ptr);
-    pseudolegal_sliding_moves(Direction::west, side, rook_sq, Piece::rook,
-                              res_ptr);
+    append_pseudolegal_sliding_moves(Direction::north, side, rook_sq,
+                                     Piece::rook, res_ptr);
+    append_pseudolegal_sliding_moves(Direction::south, side, rook_sq,
+                                     Piece::rook, res_ptr);
+    append_pseudolegal_sliding_moves(Direction::east, side, rook_sq,
+                                     Piece::rook, res_ptr);
+    append_pseudolegal_sliding_moves(Direction::west, side, rook_sq,
+                                     Piece::rook, res_ptr);
   }
 }
 
-void Board::pseudolegal_queen_moves(Color side,
-                                    std::vector<Move>* res_ptr) const {
+void Board::append_pseudolegal_queen_moves(Color side,
+                                           std::vector<Move>* res_ptr) const {
   Bitboard queens = side == Color::white ? white_queens_ : black_queens_;
   for (Bitboard queen_sq : bitboard_split(queens)) {
-    pseudolegal_sliding_moves(Direction::north, side, queen_sq, Piece::queen,
-                              res_ptr);
-    pseudolegal_sliding_moves(Direction::northeast, side, queen_sq,
-                              Piece::queen, res_ptr);
-    pseudolegal_sliding_moves(Direction::northwest, side, queen_sq,
-                              Piece::queen, res_ptr);
-    pseudolegal_sliding_moves(Direction::southeast, side, queen_sq,
-                              Piece::queen, res_ptr);
-    pseudolegal_sliding_moves(Direction::southwest, side, queen_sq,
-                              Piece::queen, res_ptr);
-    pseudolegal_sliding_moves(Direction::south, side, queen_sq, Piece::queen,
-                              res_ptr);
-    pseudolegal_sliding_moves(Direction::east, side, queen_sq, Piece::queen,
-                              res_ptr);
-    pseudolegal_sliding_moves(Direction::west, side, queen_sq, Piece::queen,
-                              res_ptr);
+    append_pseudolegal_sliding_moves(Direction::north, side, queen_sq,
+                                     Piece::queen, res_ptr);
+    append_pseudolegal_sliding_moves(Direction::northeast, side, queen_sq,
+                                     Piece::queen, res_ptr);
+    append_pseudolegal_sliding_moves(Direction::northwest, side, queen_sq,
+                                     Piece::queen, res_ptr);
+    append_pseudolegal_sliding_moves(Direction::southeast, side, queen_sq,
+                                     Piece::queen, res_ptr);
+    append_pseudolegal_sliding_moves(Direction::southwest, side, queen_sq,
+                                     Piece::queen, res_ptr);
+    append_pseudolegal_sliding_moves(Direction::south, side, queen_sq,
+                                     Piece::queen, res_ptr);
+    append_pseudolegal_sliding_moves(Direction::east, side, queen_sq,
+                                     Piece::queen, res_ptr);
+    append_pseudolegal_sliding_moves(Direction::west, side, queen_sq,
+                                     Piece::queen, res_ptr);
   }
 }
 
-void Board::pseudolegal_simple_pawn_moves(Color side,
-                                          std::vector<Move>* res_ptr) const {
+void Board::append_pseudolegal_simple_pawn_moves(
+    Color side, std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (side == Color::white) {
     const Bitboard white_pawns_excluding_seventh =
@@ -353,8 +353,8 @@ void Board::pseudolegal_simple_pawn_moves(Color side,
   }
 }
 
-void Board::pseudolegal_two_step_pawn_moves(Color side,
-                                            std::vector<Move>* res_ptr) const {
+void Board::append_pseudolegal_two_step_pawn_moves(
+    Color side, std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (side == Color::white) {
     const Bitboard white_pawns_on_second = white_pawns_ & second_rank_mask;
@@ -383,8 +383,8 @@ void Board::pseudolegal_two_step_pawn_moves(Color side,
   }
 }
 
-void Board::pseudolegal_en_passant_moves(Color side,
-                                         std::vector<Move>* res_ptr) const {
+void Board::append_pseudolegal_en_passant_moves(
+    Color side, std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (en_passant_square_) {
     if (side == Color::white) {
@@ -417,8 +417,8 @@ void Board::pseudolegal_en_passant_moves(Color side,
   }
 }
 
-void Board::pseudolegal_promotions(Color side,
-                                   std::vector<Move>* res_ptr) const {
+void Board::append_pseudolegal_promotions(Color side,
+                                          std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (side == Color::white) {
     const Bitboard white_pawns_on_seventh = white_pawns_ & seventh_rank_mask;
@@ -507,8 +507,8 @@ void Board::pseudolegal_promotions(Color side,
   }
 }
 
-void Board::pseudolegal_pawn_captures(Color side,
-                                      std::vector<Move>* res_ptr) const {
+void Board::append_pseudolegal_pawn_captures(Color side,
+                                             std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
   if (side == Color::white) {
     const Bitboard white_pawns_excluding_seventh =
@@ -549,17 +549,17 @@ void Board::pseudolegal_pawn_captures(Color side,
   }
 }
 
-void Board::pseudolegal_pawn_moves(Color side,
-                                   std::vector<Move>* res_ptr) const {
-  pseudolegal_simple_pawn_moves(side, res_ptr);
-  pseudolegal_two_step_pawn_moves(side, res_ptr);
-  pseudolegal_pawn_captures(side, res_ptr);
-  pseudolegal_en_passant_moves(side, res_ptr);
-  pseudolegal_promotions(side, res_ptr);
+void Board::append_pseudolegal_pawn_moves(Color side,
+                                          std::vector<Move>* res_ptr) const {
+  append_pseudolegal_simple_pawn_moves(side, res_ptr);
+  append_pseudolegal_two_step_pawn_moves(side, res_ptr);
+  append_pseudolegal_pawn_captures(side, res_ptr);
+  append_pseudolegal_en_passant_moves(side, res_ptr);
+  append_pseudolegal_promotions(side, res_ptr);
 }
 
-void Board::pseudolegal_king_moves(Color side,
-                                   std::vector<Move>* res_ptr) const {
+void Board::append_pseudolegal_king_moves(Color side,
+                                          std::vector<Move>* res_ptr) const {
   Bitboard king_sq = side == Color::white ? white_king_ : black_king_;
   Bitboard friends_mask = friends(side);
 
@@ -576,8 +576,8 @@ void Board::pseudolegal_king_moves(Color side,
   }
 }
 
-void Board::pseudolegal_knight_moves(Color side,
-                                     std::vector<Move>* res_ptr) const {
+void Board::append_pseudolegal_knight_moves(Color side,
+                                            std::vector<Move>* res_ptr) const {
   Bitboard knights = side == Color::white ? white_knights_ : black_knights_;
   Bitboard friends_mask = friends(side);
 
@@ -603,12 +603,12 @@ void Board::pseudolegal_knight_moves(Color side,
 
 std::vector<Move> Board::pseudolegal_moves(Color side) const {
   std::vector<Move> res;
-  pseudolegal_bishop_moves(side, &res);
-  pseudolegal_rook_moves(side, &res);
-  pseudolegal_queen_moves(side, &res);
-  pseudolegal_pawn_moves(side, &res);
-  pseudolegal_king_moves(side, &res);
-  pseudolegal_knight_moves(side, &res);
+  append_pseudolegal_bishop_moves(side, &res);
+  append_pseudolegal_rook_moves(side, &res);
+  append_pseudolegal_queen_moves(side, &res);
+  append_pseudolegal_pawn_moves(side, &res);
+  append_pseudolegal_king_moves(side, &res);
+  append_pseudolegal_knight_moves(side, &res);
   return res;
 }
 

@@ -180,25 +180,33 @@ struct Board {
   //
   // Pseudolegal moves are moves generated based on how the pieces move, without
   // checking if the king is in check.
-  void pseudolegal_sliding_moves(Direction direction, Color side,
-                                 Bitboard src_square, Piece piece_moving,
-                                 std::vector<Move>* res_ptr) const;
-  void pseudolegal_bishop_moves(Color side, std::vector<Move>* res_ptr) const;
-  void pseudolegal_rook_moves(Color side, std::vector<Move>* res_ptr) const;
-  void pseudolegal_queen_moves(Color side, std::vector<Move>* res_ptr) const;
+  void append_pseudolegal_sliding_moves(Direction direction, Color side,
+                                        Bitboard src_square, Piece piece_moving,
+                                        std::vector<Move>* res_ptr) const;
+  void append_pseudolegal_bishop_moves(Color side,
+                                       std::vector<Move>* res_ptr) const;
+  void append_pseudolegal_rook_moves(Color side,
+                                     std::vector<Move>* res_ptr) const;
+  void append_pseudolegal_queen_moves(Color side,
+                                      std::vector<Move>* res_ptr) const;
   // "Simple" in this context means no two-step moves, no promotions, no en
   // passant and no captures.
-  void pseudolegal_simple_pawn_moves(Color side,
+  void append_pseudolegal_simple_pawn_moves(Color side,
+                                            std::vector<Move>* res_ptr) const;
+  void append_pseudolegal_two_step_pawn_moves(Color side,
+                                              std::vector<Move>* res_ptr) const;
+  void append_pseudolegal_en_passant_moves(Color side,
+                                           std::vector<Move>* res_ptr) const;
+  void append_pseudolegal_promotions(Color side,
                                      std::vector<Move>* res_ptr) const;
-  void pseudolegal_two_step_pawn_moves(Color side,
+  void append_pseudolegal_pawn_captures(Color side,
+                                        std::vector<Move>* res_ptr) const;
+  void append_pseudolegal_pawn_moves(Color side,
+                                     std::vector<Move>* res_ptr) const;
+  void append_pseudolegal_king_moves(Color side,
+                                     std::vector<Move>* res_ptr) const;
+  void append_pseudolegal_knight_moves(Color side,
                                        std::vector<Move>* res_ptr) const;
-  void pseudolegal_en_passant_moves(Color side,
-                                    std::vector<Move>* res_ptr) const;
-  void pseudolegal_promotions(Color side, std::vector<Move>* res_ptr) const;
-  void pseudolegal_pawn_captures(Color side, std::vector<Move>* res_ptr) const;
-  void pseudolegal_pawn_moves(Color side, std::vector<Move>* res_ptr) const;
-  void pseudolegal_king_moves(Color side, std::vector<Move>* res_ptr) const;
-  void pseudolegal_knight_moves(Color side, std::vector<Move>* res_ptr) const;
   std::vector<Move> pseudolegal_moves(Color side) const;
   // Castling is not counted as a pseudolegal move. The castling_moves() method
   // uses is_castle_*_legal() methods to check if castling is legal.
