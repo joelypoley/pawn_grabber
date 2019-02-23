@@ -8,9 +8,8 @@
 #include <utility>
 #include <vector>
 
-
-#include "absl/types/optional.h"
 #include "absl/strings/string_view.h"
+#include "absl/types/optional.h"
 
 // Each bit of a Bitboard represents a square. The a8 square is the most
 // significant bit and the h1 square is the least significant bit. So the
@@ -172,10 +171,10 @@ struct Board {
   Bitboard black_pieces() const;
   // Returns a mask of all pieces.
   Bitboard all_pieces() const;
-  // Returns a mask of all squares attacked by `side`.
-  Bitboard attack_squares(Color side) const;
   // Returns a mask of all squares attacked by pawns of color `side`.
   Bitboard pawn_attack_squares(Color side) const;
+  // Returns a mask of all squares attacked by `side`.
+  Bitboard attack_squares(Color side) const;
 
   // Move generation methods.
   //
@@ -224,12 +223,8 @@ struct Board {
   void zero_all_bitboards();
   void init_bitboards(const absl::string_view pieces_fen);
   void init_is_whites_move(const absl::string_view pieces_fen);
-  void init_color(const absl::string_view side_to_move_fen);
   void init_castling_rights(const absl::string_view castling_rights_fen);
   void init_en_passant(const absl::string_view algebraic_square);
-  void init_fifty_move_clock(const absl::string_view num_half_moves_fen);
-  void init_num_moves(const absl::string_view num_moves_fen);
-  std::string square_to_unicode(Bitboard square) const;
 };
 
 bool operator==(const Board& lhs, const Board& rhs);
@@ -241,19 +236,9 @@ struct Move {
   MoveType move_type_;
   Board board_state_;
   // TODO: Remove this default initializer?
-  Move()
-      : src_square_(0),
-        dst_square_(0),
-        piece_moving_(Piece::pawn),
-        move_type_(MoveType::simple),
-        board_state_(Board()) {}
+  Move();
   Move(Bitboard p_src_square, Bitboard p_dst_square, Piece p_piece_moving,
-       MoveType p_move_type, Board p_board_state)
-      : src_square_(p_src_square),
-        dst_square_(p_dst_square),
-        piece_moving_(p_piece_moving),
-        move_type_(p_move_type),
-        board_state_(p_board_state) {}
+       MoveType p_move_type, Board p_board_state);
   std::string to_pretty_str() const;
   friend void PrintTo(const Move& move, std::ostream* os);
 };
@@ -285,6 +270,9 @@ Bitboard coordinates_to_square(int file, int rank);
 std::vector<Bitboard> bitboard_split(Bitboard bb);
 Color flip_color(Color color);
 std::string bb_to_pretty_str(Bitboard bb);
+
+Move castle_kingside_move(Color color, Board board);
+Move castle_queenside_move(Color color, Board board);
 
 int number_of_moves(Board board, int half_move_depth);
 

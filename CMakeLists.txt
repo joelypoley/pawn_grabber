@@ -41,8 +41,8 @@ endif()
 ##############################################################################
 # BEGIN: abseil-cpp stuff
 ##############################################################################
-set(CMAKE_CXX_FLAGS "-std=c++11 -Weverything ${CMAKE_CXX_FLAGS}")
-#set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+#set(CMAKE_CXX_FLAGS "-std=c++11 -Weverything ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 add_subdirectory(lib/abseil-cpp-master)
 ##############################################################################

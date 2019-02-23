@@ -1,13 +1,8 @@
 #include "board.h"
 
 #include <array>
-#include <cassert>
 #include <functional>
-#include <ios>
 #include <iostream>
-#include <optional>
-#include <string_view>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -24,8 +19,10 @@ const std::string& get_start_fen() {
   return start_fen;
 }
 
-auto x = std::ios_base::Init();
-const Bitboard seventh_rank_mask  = str_to_square("a7")| str_to_square("b7") |
+// TODO: Change these all to functions returning their static local varaibles to
+// avoid problems with global initialization.
+
+const Bitboard seventh_rank_mask = str_to_square("a7") | str_to_square("b7") |
                                    str_to_square("c7") | str_to_square("d7") |
                                    str_to_square("e7") | str_to_square("f7") |
                                    str_to_square("g7") | str_to_square("h7");
@@ -37,173 +34,16 @@ const Bitboard third_rank_mask = str_to_square("a3") | str_to_square("b3") |
                                  str_to_square("c3") | str_to_square("d3") |
                                  str_to_square("e3") | str_to_square("f3") |
                                  str_to_square("g3") | str_to_square("h3");
-const Bitboard white_castle_kingside_mask = str_to_square("f1") | str_to_square("g1");
-const Bitboard white_castle_queenside_mask = str_to_square("d1") | str_to_square("c1");
-const Bitboard black_castle_kingside_mask = str_to_square("f8") | str_to_square("g8");
-const Bitboard black_castle_queenside_mask =  str_to_square("d8") | str_to_square("c8");
+const Bitboard white_castle_kingside_mask =
+    str_to_square("f1") | str_to_square("g1");
+const Bitboard white_castle_queenside_mask =
+    str_to_square("d1") | str_to_square("c1");
+const Bitboard black_castle_kingside_mask =
+    str_to_square("f8") | str_to_square("g8");
+const Bitboard black_castle_queenside_mask =
+    str_to_square("d8") | str_to_square("c8");
 
-Move castle_kingside_move(Color color, Board board) {
-  if (color == Color::white) {
-    return Move(str_to_square("e1"), str_to_square("g1"), Piece::king,
-                MoveType::castle_kingside, board);
-  } else {
-    return Move(str_to_square("e8"), str_to_square("g8"), Piece::king,
-                MoveType::castle_kingside, board);
-  }
-}
-
-Move castle_queenside_move(Color color, Board board) {
-  if (color == Color::white) {
-    return Move(str_to_square("e1"), str_to_square("c1"), Piece::king,
-                MoveType::castle_queenside, board);
-  } else {
-    return Move(str_to_square("e8"), str_to_square("c8"), Piece::king,
-                MoveType::castle_queenside, board);
-  }
-}
 }  // namespace.
-
-bool operator==(const Board& lhs, const Board& rhs) {
-  return std::tie(lhs.white_pawns_, lhs.white_rooks_, lhs.white_knights_,
-                  lhs.white_bishops_, lhs.white_queens_, lhs.white_king_,
-                  lhs.black_pawns_, lhs.black_rooks_, lhs.black_knights_,
-                  lhs.black_bishops_, lhs.black_queens_, lhs.black_king_,
-                  lhs.is_whites_move_, lhs.en_passant_square_,
-                  lhs.white_has_right_to_castle_kingside_,
-                  lhs.white_has_right_to_castle_queenside_,
-                  lhs.black_has_right_to_castle_kingside_,
-                  lhs.black_has_right_to_castle_queenside_,
-                  lhs.fifty_move_clock_, lhs.num_moves_) ==
-         std::tie(rhs.white_pawns_, rhs.white_rooks_, rhs.white_knights_,
-                  rhs.white_bishops_, rhs.white_queens_, rhs.white_king_,
-                  rhs.black_pawns_, rhs.black_rooks_, rhs.black_knights_,
-                  rhs.black_bishops_, rhs.black_queens_, rhs.black_king_,
-                  rhs.is_whites_move_, rhs.en_passant_square_,
-                  rhs.white_has_right_to_castle_kingside_,
-                  rhs.white_has_right_to_castle_queenside_,
-                  rhs.black_has_right_to_castle_kingside_,
-                  rhs.black_has_right_to_castle_queenside_,
-                  rhs.fifty_move_clock_, rhs.num_moves_);
-}
-
-bool operator==(const Move& lhs, const Move& rhs) {
-  return std::tie(lhs.src_square_, lhs.dst_square_, lhs.piece_moving_,
-                  lhs.move_type_, lhs.board_state_) ==
-         std::tie(rhs.src_square_, rhs.dst_square_, rhs.piece_moving_,
-                  rhs.move_type_, rhs.board_state_);
-}
-
-bool operator<(const Move& lhs, const Move& rhs) {
-  return lhs.to_pretty_str() < rhs.to_pretty_str();
-}
-
-// Check that the bitboard has exactly one bit set.
-bool is_square(Bitboard square) {
-  const bool has_more_than_one_set_bit = (square & (square - 1));
-  return square && !has_more_than_one_set_bit;
-}
-
-int square_idx(Bitboard square) {
-  // ABSL_RAW_CHECK(is_square(square), "Is not square.");
-  int res = -1;
-  while (square) {
-    square >>= 1;
-    res += 1;
-  }
-  return res;
-}
-
-int rank_idx(Bitboard square) {
-  const int idx = square_idx(square);
-  return idx / 8;
-}
-
-int file_idx(Bitboard square) {
-  const int idx = square_idx(square);
-  return 7 - idx % 8;
-}
-
-bool on_a_file(Bitboard square) { return file_idx(square) == 0; }
-
-bool on_h_file(Bitboard square) { return file_idx(square) == 7; }
-
-bool on_first_rank(Bitboard square) { return rank_idx(square) == 0; }
-bool on_eigth_rank(Bitboard square) { return rank_idx(square) == 7; }
-
-Bitboard north_of(Bitboard square) {
-  ABSL_RAW_CHECK(is_square(square), "Is not square.");
-  // TODO: Make sure right shifting off the end is not undefined behavior.
-  return square << board_size;
-}
-
-Bitboard south_of(Bitboard square) {
-  ABSL_RAW_CHECK(is_square(square), "Is not square.");
-  return square >> board_size;
-}
-
-Bitboard east_of(Bitboard square) {
-  ABSL_RAW_CHECK(is_square(square), "Is not square.");
-  return on_h_file(square) ? 0 : square >> 1;
-}
-
-Bitboard west_of(Bitboard square) {
-  ABSL_RAW_CHECK(is_square(square), "Is not square.");
-  return on_a_file(square) ? 0 : square << 1;
-}
-
-Bitboard northeast_of(Bitboard square) {
-  ABSL_RAW_CHECK(is_square(square), "Is not square.");
-  const Bitboard north_square = north_of(square);
-  return north_square ? east_of(north_square) : 0;
-}
-
-Bitboard northwest_of(Bitboard square) {
-  ABSL_RAW_CHECK(is_square(square), "Is not square.");
-  const Bitboard north_square = north_of(square);
-  return north_square ? west_of(north_square) : 0;
-}
-
-Bitboard southeast_of(Bitboard square) {
-  ABSL_RAW_CHECK(is_square(square), "Is not square.");
-  const Bitboard south_square = south_of(square);
-  return south_square ? east_of(south_square) : 0;
-}
-
-Bitboard southwest_of(Bitboard square) {
-  ABSL_RAW_CHECK(is_square(square), "Is not square.");
-  const Bitboard south_square = south_of(square);
-  return south_square ? west_of(south_square) : 0;
-}
-
-std::string Move::to_pretty_str() const {
-  // std::string promotion_str;
-  // Color side_to_move =
-  //     board_state_.is_whites_move_ ? Color::white : Color::black;
-  // switch (move_type_) {
-  //   case MoveType::promotion_to_rook:
-  //     promotion_str.append(get_unicode_symbol(side_to_move, Piece::rook));
-  //     break;
-  //   case MoveType::promotion_to_knight:
-  //     promotion_str.append(get_unicode_symbol(side_to_move, Piece::knight));
-  //     break;
-  //   case MoveType::promotion_to_bishop:
-  //     promotion_str.append(get_unicode_symbol(side_to_move, Piece::bishop));
-  //     break;
-  //   case MoveType::promotion_to_queen:
-  //     promotion_str.append(get_unicode_symbol(side_to_move, Piece::queen));
-  //     break;
-  //   default:
-  //     break;
-  // }
-  return absl::StrCat(square_to_str(src_square_), square_to_str(dst_square_));
-  // ,
-  //                     promotion_str,
-  //                     move_type_ == MoveType::capture ? "capture" : "");
-}
-
-void PrintTo(const Move& move, std::ostream* os) {
-  *os << move.to_pretty_str();
-}
 
 Board::Board() : Board(get_start_fen()) {}
 
@@ -215,7 +55,7 @@ Board::Board(absl::string_view fen) {
   init_castling_rights(split_fen[2]);
   init_en_passant(split_fen[3]);
   ABSL_RAW_CHECK(absl::SimpleAtoi(split_fen[4], &fifty_move_clock_),
-                 "FEN invalid: Fifty move not convertible to integer.");
+                 "FEN invalid: Fifty move clock not convertible to integer.");
   ABSL_RAW_CHECK(absl::SimpleAtoi(split_fen[5], &num_moves_),
                  "FEN invalid: Number of moves not convertible to integer.");
 }
@@ -246,127 +86,10 @@ Board::Board(const Board& other)
       fifty_move_clock_(other.fifty_move_clock_),
       num_moves_(other.num_moves_) {}
 
-void Board::zero_all_bitboards() {
-  white_pawns_ = 0;
-  white_rooks_ = 0;
-  white_knights_ = 0;
-  white_bishops_ = 0;
-  white_queens_ = 0;
-  white_king_ = 0;
-  black_pawns_ = 0;
-  black_rooks_ = 0;
-  black_knights_ = 0;
-  black_bishops_ = 0;
-  black_queens_ = 0;
-  black_king_ = 0;
-}
-
-void Board::init_bitboards(const absl::string_view pieces_fen) {
-  zero_all_bitboards();
-  int rank = board_size - 1;
-  int file = 0;
-
-  for (char c : pieces_fen) {
-    Bitboard square_mask{lsb_bitboard
-                         << (rank * board_size + board_size - file - 1)};
-    switch (c) {
-      // If the next characted is a number, skip that many files.
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-        file += (c - '0');
-        break;
-      case '/':
-        rank -= 1;
-        file = 0;
-        break;
-      case 'P':
-        white_pawns_ |= square_mask;
-        file += 1;
-        break;
-      case 'R':
-        white_rooks_ |= square_mask;
-        file += 1;
-        break;
-      case 'N':
-        white_knights_ |= square_mask;
-        file += 1;
-        break;
-      case 'B':
-        white_bishops_ |= square_mask;
-        file += 1;
-        break;
-      case 'Q':
-        white_queens_ |= square_mask;
-        file += 1;
-        break;
-      case 'K':
-        white_king_ |= square_mask;
-        file += 1;
-        break;
-      case 'p':
-        black_pawns_ |= square_mask;
-        file += 1;
-        break;
-      case 'r':
-        black_rooks_ |= square_mask;
-        file += 1;
-        break;
-      case 'n':
-        black_knights_ |= square_mask;
-        file += 1;
-        break;
-      case 'b':
-        black_bishops_ |= square_mask;
-        file += 1;
-        break;
-      case 'q':
-        black_queens_ |= square_mask;
-        file += 1;
-        break;
-      case 'k':
-        black_king_ |= square_mask;
-        file += 1;
-        break;
-      default:
-        assert(false);
-        break;
-    }
-  }
-}
-
-void Board::init_is_whites_move(const absl::string_view side_to_move) {
-  ABSL_RAW_CHECK(side_to_move == "w" || side_to_move == "b",
-                 "Invalid FEN. Side to move must be either w or b");
-  if (side_to_move == "w") {
-    is_whites_move_ = true;
-  } else if (side_to_move == "b") {
-    is_whites_move_ = false;
-  }
-}
-
-void Board::init_castling_rights(const absl::string_view castling_rights_fen) {
-  white_has_right_to_castle_kingside_ =
-      (castling_rights_fen.find('K') != std::string::npos);
-  white_has_right_to_castle_queenside_ =
-      (castling_rights_fen.find('Q') != std::string::npos);
-  black_has_right_to_castle_kingside_ =
-      (castling_rights_fen.find('k') != std::string::npos);
-  black_has_right_to_castle_queenside_ =
-      (castling_rights_fen.find('q') != std::string::npos);
-}
-
-void Board::init_en_passant(const absl::string_view algebraic_square) {
-  if (algebraic_square == "-") {
-    en_passant_square_ = absl::nullopt;
-  } else {
-    en_passant_square_ = str_to_square(algebraic_square);
-  }
+std::array<Bitboard*, 12> Board::all_bitboards() {
+  return {&white_pawns_,   &white_rooks_,   &white_bishops_, &white_knights_,
+          &white_queens_,  &white_king_,    &black_pawns_,   &black_rooks_,
+          &black_bishops_, &black_knights_, &black_queens_,  &black_king_};
 }
 
 std::string Board::to_pretty_str() const {
@@ -444,10 +167,6 @@ std::string Board::to_pretty_str() const {
   return res;
 }
 
-void PrintTo(const Board& board, std::ostream* os) {
-  *os << board.to_pretty_str();
-}
-
 std::string Board::occupiers_unicode_symbol(int file, int rank) const {
   Bitboard square = coordinates_to_square(file, rank);
   if (square & white_pawns_) {
@@ -477,6 +196,58 @@ std::string Board::occupiers_unicode_symbol(int file, int rank) const {
   } else {
     return " ";
   }
+}
+
+void PrintTo(const Board& board, std::ostream* os) {
+  *os << board.to_pretty_str();
+}
+
+Bitboard Board::friends(Color side) const {
+  return side == Color::white ? white_pieces() : black_pieces();
+}
+
+Bitboard Board::enemies(Color side) const {
+  return side == Color::white ? black_pieces() : white_pieces();
+}
+Bitboard Board::white_pieces() const {
+  return white_pawns_ | white_knights_ | white_bishops_ | white_rooks_ |
+         white_queens_ | white_king_;
+}
+
+Bitboard Board::black_pieces() const {
+  return black_pawns_ | black_knights_ | black_bishops_ | black_rooks_ |
+         black_queens_ | black_king_;
+}
+
+Bitboard Board::all_pieces() const { return white_pieces() | black_pieces(); }
+
+Bitboard Board::pawn_attack_squares(Color side) const {
+  Bitboard res = 0;
+  if (side == Color::white) {
+    for (Bitboard single_pawn : bitboard_split(white_pawns_)) {
+      const Bitboard northeast_of_pawn = northeast_of(single_pawn);
+      res |= northeast_of_pawn;
+      const Bitboard northwest_of_pawn = northwest_of(single_pawn);
+      res |= northwest_of_pawn;
+    }
+  } else {
+    for (Bitboard single_pawn : bitboard_split(black_pawns_)) {
+      const Bitboard southeast_of_pawn = southeast_of(single_pawn);
+      res |= southeast_of_pawn;
+      const Bitboard southwest_of_pawn = southwest_of(single_pawn);
+      res |= southwest_of_pawn;
+    }
+  }
+  return res;
+}
+
+Bitboard Board::attack_squares(Color side) const {
+  std::vector<Move> moves = pseudolegal_moves(side);
+  // Without pawns.
+  const Bitboard without_pawns = absl::c_accumulate(
+      moves, uint64_t(0),
+      [](Bitboard acc, Move move) { return acc | move.dst_square_; });
+  return without_pawns | pawn_attack_squares(side);
 }
 
 void Board::pseudolegal_sliding_moves(Direction direction, Color side,
@@ -736,26 +507,6 @@ void Board::pseudolegal_promotions(Color side,
   }
 }
 
-Bitboard Board::pawn_attack_squares(Color side) const {
-  Bitboard res = 0;
-  if (side == Color::white) {
-    for (Bitboard single_pawn : bitboard_split(white_pawns_)) {
-      const Bitboard northeast_of_pawn = northeast_of(single_pawn);
-      res |= northeast_of_pawn;
-      const Bitboard northwest_of_pawn = northwest_of(single_pawn);
-      res |= northwest_of_pawn;
-    }
-  } else {
-    for (Bitboard single_pawn : bitboard_split(black_pawns_)) {
-      const Bitboard southeast_of_pawn = southeast_of(single_pawn);
-      res |= southeast_of_pawn;
-      const Bitboard southwest_of_pawn = southwest_of(single_pawn);
-      res |= southwest_of_pawn;
-    }
-  }
-  return res;
-}
-
 void Board::pseudolegal_pawn_captures(Color side,
                                       std::vector<Move>* res_ptr) const {
   std::vector<Move>& res = *res_ptr;
@@ -850,14 +601,15 @@ void Board::pseudolegal_knight_moves(Color side,
   }
 }
 
-void Board::castling_moves(std::vector<Move>* res_ptr) const {
-  Color side_to_move = is_whites_move_ ? Color::white : Color::black;
-  if (is_castle_kingside_legal()) {
-    res_ptr->push_back(castle_kingside_move(side_to_move, *this));
-  }
-  if (is_castle_queenside_legal()) {
-    res_ptr->push_back(castle_queenside_move(side_to_move, *this));
-  }
+std::vector<Move> Board::pseudolegal_moves(Color side) const {
+  std::vector<Move> res;
+  pseudolegal_bishop_moves(side, &res);
+  pseudolegal_rook_moves(side, &res);
+  pseudolegal_queen_moves(side, &res);
+  pseudolegal_pawn_moves(side, &res);
+  pseudolegal_king_moves(side, &res);
+  pseudolegal_knight_moves(side, &res);
+  return res;
 }
 
 bool Board::is_castle_kingside_legal() const {
@@ -903,15 +655,19 @@ bool Board::is_castle_queenside_legal() const {
   return !castle_squares_blocked && !castle_squares_attacked;
 }
 
-std::vector<Move> Board::pseudolegal_moves(Color side) const {
-  std::vector<Move> res;
-  pseudolegal_bishop_moves(side, &res);
-  pseudolegal_rook_moves(side, &res);
-  pseudolegal_queen_moves(side, &res);
-  pseudolegal_pawn_moves(side, &res);
-  pseudolegal_king_moves(side, &res);
-  pseudolegal_knight_moves(side, &res);
-  return res;
+void Board::castling_moves(std::vector<Move>* res_ptr) const {
+  Color side_to_move = is_whites_move_ ? Color::white : Color::black;
+  if (is_castle_kingside_legal()) {
+    res_ptr->push_back(castle_kingside_move(side_to_move, *this));
+  }
+  if (is_castle_queenside_legal()) {
+    res_ptr->push_back(castle_queenside_move(side_to_move, *this));
+  }
+}
+
+bool Board::is_king_attacked(Color side) const {
+  const Bitboard king = side == Color::white ? white_king_ : black_king_;
+  return king & attack_squares(flip_color(side));
 }
 
 bool Board::is_pseudolegal_move_legal(Move move) const {
@@ -1154,24 +910,301 @@ void Board::do_move(Move move) {
   is_whites_move_ = !is_whites_move_;
 }
 
-Bitboard Board::attack_squares(Color side) const {
-  std::vector<Move> moves = pseudolegal_moves(side);
-  // Without pawns.
-  const Bitboard without_pawns = absl::c_accumulate(
-      moves, uint64_t(0),
-      [](Bitboard acc, Move move) { return acc | move.dst_square_; });
-  return without_pawns | pawn_attack_squares(side);
+void Board::zero_all_bitboards() {
+  white_pawns_ = 0;
+  white_rooks_ = 0;
+  white_knights_ = 0;
+  white_bishops_ = 0;
+  white_queens_ = 0;
+  white_king_ = 0;
+  black_pawns_ = 0;
+  black_rooks_ = 0;
+  black_knights_ = 0;
+  black_bishops_ = 0;
+  black_queens_ = 0;
+  black_king_ = 0;
 }
 
-bool Board::is_king_attacked(Color side) const {
-  const Bitboard king = side == Color::white ? white_king_ : black_king_;
-  return king & attack_squares(flip_color(side));
+void Board::init_bitboards(const absl::string_view pieces_fen) {
+  zero_all_bitboards();
+  int rank = board_size - 1;
+  int file = 0;
+
+  for (char c : pieces_fen) {
+    Bitboard square_mask{lsb_bitboard
+                         << (rank * board_size + board_size - file - 1)};
+    switch (c) {
+      // If the next characted is a number, skip that many files.
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+        file += (c - '0');
+        break;
+      case '/':
+        rank -= 1;
+        file = 0;
+        break;
+      case 'P':
+        white_pawns_ |= square_mask;
+        file += 1;
+        break;
+      case 'R':
+        white_rooks_ |= square_mask;
+        file += 1;
+        break;
+      case 'N':
+        white_knights_ |= square_mask;
+        file += 1;
+        break;
+      case 'B':
+        white_bishops_ |= square_mask;
+        file += 1;
+        break;
+      case 'Q':
+        white_queens_ |= square_mask;
+        file += 1;
+        break;
+      case 'K':
+        white_king_ |= square_mask;
+        file += 1;
+        break;
+      case 'p':
+        black_pawns_ |= square_mask;
+        file += 1;
+        break;
+      case 'r':
+        black_rooks_ |= square_mask;
+        file += 1;
+        break;
+      case 'n':
+        black_knights_ |= square_mask;
+        file += 1;
+        break;
+      case 'b':
+        black_bishops_ |= square_mask;
+        file += 1;
+        break;
+      case 'q':
+        black_queens_ |= square_mask;
+        file += 1;
+        break;
+      case 'k':
+        black_king_ |= square_mask;
+        file += 1;
+        break;
+      default:
+        assert(false);
+        break;
+    }
+  }
 }
 
-std::array<Bitboard*, 12> Board::all_bitboards() {
-  return {&white_pawns_,   &white_rooks_,   &white_bishops_, &white_knights_,
-          &white_queens_,  &white_king_,    &black_pawns_,   &black_rooks_,
-          &black_bishops_, &black_knights_, &black_queens_,  &black_king_};
+void Board::init_is_whites_move(const absl::string_view side_to_move) {
+  ABSL_RAW_CHECK(side_to_move == "w" || side_to_move == "b",
+                 "Invalid FEN. Side to move must be either w or b");
+  if (side_to_move == "w") {
+    is_whites_move_ = true;
+  } else if (side_to_move == "b") {
+    is_whites_move_ = false;
+  }
+}
+
+void Board::init_castling_rights(const absl::string_view castling_rights_fen) {
+  white_has_right_to_castle_kingside_ =
+      (castling_rights_fen.find('K') != std::string::npos);
+  white_has_right_to_castle_queenside_ =
+      (castling_rights_fen.find('Q') != std::string::npos);
+  black_has_right_to_castle_kingside_ =
+      (castling_rights_fen.find('k') != std::string::npos);
+  black_has_right_to_castle_queenside_ =
+      (castling_rights_fen.find('q') != std::string::npos);
+}
+
+void Board::init_en_passant(const absl::string_view algebraic_square) {
+  if (algebraic_square == "-") {
+    en_passant_square_ = absl::nullopt;
+  } else {
+    en_passant_square_ = str_to_square(algebraic_square);
+  }
+}
+
+bool operator==(const Board& lhs, const Board& rhs) {
+  return std::tie(lhs.white_pawns_, lhs.white_rooks_, lhs.white_knights_,
+                  lhs.white_bishops_, lhs.white_queens_, lhs.white_king_,
+                  lhs.black_pawns_, lhs.black_rooks_, lhs.black_knights_,
+                  lhs.black_bishops_, lhs.black_queens_, lhs.black_king_,
+                  lhs.is_whites_move_, lhs.en_passant_square_,
+                  lhs.white_has_right_to_castle_kingside_,
+                  lhs.white_has_right_to_castle_queenside_,
+                  lhs.black_has_right_to_castle_kingside_,
+                  lhs.black_has_right_to_castle_queenside_,
+                  lhs.fifty_move_clock_, lhs.num_moves_) ==
+         std::tie(rhs.white_pawns_, rhs.white_rooks_, rhs.white_knights_,
+                  rhs.white_bishops_, rhs.white_queens_, rhs.white_king_,
+                  rhs.black_pawns_, rhs.black_rooks_, rhs.black_knights_,
+                  rhs.black_bishops_, rhs.black_queens_, rhs.black_king_,
+                  rhs.is_whites_move_, rhs.en_passant_square_,
+                  rhs.white_has_right_to_castle_kingside_,
+                  rhs.white_has_right_to_castle_queenside_,
+                  rhs.black_has_right_to_castle_kingside_,
+                  rhs.black_has_right_to_castle_queenside_,
+                  rhs.fifty_move_clock_, rhs.num_moves_);
+}
+
+Move::Move()
+    : src_square_(0),
+      dst_square_(0),
+      piece_moving_(Piece::pawn),
+      move_type_(MoveType::simple),
+      board_state_(Board()) {}
+
+Move::Move(Bitboard p_src_square, Bitboard p_dst_square, Piece p_piece_moving,
+           MoveType p_move_type, Board p_board_state)
+    : src_square_(p_src_square),
+      dst_square_(p_dst_square),
+      piece_moving_(p_piece_moving),
+      move_type_(p_move_type),
+      board_state_(p_board_state) {}
+
+std::string Move::to_pretty_str() const {
+  // std::string promotion_str;
+  // Color side_to_move =
+  //     board_state_.is_whites_move_ ? Color::white : Color::black;
+  // switch (move_type_) {
+  //   case MoveType::promotion_to_rook:
+  //     promotion_str.append(get_unicode_symbol(side_to_move, Piece::rook));
+  //     break;
+  //   case MoveType::promotion_to_knight:
+  //     promotion_str.append(get_unicode_symbol(side_to_move, Piece::knight));
+  //     break;
+  //   case MoveType::promotion_to_bishop:
+  //     promotion_str.append(get_unicode_symbol(side_to_move, Piece::bishop));
+  //     break;
+  //   case MoveType::promotion_to_queen:
+  //     promotion_str.append(get_unicode_symbol(side_to_move, Piece::queen));
+  //     break;
+  //   default:
+  //     break;
+  // }
+  return absl::StrCat(square_to_str(src_square_), square_to_str(dst_square_));
+  // ,
+  //                     promotion_str,
+  //                     move_type_ == MoveType::capture ? "capture" : "");
+}
+
+void PrintTo(const Move& move, std::ostream* os) {
+  *os << move.to_pretty_str();
+}
+
+bool operator==(const Move& lhs, const Move& rhs) {
+  return std::tie(lhs.src_square_, lhs.dst_square_, lhs.piece_moving_,
+                  lhs.move_type_, lhs.board_state_) ==
+         std::tie(rhs.src_square_, rhs.dst_square_, rhs.piece_moving_,
+                  rhs.move_type_, rhs.board_state_);
+}
+
+// Check that the bitboard has exactly one bit set.
+bool is_square(Bitboard square) {
+  const bool has_more_than_one_set_bit = (square & (square - 1));
+  return square && !has_more_than_one_set_bit;
+}
+
+int square_idx(Bitboard square) {
+  // ABSL_RAW_CHECK(is_square(square), "Is not square.");
+  int res = -1;
+  while (square) {
+    square >>= 1;
+    res += 1;
+  }
+  return res;
+}
+
+int rank_idx(Bitboard square) {
+  const int idx = square_idx(square);
+  return idx / 8;
+}
+
+int file_idx(Bitboard square) {
+  const int idx = square_idx(square);
+  return 7 - idx % 8;
+}
+
+bool on_a_file(Bitboard square) { return file_idx(square) == 0; }
+
+bool on_h_file(Bitboard square) { return file_idx(square) == 7; }
+
+bool on_first_rank(Bitboard square) { return rank_idx(square) == 0; }
+bool on_eigth_rank(Bitboard square) { return rank_idx(square) == 7; }
+
+Bitboard north_of(Bitboard square) {
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
+  // TODO: Make sure right shifting off the end is not undefined behavior.
+  return square << board_size;
+}
+
+Bitboard south_of(Bitboard square) {
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
+  return square >> board_size;
+}
+
+Bitboard east_of(Bitboard square) {
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
+  return on_h_file(square) ? 0 : square >> 1;
+}
+
+Bitboard west_of(Bitboard square) {
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
+  return on_a_file(square) ? 0 : square << 1;
+}
+
+Bitboard northeast_of(Bitboard square) {
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
+  const Bitboard north_square = north_of(square);
+  return north_square ? east_of(north_square) : 0;
+}
+
+Bitboard northwest_of(Bitboard square) {
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
+  const Bitboard north_square = north_of(square);
+  return north_square ? west_of(north_square) : 0;
+}
+
+Bitboard southeast_of(Bitboard square) {
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
+  const Bitboard south_square = south_of(square);
+  return south_square ? east_of(south_square) : 0;
+}
+
+Bitboard southwest_of(Bitboard square) {
+  ABSL_RAW_CHECK(is_square(square), "Is not square.");
+  const Bitboard south_square = south_of(square);
+  return south_square ? west_of(south_square) : 0;
+}
+
+std::function<Bitboard(Bitboard)> direction_to_function(Direction direction) {
+  switch (direction) {
+    case Direction::north:
+      return north_of;
+    case Direction::south:
+      return south_of;
+    case Direction::east:
+      return east_of;
+    case Direction::west:
+      return west_of;
+    case Direction::northeast:
+      return northeast_of;
+    case Direction::northwest:
+      return northwest_of;
+    case Direction::southeast:
+      return southeast_of;
+    case Direction::southwest:
+      return southwest_of;
+  }
 }
 
 Bitboard str_to_square(const absl::string_view algebraic_square) {
@@ -1207,25 +1240,6 @@ Bitboard coordinates_to_square(int file, int rank) {
   return lsb_bitboard << (rank * board_size + board_size - file - 1);
 }
 
-Bitboard Board::friends(Color side) const {
-  return side == Color::white ? white_pieces() : black_pieces();
-}
-
-Bitboard Board::enemies(Color side) const {
-  return side == Color::white ? black_pieces() : white_pieces();
-}
-Bitboard Board::white_pieces() const {
-  return white_pawns_ | white_knights_ | white_bishops_ | white_rooks_ |
-         white_queens_ | white_king_;
-}
-
-Bitboard Board::black_pieces() const {
-  return black_pawns_ | black_knights_ | black_bishops_ | black_rooks_ |
-         black_queens_ | black_king_;
-}
-
-Bitboard Board::all_pieces() const { return white_pieces() | black_pieces(); }
-
 std::vector<Bitboard> bitboard_split(Bitboard bb) {
   std::vector<Bitboard> res;
   while (bb) {
@@ -1235,27 +1249,6 @@ std::vector<Bitboard> bitboard_split(Bitboard bb) {
     bb = bb_with_lsb_cleared;
   }
   return res;
-}
-
-std::function<Bitboard(Bitboard)> direction_to_function(Direction direction) {
-  switch (direction) {
-    case Direction::north:
-      return north_of;
-    case Direction::south:
-      return south_of;
-    case Direction::east:
-      return east_of;
-    case Direction::west:
-      return west_of;
-    case Direction::northeast:
-      return northeast_of;
-    case Direction::northwest:
-      return northwest_of;
-    case Direction::southeast:
-      return southeast_of;
-    case Direction::southwest:
-      return southwest_of;
-  }
 }
 
 Color flip_color(Color color) {
@@ -1278,6 +1271,26 @@ std::string bb_to_pretty_str(Bitboard bb) {
   board.black_king_ = 0;
   board.black_pawns_ = bb;
   return board.to_pretty_str();
+}
+
+Move castle_kingside_move(Color color, Board board) {
+  if (color == Color::white) {
+    return Move(str_to_square("e1"), str_to_square("g1"), Piece::king,
+                MoveType::castle_kingside, board);
+  } else {
+    return Move(str_to_square("e8"), str_to_square("g8"), Piece::king,
+                MoveType::castle_kingside, board);
+  }
+}
+
+Move castle_queenside_move(Color color, Board board) {
+  if (color == Color::white) {
+    return Move(str_to_square("e1"), str_to_square("c1"), Piece::king,
+                MoveType::castle_queenside, board);
+  } else {
+    return Move(str_to_square("e8"), str_to_square("c8"), Piece::king,
+                MoveType::castle_queenside, board);
+  }
 }
 
 int number_of_moves(Board board, int half_move_depth) {

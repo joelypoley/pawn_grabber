@@ -8,8 +8,8 @@
 #include <string>
 
 #include "absl/algorithm/container.h"
-#include "absl/types/optional.h"
 #include "absl/strings/str_cat.h"
+#include "absl/types/optional.h"
 #include "gtest/gtest.h"
 
 TEST(SquareUtils, IsSquare) {
@@ -503,11 +503,10 @@ TEST(AllPieces, White) {
                                                   "d2", "f2", "g2", "b3", "c3",
                                                   "e3", "h3", "d4"};
   std::vector<Bitboard> white_squares_bb(white_squares.size());
-  absl::c_transform(white_squares,
-                 white_squares_bb.begin(), str_to_square);
+  absl::c_transform(white_squares, white_squares_bb.begin(), str_to_square);
   Bitboard bb =
       absl::c_accumulate(white_squares_bb, Bitboard(0),
-                  [](Bitboard bb1, Bitboard bb2) { return bb1 | bb2; });
+                         [](Bitboard bb1, Bitboard bb2) { return bb1 | bb2; });
   EXPECT_EQ(board.white_pieces(), bb);
 }
 
