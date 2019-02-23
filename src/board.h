@@ -61,6 +61,13 @@ const int board_size = 8;
 // behavior.
 constexpr Bitboard lsb_bitboard = 1;
 
+constexpr std::array<MoveType, 4> promotion_move_types = {
+  MoveType::promotion_to_rook,
+  MoveType::promotion_to_bishop,
+  MoveType::promotion_to_knight,
+  MoveType::promotion_to_queen
+};
+
 constexpr std::array<Direction, 8> all_directions = {
     Direction::north,     Direction::south,     Direction::east,
     Direction::west,      Direction::northeast, Direction::northwest,
@@ -76,6 +83,20 @@ constexpr std::array<std::pair<Direction, Direction>, 8>
         std::make_pair(Direction::east, Direction::southeast),
         std::make_pair(Direction::south, Direction::southeast),
         std::make_pair(Direction::south, Direction::southwest)};
+
+constexpr std::array<Direction, 4> bishop_move_directions = {
+  Direction::northeast,
+  Direction::northwest,
+  Direction::southeast,
+  Direction::southwest
+};
+
+constexpr std::array<Direction, 4> rook_move_directions = {
+  Direction::north,
+  Direction::south,
+  Direction::east,
+  Direction::west
+};
 
 struct Move;
 
@@ -182,40 +203,40 @@ struct Board {
   // checking if the king is in check.
   void append_pseudolegal_sliding_moves(Direction direction, Color side,
                                         Bitboard src_square, Piece piece_moving,
-                                        std::vector<Move>* res_ptr) const;
+                                        std::vector<Move>* res) const;
   void append_pseudolegal_bishop_moves(Color side,
-                                       std::vector<Move>* res_ptr) const;
+                                       std::vector<Move>* res) const;
   void append_pseudolegal_rook_moves(Color side,
-                                     std::vector<Move>* res_ptr) const;
+                                     std::vector<Move>* res) const;
   void append_pseudolegal_queen_moves(Color side,
-                                      std::vector<Move>* res_ptr) const;
+                                      std::vector<Move>* res) const;
   // "Simple" in this context means no two-step moves, no promotions, no en
   // passant and no captures.
   void append_pseudolegal_simple_pawn_moves(Color side,
-                                            std::vector<Move>* res_ptr) const;
+                                            std::vector<Move>* res) const;
   void append_pseudolegal_two_step_pawn_moves(Color side,
-                                              std::vector<Move>* res_ptr) const;
+                                              std::vector<Move>* res) const;
   void append_pseudolegal_en_passant_moves(Color side,
-                                           std::vector<Move>* res_ptr) const;
+                                           std::vector<Move>* res) const;
   void append_pseudolegal_promotions(Color side,
-                                     std::vector<Move>* res_ptr) const;
+                                     std::vector<Move>* res) const;
   void append_pseudolegal_pawn_captures(Color side,
-                                        std::vector<Move>* res_ptr) const;
+                                        std::vector<Move>* res) const;
   void append_pseudolegal_pawn_moves(Color side,
-                                     std::vector<Move>* res_ptr) const;
+                                     std::vector<Move>* res) const;
   void append_pseudolegal_king_moves(Color side,
-                                     std::vector<Move>* res_ptr) const;
+                                     std::vector<Move>* res) const;
   void append_pseudolegal_knight_moves(Color side,
-                                       std::vector<Move>* res_ptr) const;
+                                       std::vector<Move>* res) const;
   std::vector<Move> pseudolegal_moves(Color side) const;
   // Castling is not counted as a pseudolegal move. The castling_moves() method
   // uses is_castle_*_legal() methods to check if castling is legal.
   bool is_castle_kingside_legal() const;
   bool is_castle_queenside_legal() const;
-  void castling_moves(std::vector<Move>* res_ptr) const;
+  void append_castling_moves(std::vector<Move>* res) const;
   bool is_king_attacked(Color side) const;
-  bool is_pseudolegal_move_legal(Move move) const;
-  std::vector<Move> legal_moves() const;
+  bool is_pseudolegal_move_legal(Move move);
+  std::vector<Move> legal_moves();
 
   // Methods for performing moves.
   void remove_piece_on(Bitboard sq);
