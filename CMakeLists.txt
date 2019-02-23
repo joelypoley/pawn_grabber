@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
+set(CMAKE_CXX_STANDARD 17)
 ##############################################################################
 # BEGIN: googletest stuff
 ##############################################################################
@@ -41,8 +42,8 @@ endif()
 ##############################################################################
 # BEGIN: abseil-cpp stuff
 ##############################################################################
-#set(CMAKE_CXX_FLAGS "-std=c++11 -Weverything ${CMAKE_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-Weverything ${CMAKE_CXX_FLAGS}")
+#set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 add_subdirectory(lib/abseil-cpp-master)
 ##############################################################################
@@ -61,8 +62,10 @@ enable_testing()
 
 # Now simply link against gtest or gtest_main as needed. Eg
 add_executable(perft src/perft.cc src/board.cc )
+#set_property(TARGET perft PROPERTY CXX_STANDARD 14)
 target_link_libraries(perft absl::strings absl::base absl::algorithm absl::optional absl::algorithm)
 
 add_executable(board_test src/board_test.cc src/board.cc )
+#set_property(TARGET board_test PROPERTY CXX_STANDARD 14)
 target_link_libraries(board_test gtest_main absl::strings absl::base absl::algorithm absl::optional)
 add_test(NAME board_test COMMAND board_test)
