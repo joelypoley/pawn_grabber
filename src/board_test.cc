@@ -1,4 +1,4 @@
-#include "src/board.h"
+#include "board.h"
 
 #include <algorithm>
 #include <array>
@@ -7,17 +7,15 @@
 #include <optional>
 #include <string>
 
+#include "absl/algorithm/container.h"
+#include "absl/types/optional.h"
 #include "absl/strings/str_cat.h"
 #include "gtest/gtest.h"
-
-namespace {
-const int board_size = 8;
-}  // namespace.
 
 TEST(SquareUtils, IsSquare) {
   EXPECT_FALSE(is_square(0));
   EXPECT_TRUE(is_square(str_to_square("a1")));
-  EXPECT_FALSE(is_square(str_to_square("a1") | is_square(str_to_square("a2"))));
+  EXPECT_FALSE(is_square(str_to_square("a1") | str_to_square("a2")));
 }
 
 TEST(SquareUtils, SquareIndex) {
@@ -130,7 +128,7 @@ TEST(BoardConstructor, StartPosition) {
   EXPECT_EQ(start_board.black_queens_, 0x1000000000000000);
   EXPECT_EQ(start_board.black_king_, 0x800000000000000);
   EXPECT_TRUE(start_board.is_whites_move_);
-  EXPECT_EQ(start_board.en_passant_square_, std::nullopt);
+  EXPECT_EQ(start_board.en_passant_square_, absl::nullopt);
   EXPECT_TRUE(start_board.white_has_right_to_castle_kingside_);
   EXPECT_TRUE(start_board.white_has_right_to_castle_queenside_);
   EXPECT_TRUE(start_board.black_has_right_to_castle_kingside_);
@@ -273,7 +271,7 @@ TEST(BoardConstructor, Nf3Sicilian) {
   EXPECT_EQ(board.black_queens_, 0x1000000000000000);
   EXPECT_EQ(board.black_king_, 0x800000000000000);
   EXPECT_FALSE(board.is_whites_move_);
-  EXPECT_EQ(board.en_passant_square_, std::nullopt);
+  EXPECT_EQ(board.en_passant_square_, absl::nullopt);
   EXPECT_TRUE(board.white_has_right_to_castle_kingside_);
   EXPECT_TRUE(board.white_has_right_to_castle_queenside_);
   EXPECT_TRUE(board.black_has_right_to_castle_kingside_);
@@ -320,7 +318,7 @@ TEST(BoardConstructor, SicilianWith2Ke2) {
   EXPECT_EQ(board.black_queens_, 0x1000000000000000);
   EXPECT_EQ(board.black_king_, 0x800000000000000);
   EXPECT_FALSE(board.is_whites_move_);
-  EXPECT_EQ(board.en_passant_square_, std::nullopt);
+  EXPECT_EQ(board.en_passant_square_, absl::nullopt);
   EXPECT_FALSE(board.white_has_right_to_castle_kingside_);
   EXPECT_FALSE(board.white_has_right_to_castle_queenside_);
   EXPECT_TRUE(board.black_has_right_to_castle_kingside_);
@@ -367,7 +365,7 @@ TEST(BoardConstructor, KingVsKing) {
   EXPECT_EQ(board.black_queens_, 0x0);
   EXPECT_EQ(board.black_king_, 0x800000000000000);
   EXPECT_TRUE(board.is_whites_move_);
-  EXPECT_EQ(board.en_passant_square_, std::nullopt);
+  EXPECT_EQ(board.en_passant_square_, absl::nullopt);
   EXPECT_FALSE(board.white_has_right_to_castle_kingside_);
   EXPECT_FALSE(board.white_has_right_to_castle_queenside_);
   EXPECT_FALSE(board.black_has_right_to_castle_kingside_);
@@ -414,7 +412,7 @@ TEST(BoardConstructor, LucenaPosition) {
   EXPECT_EQ(board.black_queens_, 0x0);
   EXPECT_EQ(board.black_king_, 0x1000000000000000);
   EXPECT_TRUE(board.is_whites_move_);
-  EXPECT_EQ(board.en_passant_square_, std::nullopt);
+  EXPECT_EQ(board.en_passant_square_, absl::nullopt);
   EXPECT_FALSE(board.white_has_right_to_castle_kingside_);
   EXPECT_FALSE(board.white_has_right_to_castle_queenside_);
   EXPECT_FALSE(board.black_has_right_to_castle_kingside_);
@@ -467,7 +465,7 @@ TEST(BoardConstructor, MiddleGame) {
   EXPECT_EQ(board.black_queens_, str_to_square("h4"));
   EXPECT_EQ(board.black_king_, str_to_square("g8"));
   EXPECT_TRUE(board.is_whites_move_);
-  EXPECT_EQ(board.en_passant_square_, std::nullopt);
+  EXPECT_EQ(board.en_passant_square_, absl::nullopt);
   EXPECT_FALSE(board.white_has_right_to_castle_kingside_);
   EXPECT_FALSE(board.white_has_right_to_castle_queenside_);
   EXPECT_FALSE(board.black_has_right_to_castle_kingside_);
@@ -505,10 +503,10 @@ TEST(AllPieces, White) {
                                                   "d2", "f2", "g2", "b3", "c3",
                                                   "e3", "h3", "d4"};
   std::vector<Bitboard> white_squares_bb(white_squares.size());
-  std::transform(white_squares.begin(), white_squares.end(),
+  absl::c_transform(white_squares,
                  white_squares_bb.begin(), str_to_square);
   Bitboard bb =
-      std::reduce(white_squares_bb.begin(), white_squares_bb.end(), 0,
+      absl::c_accumulate(white_squares_bb, Bitboard(0),
                   [](Bitboard bb1, Bitboard bb2) { return bb1 | bb2; });
   EXPECT_EQ(board.white_pieces(), bb);
 }
@@ -1282,7 +1280,7 @@ TEST(AttackMoves, Simple) {
                 str_to_square("b2") | str_to_square("c2") |
                 str_to_square("d2") | str_to_square("e5") |
                 str_to_square("d5") | str_to_square("f5");
-  EXPECT_EQ(board.all_dst_squares(Color::white), bb);
+  EXPECT_EQ(board.attack_squares(Color::white), bb);
 }
 
 TEST(SquareToStr, Simple) {
@@ -1748,7 +1746,8 @@ TEST(CanCastle, Black) {
 }
 
 TEST(CanCastle, Perft) {
-  // From perft test.
+  // This position exposed a bug in how attack squares were calculated. It was
+  // found from a perft tests.
   Board board = Board(
       "r3k2r/p1ppPpb1/bn1q1np1/4N3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq - 0 2");
   EXPECT_FALSE(board.is_castle_kingside_legal());

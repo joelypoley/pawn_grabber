@@ -1,8 +1,9 @@
-#include "src/board.h"
+#include "board.h"
 
 #include <array>
 #include <cassert>
 #include <functional>
+#include <ios>
 #include <iostream>
 #include <optional>
 #include <string_view>
@@ -23,36 +24,8 @@ const std::string& get_start_fen() {
   return start_fen;
 }
 
-struct PieceColorHash {
-  std::size_t operator()(std::pair<Piece, Color> pc) const {
-    return (static_cast<int>(pc.first) << 1) | static_cast<int>(pc.second);
-  }
-};
-
-std::string get_unicode_symbol(Color color, Piece piece) {
-  const static auto& res_map =
-      *new std::unordered_map<std::pair<Piece, Color>, std::string,
-                              PieceColorHash>{
-          {{Piece::pawn, Color::white}, "♙"},    // U+2564
-          {{Piece::rook, Color::white}, "♖"},    // U+2656
-          {{Piece::knight, Color::white}, "♘"},  // U+2658
-          {{Piece::bishop, Color::white}, "♗"},  // U+2657
-          {{Piece::queen, Color::white}, "♕"},   // U+2655
-          {{Piece::king, Color::white}, "♔"},    // U+2654
-          {{Piece::pawn, Color::black}, "♟"},    // U+265F
-          {{Piece::rook, Color::black}, "♜"},    // U+265C
-          {{Piece::knight, Color::black}, "♞"},  // U+265E
-          {{Piece::bishop, Color::black}, "♝"},  // U+265D
-          {{Piece::queen, Color::black}, "♛"},   // U+265B
-          {{Piece::king, Color::black}, "♚"},    // U+265A
-      };
-  auto it = res_map.find(std::make_pair(piece, color));
-  return it->second;
-}
-
-const int board_size = 8;
-const Bitboard lsb_bitboard = 1;
-const Bitboard seventh_rank_mask = str_to_square("a7") | str_to_square("b7") |
+auto x = std::ios_base::Init();
+const Bitboard seventh_rank_mask  = str_to_square("a7")| str_to_square("b7") |
                                    str_to_square("c7") | str_to_square("d7") |
                                    str_to_square("e7") | str_to_square("f7") |
                                    str_to_square("g7") | str_to_square("h7");
@@ -64,14 +37,10 @@ const Bitboard third_rank_mask = str_to_square("a3") | str_to_square("b3") |
                                  str_to_square("c3") | str_to_square("d3") |
                                  str_to_square("e3") | str_to_square("f3") |
                                  str_to_square("g3") | str_to_square("h3");
-const Bitboard white_castle_kingside_mask =
-    str_to_square("f1") | str_to_square("g1");
-const Bitboard white_castle_queenside_mask =
-    str_to_square("d1") | str_to_square("c1");
-const Bitboard black_castle_kingside_mask =
-    str_to_square("f8") | str_to_square("g8");
-const Bitboard black_castle_queenside_mask =
-    str_to_square("d8") | str_to_square("c8");
+const Bitboard white_castle_kingside_mask = str_to_square("f1") | str_to_square("g1");
+const Bitboard white_castle_queenside_mask = str_to_square("d1") | str_to_square("c1");
+const Bitboard black_castle_kingside_mask = str_to_square("f8") | str_to_square("g8");
+const Bitboard black_castle_queenside_mask =  str_to_square("d8") | str_to_square("c8");
 
 Move castle_kingside_move(Color color, Board board) {
   if (color == Color::white) {
@@ -135,7 +104,7 @@ bool is_square(Bitboard square) {
 }
 
 int square_idx(Bitboard square) {
-  ABSL_RAW_CHECK(is_square(square), "Is not square.");
+  // ABSL_RAW_CHECK(is_square(square), "Is not square.");
   int res = -1;
   while (square) {
     square >>= 1;
@@ -238,8 +207,8 @@ void PrintTo(const Move& move, std::ostream* os) {
 
 Board::Board() : Board(get_start_fen()) {}
 
-Board::Board(std::string_view fen) {
-  std::vector<std::string_view> split_fen = absl::StrSplit(fen, " ");
+Board::Board(absl::string_view fen) {
+  std::vector<absl::string_view> split_fen = absl::StrSplit(fen, " ");
 
   init_bitboards(split_fen[0]);
   init_is_whites_move(split_fen[1]);
@@ -292,7 +261,7 @@ void Board::zero_all_bitboards() {
   black_king_ = 0;
 }
 
-void Board::init_bitboards(const std::string_view pieces_fen) {
+void Board::init_bitboards(const absl::string_view pieces_fen) {
   zero_all_bitboards();
   int rank = board_size - 1;
   int file = 0;
@@ -371,7 +340,7 @@ void Board::init_bitboards(const std::string_view pieces_fen) {
   }
 }
 
-void Board::init_is_whites_move(const std::string_view side_to_move) {
+void Board::init_is_whites_move(const absl::string_view side_to_move) {
   ABSL_RAW_CHECK(side_to_move == "w" || side_to_move == "b",
                  "Invalid FEN. Side to move must be either w or b");
   if (side_to_move == "w") {
@@ -381,7 +350,7 @@ void Board::init_is_whites_move(const std::string_view side_to_move) {
   }
 }
 
-void Board::init_castling_rights(const std::string_view castling_rights_fen) {
+void Board::init_castling_rights(const absl::string_view castling_rights_fen) {
   white_has_right_to_castle_kingside_ =
       (castling_rights_fen.find('K') != std::string::npos);
   white_has_right_to_castle_queenside_ =
@@ -392,9 +361,9 @@ void Board::init_castling_rights(const std::string_view castling_rights_fen) {
       (castling_rights_fen.find('q') != std::string::npos);
 }
 
-void Board::init_en_passant(const std::string_view algebraic_square) {
+void Board::init_en_passant(const absl::string_view algebraic_square) {
   if (algebraic_square == "-") {
-    en_passant_square_ = std::nullopt;
+    en_passant_square_ = absl::nullopt;
   } else {
     en_passant_square_ = str_to_square(algebraic_square);
   }
@@ -434,7 +403,7 @@ std::string Board::to_pretty_str() const {
     res.append(vertical);
     for (int file = 0; file < board_size; ++file) {
       res.append(" ");
-      res.append(square_to_unicode(coordinates_to_square(file, rank)));
+      res.append(occupiers_unicode_symbol(file, rank));
       res.append(" ");
       res.append(vertical);
     }
@@ -479,7 +448,8 @@ void PrintTo(const Board& board, std::ostream* os) {
   *os << board.to_pretty_str();
 }
 
-std::string Board::square_to_unicode(Bitboard square) const {
+std::string Board::occupiers_unicode_symbol(int file, int rank) const {
+  Bitboard square = coordinates_to_square(file, rank);
   if (square & white_pawns_) {
     return "♙";  // U+2564
   } else if (square & white_rooks_) {
@@ -767,7 +737,6 @@ void Board::pseudolegal_promotions(Color side,
 }
 
 Bitboard Board::pawn_attack_squares(Color side) const {
-  const Bitboard pawns = side == Color::white ? white_pawns_ : black_pawns_;
   Bitboard res = 0;
   if (side == Color::white) {
     for (Bitboard single_pawn : bitboard_split(white_pawns_)) {
@@ -902,7 +871,7 @@ bool Board::is_castle_kingside_legal() const {
 
   Bitboard castle_squares =
       is_whites_move_ ? white_castle_kingside_mask : black_castle_kingside_mask;
-  Bitboard enemy_attack_squares = all_dst_squares(flip_color(side_to_move));
+  Bitboard enemy_attack_squares = attack_squares(flip_color(side_to_move));
   const bool castle_squares_clear = !(castle_squares & all_pieces());
   const bool castle_squares_attacked = castle_squares & enemy_attack_squares;
 
@@ -921,8 +890,8 @@ bool Board::is_castle_queenside_legal() const {
   const Bitboard castle_squares = is_whites_move_ ? white_castle_queenside_mask
                                                   : black_castle_queenside_mask;
   const Bitboard enemy_attack_squares = is_whites_move_
-                                            ? all_dst_squares(Color::black)
-                                            : all_dst_squares(Color::white);
+                                            ? attack_squares(Color::black)
+                                            : attack_squares(Color::white);
   const bool castle_squares_attacked = castle_squares & enemy_attack_squares;
   // When castling queenside the square on the b file can be attacked but must
   // not be occupied.
@@ -1066,7 +1035,7 @@ void Board::do_promotion_move(Move move) {
     default:
       ABSL_RAW_CHECK(false, "Promotion move has wrong move type.");
   }
-  en_passant_square_ = std::nullopt;
+  en_passant_square_ = absl::nullopt;
 }
 
 void Board::do_capture_move(Move move) {
@@ -1103,7 +1072,7 @@ void Board::do_simple_move(Move move) {
                              ? north_of(move.src_square_)
                              : south_of(move.src_square_);
   } else {
-    en_passant_square_ = std::nullopt;
+    en_passant_square_ = absl::nullopt;
   }
   if (move.piece_moving_ == Piece::king) {
     if (move.src_square_ == str_to_square("e1")) {
@@ -1127,6 +1096,8 @@ void Board::do_simple_move(Move move) {
   }
 }
 
+void Board::undo_move(Move move) { *this = move.board_state_; }
+
 void Board::do_move(Move move) {
   ABSL_RAW_CHECK(is_square(move.src_square_) && is_square(move.dst_square_),
                  "Not a valid move.");
@@ -1147,7 +1118,7 @@ void Board::do_move(Move move) {
   // b.append(is_whites_move_ ? "White to move\n" : "Black to move\n");
   // b.append(is_king_attacked(is_whites_move_ ? Color::white : Color::black) ?
   // "King is attacked\n" : "King is not attacked\n");
-  // b.append(bb_to_pretty_str(all_dst_squares(is_whites_move_ ? Color::black :
+  // b.append(bb_to_pretty_str(attack_squares(is_whites_move_ ? Color::black :
   // Color::white)));
 
   switch (move.move_type_) {
@@ -1183,7 +1154,7 @@ void Board::do_move(Move move) {
   is_whites_move_ = !is_whites_move_;
 }
 
-Bitboard Board::all_dst_squares(Color side) const {
+Bitboard Board::attack_squares(Color side) const {
   std::vector<Move> moves = pseudolegal_moves(side);
   // Without pawns.
   const Bitboard without_pawns = absl::c_accumulate(
@@ -1193,9 +1164,8 @@ Bitboard Board::all_dst_squares(Color side) const {
 }
 
 bool Board::is_king_attacked(Color side) const {
-  Bitboard king = side == Color::white ? white_king_ : black_king_;
-  Bitboard attack_squares = all_dst_squares(flip_color(side));
-  return king & attack_squares;
+  const Bitboard king = side == Color::white ? white_king_ : black_king_;
+  return king & attack_squares(flip_color(side));
 }
 
 std::array<Bitboard*, 12> Board::all_bitboards() {
@@ -1204,18 +1174,24 @@ std::array<Bitboard*, 12> Board::all_bitboards() {
           &black_bishops_, &black_knights_, &black_queens_,  &black_king_};
 }
 
-Bitboard str_to_square(const std::string_view algebraic_square) {
+Bitboard str_to_square(const absl::string_view algebraic_square) {
+  // std::cout << algebraic_square << std::endl;
   const char file_char = algebraic_square[0];
   const char rank_char = algebraic_square[1];
-  ABSL_RAW_CHECK('a' <= file_char && file_char <= 'h', "Invalid file.");
-  ABSL_RAW_CHECK('1' <= rank_char && rank_char <= '8', "Invalid rank.");
+  // ABSL_RAW_CHECK('a' <= file_char && file_char <= 'h', "Invalid file.");
+  // ABSL_RAW_CHECK('1' <= rank_char && rank_char <= '8', "Invalid rank.");
   const int file = file_char - 'a';
-  const int rank = rank_char - 1;
+  const int rank = rank_char - '1';
+  // std::cout << "file " << file << std::endl;
+  // std::cout << "rank " << rank << std::endl;
+  // ABSL_RAW_CHECK(
+  //     0 <= file && file < board_size && 0 <= rank && rank < board_size,
+  //     "Oh no.");
   return coordinates_to_square(file, rank);
 }
 
 std::string square_to_str(Bitboard sq) {
-  ABSL_RAW_CHECK(is_square(sq), "Not a square.");
+  // ABSL_RAW_CHECK(is_square(sq), "Not a square.");
   char rank = rank_idx(sq);
   char file = file_idx(sq);
   std::string res;
@@ -1225,6 +1201,9 @@ std::string square_to_str(Bitboard sq) {
 }
 
 Bitboard coordinates_to_square(int file, int rank) {
+  // std::cout << "rank " << file << std::endl;
+  // std::cout << "shift " << rank * board_size + board_size - file - 1;
+  // std::cout << "hello\n";
   return lsb_bitboard << (rank * board_size + board_size - file - 1);
 }
 
@@ -1300,62 +1279,6 @@ std::string bb_to_pretty_str(Bitboard bb) {
   board.black_pawns_ = bb;
   return board.to_pretty_str();
 }
-std::string PerftResult::to_pretty_str() {
-  return absl::StrCat("Node: ", nodes, " Captures: ", captures, " EP ", ep,
-                      " Castles ", castles);
-}
-PerftResult& PerftResult::operator+=(const PerftResult& other) {
-  nodes += other.nodes;
-  captures += other.captures;
-  ep += other.ep;
-  castles += other.castles;
-  return *this;
-}
-
-PerftResult number_of_moves(Board board, int half_move_depth, Move last_move) {
-  if (half_move_depth == 0) {
-    uint64_t node = 1;
-    uint64_t capture = 0;
-    uint64_t ep = last_move.move_type_ == MoveType::en_passant ? 1 : 0;
-    uint64_t castle = last_move.move_type_ == MoveType::castle_kingside ||
-                              last_move.move_type_ == MoveType::castle_queenside
-                          ? 1
-                          : 0;
-    return PerftResult{node, capture, ep, castle};
-  }
-  PerftResult res{0, 0, 0, 0};
-  std::vector<Move> moves = board.legal_moves();
-  for (Move move : moves) {
-    ABSL_RAW_CHECK(is_square(move.src_square_) && is_square(move.dst_square_),
-                   "Invalid move");
-    board.do_move(move);
-    res += number_of_moves(board, half_move_depth - 1, move);
-    board = move.board_state_;
-  }
-  return res;
-}
-
-void number_of_moves(Board board, int half_move_depth, Move branch, bool first,
-                     std::unordered_map<std::string, int>* um_ptr) {
-  if (half_move_depth == 0) {
-    auto& um = *um_ptr;
-    um[branch.to_pretty_str()] += 1;
-    return;
-  }
-  std::vector<Move> moves = board.legal_moves();
-  for (Move move : moves) {
-    ABSL_RAW_CHECK(is_square(move.src_square_) && is_square(move.dst_square_),
-                   "Invalid move");
-    std::cout << board.to_pretty_str();
-    board.do_move(move);
-    std::cout << "Move : " << move.to_pretty_str() << '\n';
-    std::cout << board.to_pretty_str();
-    std::cout << "-------------------------------------\n";
-    number_of_moves(board, half_move_depth - 1, first ? move : branch, false,
-                    um_ptr);
-    board = move.board_state_;
-  }
-}
 
 int number_of_moves(Board board, int half_move_depth) {
   if (half_move_depth == 0) {
@@ -1366,7 +1289,7 @@ int number_of_moves(Board board, int half_move_depth) {
   for (Move move : moves) {
     board.do_move(move);
     res += number_of_moves(board, half_move_depth - 1);
-    board = move.board_state_;
+    board.undo_move(move);
   }
   return res;
 }

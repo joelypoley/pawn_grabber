@@ -3,13 +3,14 @@
 
 #include <array>
 #include <cstdint>
-#include <functional>
-#include <optional>
 #include <string>
 #include <tuple>
-#include <unordered_map>
 #include <utility>
 #include <vector>
+
+
+#include "absl/types/optional.h"
+#include "absl/strings/string_view.h"
 
 // Each bit of a Bitboard represents a square. The a8 square is the most
 // significant bit and the h1 square is the least significant bit. So the
@@ -28,6 +29,7 @@
 //     abcd efgh
 typedef uint64_t Bitboard;
 
+enum class Color { white, black };
 enum class Piece { pawn, rook, knight, bishop, queen, king };
 
 enum class MoveType {
@@ -43,15 +45,6 @@ enum class MoveType {
   promotion_to_queen
 };
 
-bool is_square(Bitboard);
-int square_idx(Bitboard square);
-int rank_idx(Bitboard square);
-int file_idx(Bitboard square);
-bool on_a_file(Bitboard square);
-bool on_h_file(Bitboard square);
-bool on_first_rank(Bitboard square);
-bool on_eigth_rank(Bitboard square);
-
 enum class Direction {
   north,
   south,
@@ -62,6 +55,12 @@ enum class Direction {
   southeast,
   southwest
 };
+
+const int board_size = 8;
+// `lsb_bitboard is convenient for shift operations. The literal 1 has type int,
+// which has width 32 on x86, so `Bitboard bb = (1 << 50)` is undefined
+// behavior.
+constexpr Bitboard lsb_bitboard = 1;
 
 constexpr std::array<Direction, 8> all_directions = {
     Direction::north,     Direction::south,     Direction::east,
@@ -79,20 +78,9 @@ constexpr std::array<std::pair<Direction, Direction>, 8>
         std::make_pair(Direction::south, Direction::southeast),
         std::make_pair(Direction::south, Direction::southwest)};
 
-enum class Color { white, black };
-
-Bitboard north_of(Bitboard square);
-Bitboard south_of(Bitboard square);
-Bitboard east_of(Bitboard square);
-Bitboard west_of(Bitboard square);
-Bitboard northeast_of(Bitboard square);
-Bitboard northwest_of(Bitboard square);
-Bitboard southeast_of(Bitboard square);
-Bitboard southwest_of(Bitboard square);
-
 struct Move;
 
-// The Board class stores the current board state. Each bitboard tracks all
+// The Board struct stores the current board state. Each bitboard tracks all
 // places on the board there is a (piece, color) pair.
 //
 // For example, the Bitboards of the following position
@@ -131,15 +119,15 @@ struct Move;
 // black_queens_ == 0x0
 // black_king_ == 0x800000000000000.
 //
-// The Board class also tracks castling rights, the side to move, the move
+// The Board struct also tracks castling rights, the side to move, the move
 // number and the number of moves until the fifty move rule applies.
-class Board {
+struct Board {
  public:
+  // The default initializer intializes board to the starting position.
   Board();
-  Board(std::string_view fen);
+  Board(absl::string_view fen);
   Board(const Board& other);
-  std::string to_pretty_str() const;
-  friend void PrintTo(const Board& board, std::ostream* os);
+
   Bitboard white_pawns_;
   Bitboard white_rooks_;
   Bitboard white_knights_;
@@ -153,21 +141,46 @@ class Board {
   Bitboard black_queens_;
   Bitboard black_king_;
   bool is_whites_move_;
-  std::optional<Bitboard> en_passant_square_;
+  absl::optional<Bitboard> en_passant_square_;
   bool white_has_right_to_castle_kingside_;
   bool white_has_right_to_castle_queenside_;
   bool black_has_right_to_castle_kingside_;
   bool black_has_right_to_castle_queenside_;
   int fifty_move_clock_;
   int num_moves_;
+
+  // Returns an array of all bitboards.
+  std::array<Bitboard*, 12> all_bitboards();
+
+  // Prints the board using unicode chess and line drawing symbols.
+  std::string to_pretty_str() const;
+  // Returns a unicode symbol for the piece on a given file and rank. Returns a
+  // space if there is no piece on that square.
+  std::string occupiers_unicode_symbol(int file, int rank) const;
+  // Pretty string for google test.
+  friend void PrintTo(const Board& board, std::ostream* os);
+
+  // Mask methods.
+  //
+  // Returns mask of all pieces with color `side`.
   Bitboard friends(Color side) const;
+  // Retuns a mask of all pieces that are the opposite color of `side`.
   Bitboard enemies(Color side) const;
+  // Returns a mask of all white pieces.
   Bitboard white_pieces() const;
+  // Returns a mask of all black pieces.
   Bitboard black_pieces() const;
+  // Returns a mask of all pieces.
   Bitboard all_pieces() const;
-  // The pseudo prefix refers to the fact that these functions generate
-  // pesudolegal moves. We must also check if the king is in check before
-  // generating all legal moves.
+  // Returns a mask of all squares attacked by `side`.
+  Bitboard attack_squares(Color side) const;
+  // Returns a mask of all squares attacked by pawns of color `side`.
+  Bitboard pawn_attack_squares(Color side) const;
+
+  // Move generation methods.
+  //
+  // Pseudolegal moves are moves generated based on how the pieces move, without
+  // checking if the king is in check.
   void pseudolegal_sliding_moves(Direction direction, Color side,
                                  Bitboard src_square, Piece piece_moving,
                                  std::vector<Move>* res_ptr) const;
@@ -175,7 +188,7 @@ class Board {
   void pseudolegal_rook_moves(Color side, std::vector<Move>* res_ptr) const;
   void pseudolegal_queen_moves(Color side, std::vector<Move>* res_ptr) const;
   // "Simple" in this context means no two-step moves, no promotions, no en
-  // passant.
+  // passant and no captures.
   void pseudolegal_simple_pawn_moves(Color side,
                                      std::vector<Move>* res_ptr) const;
   void pseudolegal_two_step_pawn_moves(Color side,
@@ -185,38 +198,37 @@ class Board {
   void pseudolegal_promotions(Color side, std::vector<Move>* res_ptr) const;
   void pseudolegal_pawn_captures(Color side, std::vector<Move>* res_ptr) const;
   void pseudolegal_pawn_moves(Color side, std::vector<Move>* res_ptr) const;
-
   void pseudolegal_king_moves(Color side, std::vector<Move>* res_ptr) const;
   void pseudolegal_knight_moves(Color side, std::vector<Move>* res_ptr) const;
-  void castling_moves(std::vector<Move>* res_ptr) const;
+  std::vector<Move> pseudolegal_moves(Color side) const;
+  // Castling is not counted as a pseudolegal move. The castling_moves() method
+  // uses is_castle_*_legal() methods to check if castling is legal.
   bool is_castle_kingside_legal() const;
   bool is_castle_queenside_legal() const;
-  Bitboard pawn_attack_squares(Color side) const;
-
-  std::vector<Move> pseudolegal_moves(Color side) const;
+  void castling_moves(std::vector<Move>* res_ptr) const;
+  bool is_king_attacked(Color side) const;
   bool is_pseudolegal_move_legal(Move move) const;
   std::vector<Move> legal_moves() const;
+
+  // Methods for performing moves.
   void remove_piece_on(Bitboard sq);
   void do_en_passant_move(Move move);
   void do_castle_move(Move move);
   void do_promotion_move(Move move);
   void do_capture_move(Move move);
   void do_simple_move(Move move);
+  void undo_move(Move move);
   void do_move(Move move);
 
-  Bitboard all_dst_squares(Color side) const;
-  bool is_king_attacked(Color side) const;
-  std::array<Bitboard*, 12> all_bitboards();
-
- private:
+  // Initialization helper methods.
   void zero_all_bitboards();
-  void init_bitboards(const std::string_view pieces_fen);
-  void init_is_whites_move(const std::string_view pieces_fen);
-  void init_color(const std::string_view side_to_move_fen);
-  void init_castling_rights(const std::string_view castling_rights_fen);
-  void init_en_passant(const std::string_view algebraic_square);
-  void init_fifty_move_clock(const std::string_view num_half_moves_fen);
-  void init_num_moves(const std::string_view num_moves_fen);
+  void init_bitboards(const absl::string_view pieces_fen);
+  void init_is_whites_move(const absl::string_view pieces_fen);
+  void init_color(const absl::string_view side_to_move_fen);
+  void init_castling_rights(const absl::string_view castling_rights_fen);
+  void init_en_passant(const absl::string_view algebraic_square);
+  void init_fifty_move_clock(const absl::string_view num_half_moves_fen);
+  void init_num_moves(const absl::string_view num_moves_fen);
   std::string square_to_unicode(Bitboard square) const;
 };
 
@@ -248,26 +260,32 @@ struct Move {
 
 bool operator==(const Move& lhs, const Move& rhs);
 
-Bitboard str_to_square(const std::string_view alegbraic_square);
+bool is_square(Bitboard);
+int square_idx(Bitboard square);
+int rank_idx(Bitboard square);
+int file_idx(Bitboard square);
+bool on_a_file(Bitboard square);
+bool on_h_file(Bitboard square);
+bool on_first_rank(Bitboard square);
+bool on_eigth_rank(Bitboard square);
+
+Bitboard north_of(Bitboard square);
+Bitboard south_of(Bitboard square);
+Bitboard east_of(Bitboard square);
+Bitboard west_of(Bitboard square);
+Bitboard northeast_of(Bitboard square);
+Bitboard northwest_of(Bitboard square);
+Bitboard southeast_of(Bitboard square);
+Bitboard southwest_of(Bitboard square);
+std::function<Bitboard(Bitboard)> direction_to_function(Direction direction);
+
+Bitboard str_to_square(const absl::string_view alegbraic_square);
 std::string square_to_str(Bitboard sq);
 Bitboard coordinates_to_square(int file, int rank);
 std::vector<Bitboard> bitboard_split(Bitboard bb);
-std::function<Bitboard(Bitboard)> direction_to_function(Direction direction);
 Color flip_color(Color color);
 std::string bb_to_pretty_str(Bitboard bb);
 
-struct PerftResult {
-  uint64_t nodes;
-  uint64_t captures;
-  uint64_t ep;
-  uint64_t castles;
-  std::string to_pretty_str();
-  PerftResult& operator+=(const PerftResult& other);
-};
-
-PerftResult number_of_moves(Board board, int half_move_depth, Move last_move);
 int number_of_moves(Board board, int half_move_depth);
-void number_of_moves(Board board, int half_move_depth, Move move, bool first,
-                     std::unordered_map<std::string, int>* um_ptr);
 
 #endif
