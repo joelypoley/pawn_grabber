@@ -3,11 +3,12 @@
 To build.
 ```bash
 $ cd path/to/pawn_grabber
-$ bazel build //...
-```
-
-To test.
-```bash
-$ cd path/to/pawn_grabber
-$ bazel test //...
+$ mkdir build
+$ cs build
+$ cmake ..
+$ make all
+$ # Run perft.
+$ ./perft
+$ # Run tests.
+$ make test
 ```
