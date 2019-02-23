@@ -1,4 +1,5 @@
 #include <array>
+#include <cstdint>
 #include <iostream>
 
 #include "absl/time/clock.h"
@@ -17,23 +18,30 @@ int main() {
             "- 0 "
             "10")};
 
-  constexpr int max_depth = 6;
+  constexpr int max_depth = 8;
 
-  const std::array<std::array<int, max_depth>, num_boards> num_nodes{
-      {{1, 20, 400, 8902, 197281, 4865609},
-       {1, 48, 2039, 97862, 4085603, 193690690},
-       {1, 14, 191, 2812, 43238, 674624},
-       {1, 6, 264, 9467, 422333, 15833292},
-       {1, 44, 1486, 62379, 2103487, 89941194},
-       {1, 46, 2079, 89890, 3894594, 164075551}}};
+  const std::array<std::array<int64_t, max_depth>, num_boards> num_nodes{
+      {{1, 20, 400, 8902, 197281, 4865609, 119060324, 3195901860},
+       {1, 48, 2039, 97862, 4085603, 193690690, 8031647685, -1},
+       {1, 14, 191, 2812, 43238, 674624, 11030083, 178633661},
+       {1, 6, 264, 9467, 422333, 15833292, 706045033, -1},
+       {1, 44, 1486, 62379, 2103487, 89941194, -1, -1},
+       {1, 46, 2079, 89890, 3894594, 164075551, 6923051137, 287188994746}}};
 
   for (int depth = 0; depth < max_depth; ++depth) {
     std::cout << "Depth " << depth << ".\n";
     for (int board_idx = 0; board_idx < boards.size(); ++board_idx) {
+      const int correct_res = num_nodes[board_idx][depth];
+      if (correct_res == -1) {
+        std::cout << "\tPos " << board_idx << ":\n";
+        std::cout << "\t\tNo info.\n";
+        continue;
+      }
+
       absl::Time start = absl::Now();
       const int computed_res = number_of_moves(boards[board_idx], depth);
       absl::Time end = absl::Now();
-      const int correct_res = num_nodes[board_idx][depth];
+      
 
       std::cout << "\tPos " << board_idx << ":\n";
       std::cout << "\t\tComputed result: " << computed_res << ".\n";

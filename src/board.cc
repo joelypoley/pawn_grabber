@@ -1166,11 +1166,11 @@ Move castle_queenside_move(Color color, Board board) {
   }
 }
 
-int number_of_moves(Board board, int half_move_depth) {
+int64_t number_of_moves(Board board, int half_move_depth) {
   if (half_move_depth == 0) {
     return 1;
   }
-  int res = 0;
+  int64_t res = 0;
   std::vector<Move> moves = board.legal_moves();
   for (Move move : moves) {
     board.do_move(move);

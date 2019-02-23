@@ -290,6 +290,6 @@ std::string bb_to_pretty_str(Bitboard bb);
 Move castle_kingside_move(Color color, Board board);
 Move castle_queenside_move(Color color, Board board);
 
-int number_of_moves(Board board, int half_move_depth);
+int64_t number_of_moves(Board board, int half_move_depth);
 
 #endif
