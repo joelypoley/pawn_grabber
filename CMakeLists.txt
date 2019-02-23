@@ -63,7 +63,7 @@ enable_testing()
 # Now simply link against gtest or gtest_main as needed. Eg
 add_executable(perft src/perft.cc src/board.cc )
 target_compile_options(perft PRIVATE -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic)
-target_link_libraries(perft absl::strings absl::base absl::algorithm absl::optional absl::algorithm)
+target_link_libraries(perft absl::strings absl::base absl::algorithm absl::optional absl::algorithm absl::time)
 
 add_executable(board_test src/board_test.cc src/board.cc )
 #target_compile_options(board_test PRIVATE -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic)
