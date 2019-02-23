@@ -54,8 +54,8 @@ add_subdirectory(lib/abseil-cpp-master)
 # BEGIN: stuff joel wrote
 ##############################################################################
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g -O1")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g -O3")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 # According to cmake I should do this.
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
