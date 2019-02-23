@@ -62,11 +62,8 @@ const int board_size = 8;
 constexpr Bitboard lsb_bitboard = 1;
 
 constexpr std::array<MoveType, 4> promotion_move_types = {
-  MoveType::promotion_to_rook,
-  MoveType::promotion_to_bishop,
-  MoveType::promotion_to_knight,
-  MoveType::promotion_to_queen
-};
+    MoveType::promotion_to_rook, MoveType::promotion_to_bishop,
+    MoveType::promotion_to_knight, MoveType::promotion_to_queen};
 
 constexpr std::array<Direction, 8> all_directions = {
     Direction::north,     Direction::south,     Direction::east,
@@ -85,18 +82,11 @@ constexpr std::array<std::pair<Direction, Direction>, 8>
         std::make_pair(Direction::south, Direction::southwest)};
 
 constexpr std::array<Direction, 4> bishop_move_directions = {
-  Direction::northeast,
-  Direction::northwest,
-  Direction::southeast,
-  Direction::southwest
-};
+    Direction::northeast, Direction::northwest, Direction::southeast,
+    Direction::southwest};
 
 constexpr std::array<Direction, 4> rook_move_directions = {
-  Direction::north,
-  Direction::south,
-  Direction::east,
-  Direction::west
-};
+    Direction::north, Direction::south, Direction::east, Direction::west};
 
 struct Move;
 
@@ -206,10 +196,8 @@ struct Board {
                                         std::vector<Move>* res) const;
   void append_pseudolegal_bishop_moves(Color side,
                                        std::vector<Move>* res) const;
-  void append_pseudolegal_rook_moves(Color side,
-                                     std::vector<Move>* res) const;
-  void append_pseudolegal_queen_moves(Color side,
-                                      std::vector<Move>* res) const;
+  void append_pseudolegal_rook_moves(Color side, std::vector<Move>* res) const;
+  void append_pseudolegal_queen_moves(Color side, std::vector<Move>* res) const;
   // "Simple" in this context means no two-step moves, no promotions, no en
   // passant and no captures.
   void append_pseudolegal_simple_pawn_moves(Color side,
@@ -218,14 +206,11 @@ struct Board {
                                               std::vector<Move>* res) const;
   void append_pseudolegal_en_passant_moves(Color side,
                                            std::vector<Move>* res) const;
-  void append_pseudolegal_promotions(Color side,
-                                     std::vector<Move>* res) const;
+  void append_pseudolegal_promotions(Color side, std::vector<Move>* res) const;
   void append_pseudolegal_pawn_captures(Color side,
                                         std::vector<Move>* res) const;
-  void append_pseudolegal_pawn_moves(Color side,
-                                     std::vector<Move>* res) const;
-  void append_pseudolegal_king_moves(Color side,
-                                     std::vector<Move>* res) const;
+  void append_pseudolegal_pawn_moves(Color side, std::vector<Move>* res) const;
+  void append_pseudolegal_king_moves(Color side, std::vector<Move>* res) const;
   void append_pseudolegal_knight_moves(Color side,
                                        std::vector<Move>* res) const;
   std::vector<Move> pseudolegal_moves(Color side) const;
@@ -239,11 +224,15 @@ struct Board {
   std::vector<Move> legal_moves() const;
 
   // Methods for performing moves.
+  // adjust_castling_rights() is called after the move is performed.
+  void adjust_castling_rights(Move move);
   void remove_piece_on(Bitboard sq);
+  void move_piece(Bitboard from, Bitboard to);
   void do_en_passant_move(Move move);
   void do_castle_move(Move move);
   void do_promotion_move(Move move);
   void do_capture_move(Move move);
+  void do_two_step_pawn_move(Move move);
   void do_simple_move(Move move);
   void undo_move(Move move);
   void do_move(Move move);

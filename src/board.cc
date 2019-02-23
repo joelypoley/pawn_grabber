@@ -237,12 +237,12 @@ void Board::append_pseudolegal_sliding_moves(Direction direction, Color side,
   const Bitboard all_pieces_mask = all_pieces();
   while (curr_square && !(curr_square & all_pieces_mask)) {
     res->emplace_back(src_square, curr_square, piece_moving, MoveType::simple,
-                     *this);
+                      *this);
     curr_square = direction_fn(curr_square);
   }
   if (curr_square & enemies(side)) {
     res->emplace_back(src_square, curr_square, piece_moving, MoveType::capture,
-                     *this);
+                      *this);
   }
 }
 
@@ -263,8 +263,7 @@ void Board::append_pseudolegal_rook_moves(Color side,
   const Bitboard rooks = side == Color::white ? white_rooks_ : black_rooks_;
   for (Bitboard rook_sq : bitboard_split(rooks)) {
     for (Direction dir : rook_move_directions) {
-      append_pseudolegal_sliding_moves(dir, side, rook_sq, Piece::rook,
-                                       res);
+      append_pseudolegal_sliding_moves(dir, side, rook_sq, Piece::rook, res);
     }
   }
 }
@@ -274,14 +273,13 @@ void Board::append_pseudolegal_queen_moves(Color side,
   const Bitboard queens = side == Color::white ? white_queens_ : black_queens_;
   for (Bitboard queen_sq : bitboard_split(queens)) {
     for (Direction dir : all_directions) {
-      append_pseudolegal_sliding_moves(dir, side, queen_sq, Piece::queen,
-                                       res);
+      append_pseudolegal_sliding_moves(dir, side, queen_sq, Piece::queen, res);
     }
   }
 }
 
-void Board::append_pseudolegal_simple_pawn_moves(
-    Color side, std::vector<Move>* res) const {
+void Board::append_pseudolegal_simple_pawn_moves(Color side,
+                                                 std::vector<Move>* res) const {
   if (side == Color::white) {
     const Bitboard white_pawns_excluding_seventh =
         white_pawns_ & (~seventh_rank_mask);
@@ -290,7 +288,7 @@ void Board::append_pseudolegal_simple_pawn_moves(
       const bool blocked = static_cast<bool>(all_pieces() & north_of_pawn);
       if (!blocked) {
         res->emplace_back(single_pawn, north_of_pawn, Piece::pawn,
-                         MoveType::simple, *this);
+                          MoveType::simple, *this);
       }
     }
   } else {
@@ -301,7 +299,7 @@ void Board::append_pseudolegal_simple_pawn_moves(
       const bool blocked = static_cast<bool>(all_pieces() & south_of_pawn);
       if (!blocked) {
         res->emplace_back(single_pawn, south_of_pawn, Piece::pawn,
-                         MoveType::simple, *this);
+                          MoveType::simple, *this);
       }
     }
   }
@@ -318,7 +316,7 @@ void Board::append_pseudolegal_two_step_pawn_moves(
           (all_pieces() & north_of_pawn) || (all_pieces() & two_north_of_pawn);
       if (!blocked) {
         res->emplace_back(single_pawn, two_north_of_pawn, Piece::pawn,
-                         MoveType::two_step_pawn, *this);
+                          MoveType::two_step_pawn, *this);
       }
     }
   } else {
@@ -330,14 +328,14 @@ void Board::append_pseudolegal_two_step_pawn_moves(
           (all_pieces() & south_of_pawn) || (all_pieces() & two_south_of_pawn);
       if (!blocked) {
         res->emplace_back(single_pawn, two_south_of_pawn, Piece::pawn,
-                         MoveType::two_step_pawn, *this);
+                          MoveType::two_step_pawn, *this);
       }
     }
   }
 }
 
-void Board::append_pseudolegal_en_passant_moves(
-    Color side, std::vector<Move>* res) const {
+void Board::append_pseudolegal_en_passant_moves(Color side,
+                                                std::vector<Move>* res) const {
   if (en_passant_square_) {
     if (side == Color::white) {
       Bitboard southeast_of_ep_square =
@@ -346,11 +344,11 @@ void Board::append_pseudolegal_en_passant_moves(
           southwest_of(en_passant_square_.value());
       if (southwest_of_ep_square & white_pawns_) {
         res->emplace_back(southwest_of_ep_square, en_passant_square_.value(),
-                         Piece::pawn, MoveType::en_passant, *this);
+                          Piece::pawn, MoveType::en_passant, *this);
       }
       if (southeast_of_ep_square & white_pawns_) {
         res->emplace_back(southeast_of_ep_square, en_passant_square_.value(),
-                         Piece::pawn, MoveType::en_passant, *this);
+                          Piece::pawn, MoveType::en_passant, *this);
       }
     } else {
       Bitboard northeast_of_ep_square =
@@ -359,11 +357,11 @@ void Board::append_pseudolegal_en_passant_moves(
           northwest_of(en_passant_square_.value());
       if (northwest_of_ep_square & black_pawns_) {
         res->emplace_back(northwest_of_ep_square, en_passant_square_.value(),
-                         Piece::pawn, MoveType::en_passant, *this);
+                          Piece::pawn, MoveType::en_passant, *this);
       }
       if (northeast_of_ep_square & black_pawns_) {
         res->emplace_back(northeast_of_ep_square, en_passant_square_.value(),
-                         Piece::pawn, MoveType::en_passant, *this);
+                          Piece::pawn, MoveType::en_passant, *this);
       }
     }
   }
@@ -379,7 +377,7 @@ void Board::append_pseudolegal_promotions(Color side,
         const bool blocked = static_cast<bool>(all_pieces() & north_of_pawn);
         if (!blocked) {
           res->emplace_back(single_pawn, north_of_pawn, Piece::pawn,
-                           promotion_piece, *this);
+                            promotion_piece, *this);
         }
 
         const Bitboard northeast_of_pawn = northeast_of(single_pawn);
@@ -387,7 +385,7 @@ void Board::append_pseudolegal_promotions(Color side,
             static_cast<bool>(black_pieces() & northeast_of_pawn);
         if (black_piece_northeast) {
           res->emplace_back(single_pawn, northeast_of_pawn, Piece::pawn,
-                           promotion_piece, *this);
+                            promotion_piece, *this);
         }
 
         const Bitboard northwest_of_pawn = northwest_of(single_pawn);
@@ -395,7 +393,7 @@ void Board::append_pseudolegal_promotions(Color side,
             static_cast<bool>(black_pieces() & northwest_of_pawn);
         if (black_piece_northwest) {
           res->emplace_back(single_pawn, northwest_of_pawn, Piece::pawn,
-                           promotion_piece, *this);
+                            promotion_piece, *this);
         }
       }
     }
@@ -407,7 +405,7 @@ void Board::append_pseudolegal_promotions(Color side,
         const bool blocked = static_cast<bool>(all_pieces() & south_of_pawn);
         if (!blocked) {
           res->emplace_back(single_pawn, south_of_pawn, Piece::pawn,
-                           promotion_piece, *this);
+                            promotion_piece, *this);
         }
 
         const Bitboard southeast_of_pawn = southeast_of(single_pawn);
@@ -415,7 +413,7 @@ void Board::append_pseudolegal_promotions(Color side,
             static_cast<bool>(white_pieces() & southeast_of_pawn);
         if (white_piece_southeast) {
           res->emplace_back(single_pawn, southeast_of_pawn, Piece::pawn,
-                           promotion_piece, *this);
+                            promotion_piece, *this);
         }
 
         const Bitboard southwest_of_pawn = southwest_of(single_pawn);
@@ -423,7 +421,7 @@ void Board::append_pseudolegal_promotions(Color side,
             static_cast<bool>(white_pieces() & southwest_of_pawn);
         if (white_piece_southwest) {
           res->emplace_back(single_pawn, southwest_of_pawn, Piece::pawn,
-                           promotion_piece, *this);
+                            promotion_piece, *this);
         }
       }
     }
@@ -441,7 +439,7 @@ void Board::append_pseudolegal_pawn_captures(Color side,
           static_cast<bool>(black_pieces() & northeast_of_pawn);
       if (can_capture_northeast) {
         res->emplace_back(single_pawn, northeast_of_pawn, Piece::pawn,
-                         MoveType::capture, *this);
+                          MoveType::capture, *this);
       }
 
       const Bitboard northwest_of_pawn = northwest_of(single_pawn);
@@ -449,7 +447,7 @@ void Board::append_pseudolegal_pawn_captures(Color side,
           static_cast<bool>(black_pieces() & northwest_of_pawn);
       if (can_capture_northwest) {
         res->emplace_back(single_pawn, northwest_of_pawn, Piece::pawn,
-                         MoveType::capture, *this);
+                          MoveType::capture, *this);
       }
     }
   } else {
@@ -461,7 +459,7 @@ void Board::append_pseudolegal_pawn_captures(Color side,
           static_cast<bool>(white_pieces() & southeast_of_pawn);
       if (can_capture_southeast) {
         res->emplace_back(single_pawn, southeast_of_pawn, Piece::pawn,
-                         MoveType::capture, *this);
+                          MoveType::capture, *this);
       }
 
       const Bitboard southwest_of_pawn = southwest_of(single_pawn);
@@ -469,7 +467,7 @@ void Board::append_pseudolegal_pawn_captures(Color side,
           static_cast<bool>(white_pieces() & southwest_of_pawn);
       if (can_capture_southwest) {
         res->emplace_back(single_pawn, southwest_of_pawn, Piece::pawn,
-                         MoveType::capture, *this);
+                          MoveType::capture, *this);
       }
     }
   }
@@ -506,7 +504,8 @@ void Board::append_pseudolegal_king_moves(Color side,
 
 void Board::append_pseudolegal_knight_moves(Color side,
                                             std::vector<Move>* res) const {
-  const Bitboard knights = side == Color::white ? white_knights_ : black_knights_;
+  const Bitboard knights =
+      side == Color::white ? white_knights_ : black_knights_;
   const Bitboard friends_mask = friends(side);
 
   for (Bitboard knight_sq : bitboard_split(knights)) {
@@ -524,7 +523,7 @@ void Board::append_pseudolegal_knight_moves(Color side,
           const MoveType move_type =
               enemy_piece_on_dst_square ? MoveType::capture : MoveType::simple;
           res->emplace_back(knight_sq, dst_square, Piece::knight, move_type,
-                                *this);
+                            *this);
         }
       }
     }
@@ -544,8 +543,8 @@ std::vector<Move> Board::pseudolegal_moves(Color side) const {
 
 bool Board::is_castle_kingside_legal() const {
   const bool has_right_to_castle = is_whites_move_
-                                 ? white_has_right_to_castle_kingside_
-                                 : black_has_right_to_castle_kingside_;
+                                       ? white_has_right_to_castle_kingside_
+                                       : black_has_right_to_castle_kingside_;
   const Color side_to_move = is_whites_move_ ? Color::white : Color::black;
   if (!has_right_to_castle || is_king_attacked(side_to_move)) {
     return false;
@@ -553,7 +552,8 @@ bool Board::is_castle_kingside_legal() const {
 
   const Bitboard castle_squares =
       is_whites_move_ ? white_castle_kingside_mask : black_castle_kingside_mask;
-  const Bitboard enemy_attack_squares = attack_squares(flip_color(side_to_move));
+  const Bitboard enemy_attack_squares =
+      attack_squares(flip_color(side_to_move));
   const bool castle_squares_clear = !(castle_squares & all_pieces());
   const bool castle_squares_attacked =
       static_cast<const bool>(castle_squares & enemy_attack_squares);
@@ -604,9 +604,13 @@ bool Board::is_king_attacked(Color side) const {
 }
 
 bool Board::is_pseudolegal_move_legal(Move move) const {
-  // Copying the board is not very efficient but allows this method to be const.
+  // Copying the board allows this method to be const. It does not seem to
+  // affect the perft very much. See commit
+  // 4e1c4827a5b7ccf4d05ea545bc2954610ffe8384 for the perft comparison between
+  // copying and not copying.
   Board this_copy(*this);
-  const Color side_to_move = this_copy.is_whites_move_ ? Color::white : Color::black;
+  const Color side_to_move =
+      this_copy.is_whites_move_ ? Color::white : Color::black;
   this_copy.do_move(move);
   return !this_copy.is_king_attacked(side_to_move);
 }
@@ -625,59 +629,7 @@ std::vector<Move> Board::legal_moves() const {
 
 // Remember to reset ep square and change castling rights after all of these.
 
-void Board::remove_piece_on(Bitboard sq) {
-  for (Bitboard* bb_ptr : all_bitboards()) {
-    if (sq & *bb_ptr) {
-      *bb_ptr ^= sq;
-      break;
-    }
-  }
-}
-
-void Board::do_en_passant_move(Move move) {
-  ABSL_RAW_CHECK(en_passant_square_ == move.dst_square_,
-                 "Move type is en passant. But the e.p. square is not set.");
-  Bitboard enemy_pawn_square = move.dst_square_ & third_rank_mask
-                                   ? north_of(move.dst_square_)
-                                   : south_of(move.dst_square_);
-  remove_piece_on(enemy_pawn_square);
-  do_simple_move(Move(move.src_square_, move.dst_square_, Piece::pawn,
-                      MoveType::simple, *this));
-}
-
-void Board::do_castle_move(Move move) {
-  do_simple_move(move);
-  switch (move.move_type_) {
-    case MoveType::castle_kingside:
-      if (is_whites_move_) {
-        // Using do_simple_move is a bit of a hack.
-        ABSL_RAW_CHECK(white_rooks_ & str_to_square("h1"), "No rook here.");
-        do_simple_move(Move(str_to_square("h1"), str_to_square("f1"),
-                            Piece::rook, MoveType::simple, *this));
-      } else {
-        ABSL_RAW_CHECK(black_rooks_ & str_to_square("h8"), "No rook here.");
-        do_simple_move(Move(str_to_square("h8"), str_to_square("f8"),
-                            Piece::rook, MoveType::simple, *this));
-      }
-      break;
-    case MoveType::castle_queenside:
-      if (is_whites_move_) {
-        ABSL_RAW_CHECK(white_rooks_ & str_to_square("a1"), "No rook here.");
-        do_simple_move(Move(str_to_square("a1"), str_to_square("d1"),
-                            Piece::rook, MoveType::simple, *this));
-      } else {
-        ABSL_RAW_CHECK(black_rooks_ & str_to_square("a8"), "No rook here.");
-        do_simple_move(Move(str_to_square("a8"), str_to_square("d8"),
-                            Piece::rook, MoveType::simple, *this));
-      }
-      break;
-    default:
-      ABSL_RAW_CHECK(false, "Castle move has wrong move type.");
-  }
-}
-
-void Board::do_promotion_move(Move move) {
-  // Ugly hack.
+void Board::adjust_castling_rights(Move move) {
   if (move.dst_square_ == str_to_square("a1")) {
     white_has_right_to_castle_queenside_ = false;
   }
@@ -690,6 +642,89 @@ void Board::do_promotion_move(Move move) {
   if (move.dst_square_ == str_to_square("h8")) {
     black_has_right_to_castle_kingside_ = false;
   }
+
+  if (move.piece_moving_ == Piece::king) {
+    if (move.src_square_ == str_to_square("e1")) {
+      white_has_right_to_castle_kingside_ = false;
+      white_has_right_to_castle_queenside_ = false;
+    } else if (move.src_square_ == str_to_square("e8")) {
+      black_has_right_to_castle_kingside_ = false;
+      black_has_right_to_castle_queenside_ = false;
+    }
+  }
+
+  if (move.piece_moving_ == Piece::rook) {
+    if (move.src_square_ == str_to_square("a1")) {
+      white_has_right_to_castle_queenside_ = false;
+    } else if (move.src_square_ == str_to_square("h1")) {
+      white_has_right_to_castle_kingside_ = false;
+    } else if (move.src_square_ == str_to_square("a8")) {
+      black_has_right_to_castle_queenside_ = false;
+    } else if (move.src_square_ == str_to_square("h8")) {
+      black_has_right_to_castle_kingside_ = false;
+    }
+  }
+}
+
+void Board::remove_piece_on(Bitboard sq) {
+  for (Bitboard* bb_ptr : all_bitboards()) {
+    if (sq & *bb_ptr) {
+      *bb_ptr ^= sq;
+      break;
+    }
+  }
+}
+
+void Board::move_piece(Bitboard from, Bitboard to) {
+  bool found = false;
+  for (Bitboard* bb_ptr : all_bitboards()) {
+    if (from & *bb_ptr) {
+      *bb_ptr ^= from;
+      *bb_ptr |= to;
+      found = true;
+      return;
+    }
+  }
+  ABSL_RAW_CHECK(found, "Move not valid.");
+}
+
+void Board::do_en_passant_move(Move move) {
+  ABSL_RAW_CHECK(en_passant_square_ == move.dst_square_,
+                 "Move type is en passant. But the e.p. square is not set.");
+  const Bitboard enemy_pawn_square = move.dst_square_ & third_rank_mask
+                                         ? north_of(move.dst_square_)
+                                         : south_of(move.dst_square_);
+  remove_piece_on(enemy_pawn_square);
+  move_piece(move.src_square_, move.dst_square_);
+  en_passant_square_ = absl::nullopt;
+}
+
+void Board::do_castle_move(Move move) {
+  move_piece(move.src_square_, move.dst_square_);
+  // Also need to move the rook.
+  switch (move.move_type_) {
+    case MoveType::castle_kingside:
+      if (is_whites_move_) {
+        move_piece(str_to_square("h1"), str_to_square("f1"));
+      } else {
+        move_piece(str_to_square("h8"), str_to_square("f8"));
+      }
+      break;
+    case MoveType::castle_queenside:
+      if (is_whites_move_) {
+        move_piece(str_to_square("a1"), str_to_square("d1"));
+      } else {
+        move_piece(str_to_square("a8"), str_to_square("d8"));
+      }
+      break;
+    default:
+      ABSL_RAW_CHECK(false, "Castle move has wrong move type.");
+  }
+  en_passant_square_ = absl::nullopt;
+  adjust_castling_rights(move);
+}
+
+void Board::do_promotion_move(Move move) {
   remove_piece_on(move.src_square_);
   remove_piece_on(move.dst_square_);
   switch (move.move_type_) {
@@ -725,64 +760,27 @@ void Board::do_promotion_move(Move move) {
       ABSL_RAW_CHECK(false, "Promotion move has wrong move type.");
   }
   en_passant_square_ = absl::nullopt;
+  adjust_castling_rights(move);
 }
 
 void Board::do_capture_move(Move move) {
   remove_piece_on(move.dst_square_);
-  do_simple_move(move);
+  move_piece(move.src_square_, move.dst_square_);
+  en_passant_square_ = absl::nullopt;
+  adjust_castling_rights(move);
+}
+
+void Board::do_two_step_pawn_move(Move move) {
+  move_piece(move.src_square_, move.dst_square_);
+  en_passant_square_ = move.src_square_ & second_rank_mask
+                           ? north_of(move.src_square_)
+                           : south_of(move.src_square_);
 }
 
 void Board::do_simple_move(Move move) {
-  // Ugly hack.
-  if (move.dst_square_ == str_to_square("a1")) {
-    white_has_right_to_castle_queenside_ = false;
-  }
-  if (move.dst_square_ == str_to_square("a8")) {
-    black_has_right_to_castle_queenside_ = false;
-  }
-  if (move.dst_square_ == str_to_square("h1")) {
-    white_has_right_to_castle_kingside_ = false;
-  }
-  if (move.dst_square_ == str_to_square("h8")) {
-    black_has_right_to_castle_kingside_ = false;
-  }
-  bool found = false;
-  for (Bitboard* bb_ptr : all_bitboards()) {
-    if (move.src_square_ & *bb_ptr) {
-      *bb_ptr ^= move.src_square_;
-      *bb_ptr |= move.dst_square_;
-      found = true;
-      break;
-    }
-  }
-  ABSL_RAW_CHECK(found, "Move not valid");
-  if (move.move_type_ == MoveType::two_step_pawn) {
-    en_passant_square_ = move.src_square_ & second_rank_mask
-                             ? north_of(move.src_square_)
-                             : south_of(move.src_square_);
-  } else {
-    en_passant_square_ = absl::nullopt;
-  }
-  if (move.piece_moving_ == Piece::king) {
-    if (move.src_square_ == str_to_square("e1")) {
-      white_has_right_to_castle_kingside_ = false;
-      white_has_right_to_castle_queenside_ = false;
-    } else if (move.src_square_ == str_to_square("e8")) {
-      black_has_right_to_castle_kingside_ = false;
-      black_has_right_to_castle_queenside_ = false;
-    }
-  }
-  if (move.piece_moving_ == Piece::rook) {
-    if (move.src_square_ == str_to_square("a1")) {
-      white_has_right_to_castle_queenside_ = false;
-    } else if (move.src_square_ == str_to_square("h1")) {
-      white_has_right_to_castle_kingside_ = false;
-    } else if (move.src_square_ == str_to_square("a8")) {
-      black_has_right_to_castle_queenside_ = false;
-    } else if (move.src_square_ == str_to_square("h8")) {
-      black_has_right_to_castle_kingside_ = false;
-    }
-  }
+  move_piece(move.src_square_, move.dst_square_);
+  en_passant_square_ = absl::nullopt;
+  adjust_castling_rights(move);
 }
 
 void Board::undo_move(Move move) { *this = move.board_state_; }
@@ -790,30 +788,13 @@ void Board::undo_move(Move move) { *this = move.board_state_; }
 void Board::do_move(Move move) {
   ABSL_RAW_CHECK(is_square(move.src_square_) && is_square(move.dst_square_),
                  "Not a valid move.");
-  // Ugly hack.
-  if (move.dst_square_ == str_to_square("a1")) {
-    white_has_right_to_castle_queenside_ = false;
-  }
-  if (move.dst_square_ == str_to_square("a8")) {
-    black_has_right_to_castle_queenside_ = false;
-  }
-  if (move.dst_square_ == str_to_square("h1")) {
-    white_has_right_to_castle_kingside_ = false;
-  }
-  if (move.dst_square_ == str_to_square("h8")) {
-    black_has_right_to_castle_kingside_ = false;
-  }
-  // std::string b = to_pretty_str();
-  // b.append(is_whites_move_ ? "White to move\n" : "Black to move\n");
-  // b.append(is_king_attacked(is_whites_move_ ? Color::white : Color::black) ?
-  // "King is attacked\n" : "King is not attacked\n");
-  // b.append(bb_to_pretty_str(attack_squares(is_whites_move_ ? Color::black :
-  // Color::white)));
 
   switch (move.move_type_) {
     case MoveType::simple:
-    case MoveType::two_step_pawn:
       do_simple_move(move);
+      break;
+    case MoveType::two_step_pawn:
+      do_two_step_pawn_move(move);
       break;
     case MoveType::capture:
       do_capture_move(move);
@@ -823,15 +804,7 @@ void Board::do_move(Move move) {
       break;
     case MoveType::castle_kingside:
     case MoveType::castle_queenside:
-      // b.append(is_king_attacked(is_whites_move_ ? Color::white :
-      // Color::black) ? "King is attacked\n" : "King is not attacked\n");
-      ABSL_RAW_CHECK(
-          !is_king_attacked(is_whites_move_ ? Color::white : Color::black),
-          "Castling while in check.");
       do_castle_move(move);
-      ABSL_RAW_CHECK(
-          !is_king_attacked(is_whites_move_ ? Color::white : Color::black),
-          "Castled into check");
       break;
     case MoveType::promotion_to_rook:
     case MoveType::promotion_to_bishop:
@@ -841,6 +814,8 @@ void Board::do_move(Move move) {
       break;
   }
   is_whites_move_ = !is_whites_move_;
+  num_moves_ += is_whites_move_ ? 1 : 0;
+  // TODO: Implement the fifty move clock.
 }
 
 void Board::zero_all_bitboards() {
@@ -864,8 +839,8 @@ void Board::init_bitboards(const absl::string_view pieces_fen) {
   int file = 0;
 
   for (char c : pieces_fen) {
-    Bitboard square_mask{lsb_bitboard
-                         << (rank * board_size + board_size - file - 1)};
+    const Bitboard square_mask{lsb_bitboard
+                               << (rank * board_size + board_size - file - 1)};
     switch (c) {
       // If the next characted is a number, skip that many files.
       case '1':
@@ -1022,12 +997,11 @@ bool operator==(const Move& lhs, const Move& rhs) {
 // Check that the bitboard has exactly one bit set.
 bool is_square(Bitboard square) {
   const bool has_more_than_one_set_bit =
-      static_cast<const bool>(square & (square - 1));
+      static_cast<bool>(square & (square - 1));
   return square && !has_more_than_one_set_bit;
 }
 
 int square_idx(Bitboard square) {
-  // ABSL_RAW_CHECK(is_square(square), "Is not square.");
   int res = -1;
   while (square) {
     square >>= 1;
