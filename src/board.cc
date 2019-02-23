@@ -603,20 +603,15 @@ bool Board::is_king_attacked(Color side) const {
   return static_cast<bool>(king & attack_squares(flip_color(side)));
 }
 
-bool Board::is_pseudolegal_move_legal(Move move) {
-  // // Copying the board is not very efficient but allows this method to be const.
-  // Board this_copy(*this);
-  // const Color side_to_move = this_copy.is_whites_move_ ? Color::white : Color::black;
-  // this_copy.do_move(move);
-  // return !this_copy.is_king_attacked(side_to_move);
-  const Color side_to_move = is_whites_move_ ? Color::white : Color::black;
-  do_move(move);
-  const bool res = !is_king_attacked(side_to_move);
-  undo_move(move);
-  return res;
+bool Board::is_pseudolegal_move_legal(Move move) const {
+  // Copying the board is not very efficient but allows this method to be const.
+  Board this_copy(*this);
+  const Color side_to_move = this_copy.is_whites_move_ ? Color::white : Color::black;
+  this_copy.do_move(move);
+  return !this_copy.is_king_attacked(side_to_move);
 }
 
-std::vector<Move> Board::legal_moves() {
+std::vector<Move> Board::legal_moves() const {
   const Color side_to_move = is_whites_move_ ? Color::white : Color::black;
   std::vector<Move> res = pseudolegal_moves(side_to_move);
   auto last_it = std::remove_if(res.begin(), res.end(), [this](Move move) {

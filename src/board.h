@@ -235,8 +235,8 @@ struct Board {
   bool is_castle_queenside_legal() const;
   void append_castling_moves(std::vector<Move>* res) const;
   bool is_king_attacked(Color side) const;
-  bool is_pseudolegal_move_legal(Move move);
-  std::vector<Move> legal_moves();
+  bool is_pseudolegal_move_legal(Move move) const;
+  std::vector<Move> legal_moves() const;
 
   // Methods for performing moves.
   void remove_piece_on(Bitboard sq);
