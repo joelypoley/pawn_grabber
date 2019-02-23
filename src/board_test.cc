@@ -1758,7 +1758,7 @@ TEST(CanCastle, Black) {
 
 TEST(CanCastle, Perft) {
   // This position exposed a bug in how attack squares were calculated. It was
-  // found from a perft tests.
+  // found from a perft test.
   Board board = Board(
       "r3k2r/p1ppPpb1/bn1q1np1/4N3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq - 0 2");
   EXPECT_FALSE(board.is_castle_kingside_legal());
