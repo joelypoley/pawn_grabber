@@ -42,7 +42,7 @@ endif()
 ##############################################################################
 # BEGIN: abseil-cpp stuff
 ##############################################################################
-#set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS}")
+
 #set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 add_subdirectory(lib/abseil-cpp-master)
@@ -50,6 +50,11 @@ add_subdirectory(lib/abseil-cpp-master)
 # END: abseil-cpp stuff
 ##############################################################################
 
+##############################################################################
+# BEGIN: stuff joel wrote
+##############################################################################
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g -O1")
 # According to cmake I should do this.
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
@@ -62,10 +67,14 @@ enable_testing()
 
 # Now simply link against gtest or gtest_main as needed. Eg
 add_executable(perft src/perft.cc src/board.cc )
-target_compile_options(perft PRIVATE -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic)
+target_compile_options(perft PRIVATE -Wall -Wextra -Wconversion -Wsign-conversion)
 target_link_libraries(perft absl::strings absl::base absl::algorithm absl::optional absl::algorithm absl::time)
 
 add_executable(board_test src/board_test.cc src/board.cc )
 #target_compile_options(board_test PRIVATE -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic)
 target_link_libraries(board_test gtest_main absl::strings absl::base absl::algorithm absl::optional)
 add_test(NAME board_test COMMAND board_test)
+
+##############################################################################
+# END: stuff joel wrote
+##############################################################################
