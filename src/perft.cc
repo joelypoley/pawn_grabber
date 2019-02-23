@@ -6,17 +6,15 @@
 #include "board.h"
 
 int main() {
-  constexpr int num_boards = 6;
+  constexpr int num_boards = 7;
   const std::array<Board, num_boards> boards{
       Board(),
-      Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - "
-            "0 1"),
+      Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"),
       Board("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1"),
       Board("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1"),
       Board("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8"),
-      Board("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - "
-            "- 0 "
-            "10")};
+      Board("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10"),
+      Board("n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1")};
 
   constexpr int max_depth = 8;
 
@@ -26,7 +24,9 @@ int main() {
        {1, 14, 191, 2812, 43238, 674624, 11030083, 178633661},
        {1, 6, 264, 9467, 422333, 15833292, 706045033, -1},
        {1, 44, 1486, 62379, 2103487, 89941194, -1, -1},
-       {1, 46, 2079, 89890, 3894594, 164075551, 6923051137, 287188994746}}};
+       {1, 46, 2079, 89890, 3894594, 164075551, 6923051137, 287188994746},
+       {1, 24, 496, 9483,   182838, 3605103, 71179139, -1}
+     }};
 
   for (int depth = 0; depth < max_depth; ++depth) {
     std::cout << "Depth " << depth << ".\n";
