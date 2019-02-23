@@ -124,8 +124,8 @@ struct Board {
  public:
   // The default initializer intializes board to the starting position.
   Board();
-  Board(absl::string_view fen);
-  Board(const Board& other);
+  explicit Board(absl::string_view fen);
+  Board(const Board& other) = default;
 
   Bitboard white_pawns_;
   Bitboard white_rooks_;
@@ -229,10 +229,10 @@ struct Board {
 
   // Initialization helper methods.
   void zero_all_bitboards();
-  void init_bitboards(const absl::string_view pieces_fen);
-  void init_is_whites_move(const absl::string_view pieces_fen);
-  void init_castling_rights(const absl::string_view castling_rights_fen);
-  void init_en_passant(const absl::string_view algebraic_square);
+  void init_bitboards(absl::string_view pieces_fen);
+  void init_is_whites_move(absl::string_view pieces_fen);
+  void init_castling_rights(absl::string_view castling_rights_fen);
+  void init_en_passant(absl::string_view algebraic_square);
 };
 
 bool operator==(const Board& lhs, const Board& rhs);
@@ -259,8 +259,6 @@ int rank_idx(Bitboard square);
 int file_idx(Bitboard square);
 bool on_a_file(Bitboard square);
 bool on_h_file(Bitboard square);
-bool on_first_rank(Bitboard square);
-bool on_eigth_rank(Bitboard square);
 
 Bitboard north_of(Bitboard square);
 Bitboard south_of(Bitboard square);
@@ -272,7 +270,7 @@ Bitboard southeast_of(Bitboard square);
 Bitboard southwest_of(Bitboard square);
 std::function<Bitboard(Bitboard)> direction_to_function(Direction direction);
 
-Bitboard str_to_square(const absl::string_view alegbraic_square);
+Bitboard str_to_square(absl::string_view alegbraic_square);
 std::string square_to_str(Bitboard sq);
 Bitboard coordinates_to_square(int file, int rank);
 std::vector<Bitboard> bitboard_split(Bitboard bb);

@@ -19,7 +19,7 @@ const std::string& get_start_fen() {
   return start_fen;
 }
 
-// TODO: Change these all to functions returning their static local varaibles to
+// TODO: Change these all to functions returning their static local variables to
 // avoid problems with global initialization.
 
 const Bitboard seventh_rank_mask = str_to_square("a7") | str_to_square("b7") |
@@ -60,32 +60,6 @@ Board::Board(absl::string_view fen) {
                  "FEN invalid: Number of moves not convertible to integer.");
 }
 
-Board::Board(const Board& other)
-    : white_pawns_(other.white_pawns_),
-      white_rooks_(other.white_rooks_),
-      white_knights_(other.white_knights_),
-      white_bishops_(other.white_bishops_),
-      white_queens_(other.white_queens_),
-      white_king_(other.white_king_),
-      black_pawns_(other.black_pawns_),
-      black_rooks_(other.black_rooks_),
-      black_knights_(other.black_knights_),
-      black_bishops_(other.black_bishops_),
-      black_queens_(other.black_queens_),
-      black_king_(other.black_king_),
-      is_whites_move_(other.is_whites_move_),
-      en_passant_square_(other.en_passant_square_),
-      white_has_right_to_castle_kingside_(
-          other.white_has_right_to_castle_kingside_),
-      white_has_right_to_castle_queenside_(
-          other.white_has_right_to_castle_queenside_),
-      black_has_right_to_castle_kingside_(
-          other.black_has_right_to_castle_kingside_),
-      black_has_right_to_castle_queenside_(
-          other.black_has_right_to_castle_queenside_),
-      fifty_move_clock_(other.fifty_move_clock_),
-      num_moves_(other.num_moves_) {}
-
 std::array<Bitboard*, 12> Board::all_bitboards() {
   return {&white_pawns_,   &white_rooks_,   &white_bishops_, &white_knights_,
           &white_queens_,  &white_king_,    &black_pawns_,   &black_rooks_,
@@ -111,7 +85,7 @@ std::string Board::to_pretty_str() const {
   res.append("  ");
   res.append(top_left_corner);
   for (int i = 0; i < board_size - 1; ++i) {
-    res.append(horizontal + horizontal + horizontal);
+    res.append(absl::StrCat(horizontal , horizontal , horizontal));
     res.append(top_tee);
   }
   res.append(horizontal + horizontal + horizontal);
@@ -136,9 +110,9 @@ std::string Board::to_pretty_str() const {
       res.append("  ");
       res.append(left_side_tee);
       for (int i = 0; i < board_size - 1; ++i) {
-        res.append(horizontal + horizontal + horizontal + cross);
+        res.append(absl::StrCat(horizontal, horizontal, horizontal, cross));
       }
-      res.append(horizontal + horizontal + horizontal + right_side_tee);
+      res.append(absl::StrCat(horizontal  , horizontal  , horizontal , right_side_tee));
       res.append("\n");
     }
   }
@@ -147,7 +121,7 @@ std::string Board::to_pretty_str() const {
   res.append("  ");
   res.append(bottom_left_corner);
   for (int i = 0; i < board_size - 1; ++i) {
-    res.append(horizontal + horizontal + horizontal);
+    res.append(absl::StrCat(horizontal , horizontal , horizontal));
     res.append(bottom_tee);
   }
   res.append(horizontal + horizontal + horizontal);
@@ -333,7 +307,7 @@ void Board::append_pseudolegal_simple_pawn_moves(
         white_pawns_ & (~seventh_rank_mask);
     for (Bitboard single_pawn : bitboard_split(white_pawns_excluding_seventh)) {
       const Bitboard north_of_pawn = north_of(single_pawn);
-      const bool blocked = all_pieces() & north_of_pawn;
+      const bool blocked = static_cast<const bool>(all_pieces() & north_of_pawn);
       if (!blocked) {
         res.emplace_back(single_pawn, north_of_pawn, Piece::pawn,
                          MoveType::simple, *this);
@@ -344,7 +318,7 @@ void Board::append_pseudolegal_simple_pawn_moves(
         black_pawns_ & (~second_rank_mask);
     for (Bitboard single_pawn : bitboard_split(black_pawns_excluding_second)) {
       const Bitboard south_of_pawn = south_of(single_pawn);
-      const bool blocked = all_pieces() & south_of_pawn;
+      const bool blocked = static_cast<const bool>(all_pieces() & south_of_pawn);
       if (!blocked) {
         res.emplace_back(single_pawn, south_of_pawn, Piece::pawn,
                          MoveType::simple, *this);
@@ -424,7 +398,7 @@ void Board::append_pseudolegal_promotions(Color side,
     const Bitboard white_pawns_on_seventh = white_pawns_ & seventh_rank_mask;
     for (Bitboard single_pawn : bitboard_split(white_pawns_on_seventh)) {
       const Bitboard north_of_pawn = north_of(single_pawn);
-      const bool blocked = all_pieces() & north_of_pawn;
+      const bool blocked = static_cast<const bool>(all_pieces() & north_of_pawn);
       if (!blocked) {
         res.emplace_back(single_pawn, north_of_pawn, Piece::pawn,
                          MoveType::promotion_to_rook, *this);
@@ -437,7 +411,7 @@ void Board::append_pseudolegal_promotions(Color side,
       }
 
       const Bitboard northeast_of_pawn = northeast_of(single_pawn);
-      const bool black_piece_northeast = black_pieces() & northeast_of_pawn;
+      const bool black_piece_northeast = static_cast<const bool>(black_pieces() & northeast_of_pawn);
       if (black_piece_northeast) {
         res.emplace_back(single_pawn, northeast_of_pawn, Piece::pawn,
                          MoveType::promotion_to_rook, *this);
@@ -450,7 +424,7 @@ void Board::append_pseudolegal_promotions(Color side,
       }
 
       const Bitboard northwest_of_pawn = northwest_of(single_pawn);
-      const bool black_piece_northwest = black_pieces() & northwest_of_pawn;
+      const bool black_piece_northwest = static_cast<const bool>(black_pieces() & northwest_of_pawn);
       if (black_piece_northwest) {
         res.emplace_back(single_pawn, northwest_of_pawn, Piece::pawn,
                          MoveType::promotion_to_rook, *this);
@@ -466,7 +440,7 @@ void Board::append_pseudolegal_promotions(Color side,
     const Bitboard black_pawns_on_second = black_pawns_ & second_rank_mask;
     for (Bitboard single_pawn : bitboard_split(black_pawns_on_second)) {
       const Bitboard south_of_pawn = south_of(single_pawn);
-      const bool blocked = all_pieces() & south_of_pawn;
+      const bool blocked = static_cast<const bool>(all_pieces() & south_of_pawn);
       if (!blocked) {
         res.emplace_back(single_pawn, south_of_pawn, Piece::pawn,
                          MoveType::promotion_to_rook, *this);
@@ -479,7 +453,7 @@ void Board::append_pseudolegal_promotions(Color side,
       }
 
       const Bitboard southeast_of_pawn = southeast_of(single_pawn);
-      const bool white_piece_southeast = white_pieces() & southeast_of_pawn;
+      const bool white_piece_southeast = static_cast<const bool>(white_pieces() & southeast_of_pawn);
       if (white_piece_southeast) {
         res.emplace_back(single_pawn, southeast_of_pawn, Piece::pawn,
                          MoveType::promotion_to_rook, *this);
@@ -492,7 +466,7 @@ void Board::append_pseudolegal_promotions(Color side,
       }
 
       const Bitboard southwest_of_pawn = southwest_of(single_pawn);
-      const bool white_piece_southwest = white_pieces() & southwest_of_pawn;
+      const bool white_piece_southwest = static_cast<const bool>(white_pieces() & southwest_of_pawn);
       if (white_piece_southwest) {
         res.emplace_back(single_pawn, southwest_of_pawn, Piece::pawn,
                          MoveType::promotion_to_rook, *this);
@@ -515,14 +489,14 @@ void Board::append_pseudolegal_pawn_captures(Color side,
         white_pawns_ & (~seventh_rank_mask);
     for (Bitboard single_pawn : bitboard_split(white_pawns_excluding_seventh)) {
       const Bitboard northeast_of_pawn = northeast_of(single_pawn);
-      const bool can_capture_northeast = black_pieces() & northeast_of_pawn;
+      const bool can_capture_northeast = static_cast<const bool>(black_pieces() & northeast_of_pawn);
       if (can_capture_northeast) {
         res.emplace_back(single_pawn, northeast_of_pawn, Piece::pawn,
                          MoveType::capture, *this);
       }
 
       const Bitboard northwest_of_pawn = northwest_of(single_pawn);
-      const bool can_capture_northwest = black_pieces() & northwest_of_pawn;
+      const bool can_capture_northwest = static_cast<const bool>(black_pieces() & northwest_of_pawn);
       if (can_capture_northwest) {
         res.emplace_back(single_pawn, northwest_of_pawn, Piece::pawn,
                          MoveType::capture, *this);
@@ -533,14 +507,14 @@ void Board::append_pseudolegal_pawn_captures(Color side,
         black_pawns_ & (~second_rank_mask);
     for (Bitboard single_pawn : bitboard_split(black_pawns_excluding_seventh)) {
       const Bitboard southeast_of_pawn = southeast_of(single_pawn);
-      const bool can_capture_southeast = white_pieces() & southeast_of_pawn;
+      const bool can_capture_southeast = static_cast<const bool>(white_pieces() & southeast_of_pawn);
       if (can_capture_southeast) {
         res.emplace_back(single_pawn, southeast_of_pawn, Piece::pawn,
                          MoveType::capture, *this);
       }
 
       const Bitboard southwest_of_pawn = southwest_of(single_pawn);
-      const bool can_capture_southwest = white_pieces() & southwest_of_pawn;
+      const bool can_capture_southwest = static_cast<const bool>(white_pieces() & southwest_of_pawn);
       if (can_capture_southwest) {
         res.emplace_back(single_pawn, southwest_of_pawn, Piece::pawn,
                          MoveType::capture, *this);
@@ -566,9 +540,9 @@ void Board::append_pseudolegal_king_moves(Color side,
   for (Direction dir : all_directions) {
     auto dir_fn = direction_to_function(dir);
     Bitboard dst_square = dir_fn(king_sq);
-    const bool friendly_piece_on_dst_square = dst_square & friends_mask;
+    const bool friendly_piece_on_dst_square = static_cast<const bool>(dst_square & friends_mask);
     if (dst_square && !friendly_piece_on_dst_square) {
-      const bool enemy_piece_on_dst_square = dst_square & enemies(side);
+      const bool enemy_piece_on_dst_square = static_cast<const bool>(dst_square & enemies(side));
       MoveType move_type =
           enemy_piece_on_dst_square ? MoveType::capture : MoveType::simple;
       res_ptr->emplace_back(king_sq, dst_square, Piece::king, move_type, *this);
@@ -588,9 +562,9 @@ void Board::append_pseudolegal_knight_moves(Color side,
       Bitboard first_step = dir1_fn(knight_sq);
       if (first_step) {
         Bitboard dst_square = dir2_fn(first_step);
-        const bool friendly_piece_on_dst_square = dst_square & friends_mask;
+        const bool friendly_piece_on_dst_square = static_cast<const bool>(dst_square & friends_mask);
         if (dst_square && !friendly_piece_on_dst_square) {
-          const bool enemy_piece_on_dst_square = dst_square & enemies(side);
+          const bool enemy_piece_on_dst_square = static_cast<const bool>(dst_square & enemies(side));
           MoveType move_type =
               enemy_piece_on_dst_square ? MoveType::capture : MoveType::simple;
           res_ptr->emplace_back(knight_sq, dst_square, Piece::knight, move_type,
@@ -625,7 +599,7 @@ bool Board::is_castle_kingside_legal() const {
       is_whites_move_ ? white_castle_kingside_mask : black_castle_kingside_mask;
   Bitboard enemy_attack_squares = attack_squares(flip_color(side_to_move));
   const bool castle_squares_clear = !(castle_squares & all_pieces());
-  const bool castle_squares_attacked = castle_squares & enemy_attack_squares;
+  const bool castle_squares_attacked = static_cast<const bool>(castle_squares & enemy_attack_squares);
 
   return castle_squares_clear && !castle_squares_attacked;
 }
@@ -644,13 +618,13 @@ bool Board::is_castle_queenside_legal() const {
   const Bitboard enemy_attack_squares = is_whites_move_
                                             ? attack_squares(Color::black)
                                             : attack_squares(Color::white);
-  const bool castle_squares_attacked = castle_squares & enemy_attack_squares;
+  const bool castle_squares_attacked = static_cast<const bool>(castle_squares & enemy_attack_squares);
   // When castling queenside the square on the b file can be attacked but must
   // not be occupied.
   const Bitboard b_file_square =
       is_whites_move_ ? str_to_square("b1") : str_to_square("b8");
   const Bitboard castle_squares_with_b_file = castle_squares | b_file_square;
-  const bool castle_squares_blocked = castle_squares_with_b_file & all_pieces();
+  const bool castle_squares_blocked = static_cast<const bool>(castle_squares_with_b_file & all_pieces());
 
   return !castle_squares_blocked && !castle_squares_attacked;
 }
@@ -667,7 +641,7 @@ void Board::castling_moves(std::vector<Move>* res_ptr) const {
 
 bool Board::is_king_attacked(Color side) const {
   const Bitboard king = side == Color::white ? white_king_ : black_king_;
-  return king & attack_squares(flip_color(side));
+  return static_cast<bool>(king & attack_squares(flip_color(side)));
 }
 
 bool Board::is_pseudolegal_move_legal(Move move) const {
@@ -1110,7 +1084,7 @@ bool operator==(const Move& lhs, const Move& rhs) {
 
 // Check that the bitboard has exactly one bit set.
 bool is_square(Bitboard square) {
-  const bool has_more_than_one_set_bit = (square & (square - 1));
+  const bool has_more_than_one_set_bit = static_cast<const bool>(square & (square - 1));
   return square && !has_more_than_one_set_bit;
 }
 
@@ -1138,12 +1112,8 @@ bool on_a_file(Bitboard square) { return file_idx(square) == 0; }
 
 bool on_h_file(Bitboard square) { return file_idx(square) == 7; }
 
-bool on_first_rank(Bitboard square) { return rank_idx(square) == 0; }
-bool on_eigth_rank(Bitboard square) { return rank_idx(square) == 7; }
-
 Bitboard north_of(Bitboard square) {
   ABSL_RAW_CHECK(is_square(square), "Is not square.");
-  // TODO: Make sure right shifting off the end is not undefined behavior.
   return square << board_size;
 }
 
@@ -1208,25 +1178,19 @@ std::function<Bitboard(Bitboard)> direction_to_function(Direction direction) {
 }
 
 Bitboard str_to_square(const absl::string_view algebraic_square) {
-  // std::cout << algebraic_square << std::endl;
   const char file_char = algebraic_square[0];
   const char rank_char = algebraic_square[1];
-  // ABSL_RAW_CHECK('a' <= file_char && file_char <= 'h', "Invalid file.");
-  // ABSL_RAW_CHECK('1' <= rank_char && rank_char <= '8', "Invalid rank.");
+  ABSL_RAW_CHECK('a' <= file_char && file_char <= 'h', "Invalid file.");
+  ABSL_RAW_CHECK('1' <= rank_char && rank_char <= '8', "Invalid rank.");
   const int file = file_char - 'a';
   const int rank = rank_char - '1';
-  // std::cout << "file " << file << std::endl;
-  // std::cout << "rank " << rank << std::endl;
-  // ABSL_RAW_CHECK(
-  //     0 <= file && file < board_size && 0 <= rank && rank < board_size,
-  //     "Oh no.");
   return coordinates_to_square(file, rank);
 }
 
 std::string square_to_str(Bitboard sq) {
-  // ABSL_RAW_CHECK(is_square(sq), "Not a square.");
-  char rank = rank_idx(sq);
-  char file = file_idx(sq);
+  ABSL_RAW_CHECK(is_square(sq), "Not a square.");
+  char rank = static_cast<char>(rank_idx(sq));
+  char file = static_cast<char>(file_idx(sq));
   std::string res;
   res.push_back('a' + file);
   res.push_back('1' + rank);
@@ -1234,9 +1198,6 @@ std::string square_to_str(Bitboard sq) {
 }
 
 Bitboard coordinates_to_square(int file, int rank) {
-  // std::cout << "rank " << file << std::endl;
-  // std::cout << "shift " << rank * board_size + board_size - file - 1;
-  // std::cout << "hello\n";
   return lsb_bitboard << (rank * board_size + board_size - file - 1);
 }
 
