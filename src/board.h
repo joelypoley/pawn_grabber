@@ -224,6 +224,7 @@ struct Board {
   std::vector<Move> legal_moves() const;
 
   // Methods for performing moves.
+  //
   // adjust_castling_rights() is called after the move is performed.
   void adjust_castling_rights(Move move);
   void remove_piece_on(Bitboard sq);

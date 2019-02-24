@@ -1146,7 +1146,6 @@ std::string bb_to_pretty_str(Bitboard bb) {
   return board.to_pretty_str();
 }
 
-
 // Make these functions which return their static locals.
 
 Move castle_kingside_move(Color color, Board board) {
