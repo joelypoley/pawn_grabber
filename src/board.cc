@@ -627,6 +627,18 @@ std::vector<Move> Board::legal_moves() const {
   return res;
 }
 
+bool Board::is_capture_move(const Move& move) const {
+  const Color side_to_move = is_whites_move_ ? Color::white : Color::black;
+  return move.dst_square_ & enemies(side_to_move);
+}
+
+std::vector<Move> Board::legal_capture_moves() const {
+  std::vector<Move> res = legal_moves();
+  auto last_it = std::remove_if(res.begin(), res.end(), [this](const Move& move) {return !is_capture_move(move);});
+  res.erase(last_it, res.end());
+  return res;
+}
+
 // Remember to reset ep square and change castling rights after all of these.
 
 void Board::adjust_castling_rights(Move move) {

@@ -222,6 +222,8 @@ struct Board {
   bool is_king_attacked(Color side) const;
   bool is_pseudolegal_move_legal(Move move) const;
   std::vector<Move> legal_moves() const;
+  bool is_capture_move(const Move& move) const;
+  std::vector<Move> legal_capture_moves() const;
 
   // Methods for performing moves.
   //

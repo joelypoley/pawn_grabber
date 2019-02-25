@@ -1823,3 +1823,21 @@ TEST(Perft, Pos6) {
   // ASSERT_EQ(number_of_moves(board, 3), 89890);
   // ASSERT_EQ(number_of_moves(board, 4), 3894594);
 }
+
+TEST(CaptureMoves, Simple) {
+  Board board("3r2k1/2p2p1p/2Pb2p1/1p1R4/p1P5/P7/BP3rPP/1K1R4 b - - 0 28");
+  auto computed_moves = board.legal_capture_moves();
+  std::vector<Move> correct_moves = {
+      Move(str_to_square("f2"), str_to_square("g2"), Piece::rook,
+           MoveType::capture, board),
+      Move(str_to_square("f2"), str_to_square("b2"), Piece::rook,
+           MoveType::capture, board),
+      Move(str_to_square("d6"), str_to_square("a3"), Piece::bishop,
+           MoveType::capture, board),
+      Move(str_to_square("d6"), str_to_square("h2"), Piece::bishop,
+           MoveType::capture, board),
+      Move(str_to_square("b5"), str_to_square("c4"), Piece::pawn,
+           MoveType::capture, board)
+      };
+   EXPECT_TRUE(std::is_permutation(computed_moves.begin(), computed_moves.end(), correct_moves.begin()));
+}
