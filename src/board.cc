@@ -830,6 +830,22 @@ void Board::do_move(Move move) {
   // TODO: Implement the fifty move clock.
 }
 
+int static_evaluation() {
+  if (legal_moves().size() == 0) {
+    return is_whites_move_ ? -1000 : 1000;
+  }
+  const int pawn_value = 1;
+  const int rook_value = 5;
+  const int knight_value = 3;
+  const int bishop_vaue = 3;
+  const int queen_value = 9;
+  return pawn_value * (pop_count(white_pawns_) - pop_count(black_pawns))
+  + rook_value * (pop_count(white_rooks_) - pop_count(black_rooks))
+  + knight_value * (pop_count(white_knights_) - pop_count(black_knights_))
+  + bishop_value * (pop_count(white_bishops_) - pop_count(black_bishops_))
+  + queen_value * (pop_count(white_queens_) - pop_count(black_queens_));
+}
+
 void Board::zero_all_bitboards() {
   white_pawns_ = 0;
   white_rooks_ = 0;
@@ -1004,6 +1020,51 @@ bool operator==(const Move& lhs, const Move& rhs) {
                   lhs.move_type_, lhs.board_state_) ==
          std::tie(rhs.src_square_, rhs.dst_square_, rhs.piece_moving_,
                   rhs.move_type_, rhs.board_state_);
+}
+
+
+int evaluation(Board board, int depth) {
+  return alpha_beta(board, depth, -1000000, 1000000)
+}
+int alpha_beta(Board board, int depth, double alpha, double beta) {
+  auto moves = board.legal_moves();
+  if (depth == 0 || moves.size() == 0) {
+    return board.static_evaluation()
+  } 
+  if (board.is_whites_move_) {
+    int value = -1000000;
+    for (Move move : moves) {
+      Board child_board(board);
+      child_board.do_move(move);
+      value = std::max(value, alpha_beta(child_board, depth - 1, alpha, beta));
+      alpha = std::max(alpha, value);
+      if (alpha >= beta) {
+        break;
+      }
+    }
+    return value;
+  } else {
+    int value = 1000000;
+    for (Move move : moves) {
+      Board child_board(board);
+      child_board.do_move(move);
+      value = std::min(value, alpha_beta(child_board, depth - 1, alpha, beta));
+      beta = std::min(beta, value);
+      if (alpha >= beta) {
+        break;
+      }
+      return value;
+    }
+  }
+}
+
+int pop_count(Bitboard bb) {
+  int res = 0;
+  while (bb) {
+    bb &= bb - 1;
+    res += 1;
+  }
+  return res;
 }
 
 // Check that the bitboard has exactly one bit set.

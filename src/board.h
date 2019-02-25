@@ -240,12 +240,16 @@ struct Board {
   void undo_move(Move move);
   void do_move(Move move);
 
+  int static_evaluation() const;
+
   // Initialization helper methods.
   void zero_all_bitboards();
   void init_bitboards(absl::string_view pieces_fen);
   void init_is_whites_move(absl::string_view pieces_fen);
   void init_castling_rights(absl::string_view castling_rights_fen);
   void init_en_passant(absl::string_view algebraic_square);
+
+
 };
 
 bool operator==(const Board& lhs, const Board& rhs);
@@ -266,6 +270,10 @@ struct Move {
 
 bool operator==(const Move& lhs, const Move& rhs);
 
+int evaluation(Board board, int depth);
+int evaluation_impl(Board board, int depth, double alpha, double beta);
+
+int pop_count(Bitboard bb);
 bool is_square(Bitboard);
 int square_idx(Bitboard square);
 int rank_idx(Bitboard square);
