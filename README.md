@@ -4,7 +4,7 @@ To build.
 ```bash
 $ cd path/to/pawn_grabber
 $ mkdir build
-$ cs build
+$ cd build
 $ cmake ..
 $ make all
 $ # Run perft.
