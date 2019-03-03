@@ -270,8 +270,8 @@ struct Move {
 
 bool operator==(const Move& lhs, const Move& rhs);
 
-int evaluation(Board board, int depth);
-int evaluation_impl(Board board, int depth, double alpha, double beta);
+int evaluation(Board board, int depth, std::vector<Move>* pv);
+int alpha_beta(Board board, int depth, int alpha, int beta, std::vector<Move>* pv);
 
 int pop_count(Bitboard bb);
 bool is_square(Bitboard);

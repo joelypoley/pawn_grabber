@@ -54,7 +54,7 @@ add_subdirectory(lib/abseil-cpp-master)
 # BEGIN: stuff joel wrote
 ##############################################################################
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g -O3")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 # According to cmake I should do this.
 if(COMMAND cmake_policy)
@@ -70,6 +70,9 @@ enable_testing()
 add_executable(perft src/perft.cc src/board.cc )
 target_compile_options(perft PRIVATE -Wall -Wextra -Wconversion -Wsign-conversion)
 target_link_libraries(perft absl::strings absl::base absl::algorithm absl::optional absl::algorithm absl::time)
+
+add_executable(eval src/eval.cc src/board.cc )
+target_link_libraries(eval absl::strings absl::base absl::algorithm absl::optional absl::algorithm absl::time)
 
 add_executable(board_test src/board_test.cc src/board.cc )
 #target_compile_options(board_test PRIVATE -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic)
