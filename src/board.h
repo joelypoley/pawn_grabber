@@ -248,8 +248,6 @@ struct Board {
   void init_is_whites_move(absl::string_view pieces_fen);
   void init_castling_rights(absl::string_view castling_rights_fen);
   void init_en_passant(absl::string_view algebraic_square);
-
-
 };
 
 bool operator==(const Board& lhs, const Board& rhs);
@@ -271,7 +269,9 @@ struct Move {
 bool operator==(const Move& lhs, const Move& rhs);
 
 int evaluation(Board board, int depth, std::vector<Move>* pv);
-int alpha_beta(Board board, int depth, int alpha, int beta, std::vector<Move>* pv);
+int alpha_beta(Board board, int depth, int alpha, int beta,
+               std::vector<Move>* pv);
+int quiescence_search(Board board, int alpha, int beta, std::vector<Move>* pv);
 
 int pop_count(Bitboard bb);
 bool is_square(Bitboard);

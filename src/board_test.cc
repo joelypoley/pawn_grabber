@@ -1837,7 +1837,7 @@ TEST(CaptureMoves, Simple) {
       Move(str_to_square("d6"), str_to_square("h2"), Piece::bishop,
            MoveType::capture, board),
       Move(str_to_square("b5"), str_to_square("c4"), Piece::pawn,
-           MoveType::capture, board)
-      };
-   EXPECT_TRUE(std::is_permutation(computed_moves.begin(), computed_moves.end(), correct_moves.begin()));
+           MoveType::capture, board)};
+  EXPECT_TRUE(std::is_permutation(computed_moves.begin(), computed_moves.end(),
+                                  correct_moves.begin()));
 }

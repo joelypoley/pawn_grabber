@@ -634,7 +634,9 @@ bool Board::is_capture_move(const Move& move) const {
 
 std::vector<Move> Board::legal_capture_moves() const {
   std::vector<Move> res = legal_moves();
-  auto last_it = std::remove_if(res.begin(), res.end(), [this](const Move& move) {return !is_capture_move(move);});
+  auto last_it = std::remove_if(
+      res.begin(), res.end(),
+      [this](const Move& move) { return !is_capture_move(move); });
   res.erase(last_it, res.end());
   return res;
 }
@@ -839,11 +841,12 @@ int Board::static_evaluation() const {
   const int knight_value = 3;
   const int bishop_value = 3;
   const int queen_value = 9;
-  int res = pawn_value * (pop_count(white_pawns_) - pop_count(black_pawns_))
-  + rook_value * (pop_count(white_rooks_) - pop_count(black_rooks_))
-  + knight_value * (pop_count(white_knights_) - pop_count(black_knights_))
-  + bishop_value * (pop_count(white_bishops_) - pop_count(black_bishops_))
-  + queen_value * (pop_count(white_queens_) - pop_count(black_queens_));
+  int res =
+      pawn_value * (pop_count(white_pawns_) - pop_count(black_pawns_)) +
+      rook_value * (pop_count(white_rooks_) - pop_count(black_rooks_)) +
+      knight_value * (pop_count(white_knights_) - pop_count(black_knights_)) +
+      bishop_value * (pop_count(white_bishops_) - pop_count(black_bishops_)) +
+      queen_value * (pop_count(white_queens_) - pop_count(black_queens_));
   return res;
 }
 
@@ -1023,27 +1026,63 @@ bool operator==(const Move& lhs, const Move& rhs) {
                   rhs.move_type_, rhs.board_state_);
 }
 
-
 int evaluation(Board board, int depth, std::vector<Move>* pv) {
   return alpha_beta(board, depth, -1000000, 1000000, pv);
 }
 
-int alpha_beta(Board board, int depth, int alpha, int beta, std::vector<Move>* pv) {
+int alpha_beta(Board board, int depth, int alpha, int beta,
+               std::vector<Move>* pv) {
+  // std::string tabs(3-depth, '\t');
   ABSL_RAW_CHECK(pv->empty(), "pv not empty");
   auto moves = board.legal_moves();
   if (depth == 0 || moves.size() == 0) {
-    return board.static_evaluation();
-  } 
-  
+    // std::cout << tabs << "Evaulation = " <<  board.static_evaluation() <<
+    // '\n';
+    return quiescence_search(board, alpha, beta, pv);
+  }
+
   for (Move move : moves) {
     Board child_board(board);
     child_board.do_move(move);
     std::vector<Move> line;
+    // std::cout << tabs << "Move = " << move.to_pretty_str() << '\n';
     int score = -alpha_beta(child_board, depth - 1, -beta, -alpha, &line);
+    // std::cout << tabs << "Score = " << score << '\n';
+    if (score >= beta) {
+      return beta;
+    }
     if (score > alpha) {
-      if (score >= beta) {
-        return beta;
-      }
+      alpha = score;
+      pv->erase(pv->begin(), pv->end());
+      pv->push_back(move);
+      pv->insert(pv->end(), line.begin(), line.end());
+    }
+  }
+  return alpha;
+}
+
+int quiescence_search(Board board, int alpha, int beta, std::vector<Move>* pv) {
+  int score = board.static_evaluation() * (board.is_whites_move_ ? 1 : -1);
+  if (score >= beta) {
+    return beta;
+  }
+
+  if (score > alpha) {
+    alpha = score;
+  }
+
+  auto moves = board.legal_capture_moves();
+  for (Move move : moves) {
+    Board child_board(board);
+    child_board.do_move(move);
+    std::vector<Move> line;
+    // std::cout << tabs << "Move = " << move.to_pretty_str() << '\n';
+    int score = -quiescence_search(child_board, -beta, -alpha, &line);
+    // std::cout << tabs << "Score = " << score << '\n';
+    if (score >= beta) {
+      return beta;
+    }
+    if (score > alpha) {
       alpha = score;
       pv->erase(pv->begin(), pv->end());
       pv->push_back(move);
