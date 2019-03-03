@@ -833,6 +833,7 @@ void Board::do_move(Move move) {
 }
 
 int Board::static_evaluation() const {
+  // TODO: legal_moves.size() == 0 could be checkmate or stalemate.
   if (legal_moves().size() == 0) {
     return is_whites_move_ ? -1000 : 1000;
   }
